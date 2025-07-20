@@ -1,24 +1,37 @@
 "use client"
 
-import * as React from "react"
 import { type DateRange } from "react-day-picker"
-
 import { Calendar } from "@/components/ui/calendar"
 
-export function Calendar05() {
-    const [dateRange, setDateRange] = React.useState<DateRange | undefined>({
-        from: new Date(2025, 5, 12),
-        to: new Date(2025, 6, 15),
-    })
+type Calendar05Props = {
+    dateRange: DateRange | undefined
+    onDateChange: (range: DateRange | undefined) => void
+}
 
+function Calendar05({ dateRange, onDateChange }: Calendar05Props) {
     return (
         <Calendar
             mode="range"
             defaultMonth={dateRange?.from}
             selected={dateRange}
-            onSelect={setDateRange}
+            onSelect={onDateChange}
             numberOfMonths={2}
-            className="rounded-lg border shadow-sm"
         />
     )
 }
+
+type DateRangePopoverProps = {
+    dateRange: DateRange | undefined
+    onDateChange: (range: DateRange | undefined) => void
+}
+
+export function DateRangePopover({ dateRange, onDateChange }: DateRangePopoverProps) {
+    return (
+        <Calendar05
+            dateRange={dateRange}
+            onDateChange={onDateChange}
+        />
+    )
+}
+
+

@@ -13,8 +13,7 @@ import {
     SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { ModeToggle } from "@/components/mode-toggle";
-import { DataTable } from "@/components/data-table";
-import data from "../environment/data.json";
+import SensorDataTable from "@/components/sensor-table";
 
 export default function Historical() {
     return (
@@ -45,7 +44,7 @@ export default function Historical() {
                     <ModeToggle />
                 </header>
                 <div className="flex flex-1 flex-col gap-4 pt-0 mb-10">
-                    <DataTable data={data} />
+                    <SensorDataTable />
                 </div>
             </SidebarInset>
         </SidebarProvider>
