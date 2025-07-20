@@ -6,6 +6,37 @@ const knex = require("@db/knex");
 
 router.get("/", async (req, res) => {
     try {
+        const { page = 1, limit = 15 } = req.query;
+        const parsedLimit = parseInt(limit);
+        const parsedPage = parseInt(page);
+        const offset = (parsedPage - 1) * parsedLimit;
+
+        const rows = await knex("devices").
+            select("*")
+            .orderBy("device_name", "asc")
+            .limit(parsedLimit)
+            .offset(offset);
+
+        const totalResult = await knex("devices").count("* as count").first();
+        const total = totalResult?.count || 0;
+
+        res.json({
+            data: rows,
+            pagination: {
+                page: parsedPage,
+                limit: parsedLimit,
+                total,
+                pages: Math.ceil(total / parsedLimit)
+            }
+        });
+    } catch (err) {
+        console.error("GET /devices/paginated error:", err.message);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+});
+
+router.get("/list", async (req, res) => {
+    try {
         const rows = await knex("devices").select("*");
         res.json(rows);
     } catch (err) {
@@ -13,6 +44,7 @@ router.get("/", async (req, res) => {
         res.status(500).json({ error: "Internal Server Error" });
     }
 });
+
 
 router.post("/", async (req, res) => {
     const { mac_address, location, status } = req.body;
