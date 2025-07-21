@@ -36,7 +36,29 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+
 import { toast } from "sonner";
+
+import {
+    Dialog,
+    DialogClose,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { CheckCircle, XCircle } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import {
+    Select,
+    SelectTrigger,
+    SelectValue,
+    SelectContent,
+    SelectItem,
+} from "@/components/ui/select";
 
 type DeviceData = {
     device_name: string;
@@ -59,9 +81,13 @@ export default function DeviceDataTable() {
     const [selectedDevice, setSelectedDevice] = useState<{
         mac: string;
         name: string;
+        location: string;
+        status: string;
     }>({
         mac: "",
         name: "",
+        location: "",
+        status: "",
     });
 
     const [pagination, setPagination] = useState<PaginationInfo>({
@@ -107,6 +133,7 @@ export default function DeviceDataTable() {
         return format(parseISO(dateStr), "yyyy-MM-dd HH:mm:ss");
     };
     const [openDialog, setOpenDialog] = useState(false);
+    const [editDialog, setEditDialog] = useState(false);
     const handleDelete = async (mac: string) => {
         try {
             await axios.delete(
@@ -145,7 +172,28 @@ export default function DeviceDataTable() {
                                         <TableCell>{row.device_name}</TableCell>
                                         <TableCell>{row.mac_address}</TableCell>
                                         <TableCell>{row.location}</TableCell>
-                                        <TableCell>{row.status}</TableCell>
+                                        <TableCell>
+                                            {" "}
+                                            <Badge
+                                                variant="outline"
+                                                className={
+                                                    row.status === "Active"
+                                                        ? "bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-400"
+                                                        : "bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-400"
+                                                }>
+                                                {row.status === "Active" ? (
+                                                    <>
+                                                        <CheckCircle className="w-4 h-4" />
+                                                        Active
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <XCircle className="w-4 h-4" />
+                                                        Inactive
+                                                    </>
+                                                )}
+                                            </Badge>
+                                        </TableCell>
                                         <TableCell>
                                             {formatDate(row.created_at)}
                                         </TableCell>
@@ -165,7 +213,17 @@ export default function DeviceDataTable() {
                                                 <DropdownMenuContent
                                                     align="end"
                                                     className="w-32">
-                                                    <DropdownMenuItem>
+                                                    <DropdownMenuItem
+                                                        onClick={() => {
+                                                            setEditDialog(true);
+                                                            setSelectedDevice({
+                                                                mac: row.mac_address,
+                                                                name: row.device_name,
+                                                                location:
+                                                                    row.location,
+                                                                status: row.status,
+                                                            });
+                                                        }}>
                                                         Edit
                                                     </DropdownMenuItem>
                                                     <DropdownMenuSeparator />
@@ -175,6 +233,9 @@ export default function DeviceDataTable() {
                                                             setSelectedDevice({
                                                                 mac: row.mac_address,
                                                                 name: row.device_name,
+                                                                location:
+                                                                    row.location,
+                                                                status: row.status,
                                                             });
                                                         }}
                                                         variant="destructive">
@@ -228,6 +289,114 @@ export default function DeviceDataTable() {
                                     </AlertDialogFooter>
                                 </AlertDialogContent>
                             </AlertDialog>
+                            <Dialog
+                                open={editDialog}
+                                onOpenChange={setEditDialog}>
+                                <form>
+                                    <DialogContent className="sm:max-w-2xl">
+                                        <DialogHeader>
+                                            <DialogTitle>
+                                                Edit Device
+                                            </DialogTitle>
+                                            <DialogDescription>
+                                                Make changes to device
+                                                information. Click save when
+                                                done.
+                                            </DialogDescription>
+                                        </DialogHeader>
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-2">
+                                            <div className="space-y-2">
+                                                <Label htmlFor="mac">
+                                                    MAC Address
+                                                </Label>
+                                                <Input
+                                                    id="mac"
+                                                    name="mac"
+                                                    value={selectedDevice.mac}
+                                                    disabled
+                                                    className="bg-muted text-muted-foreground cursor-not-allowed"
+                                                />
+                                            </div>
+                                            <div className="space-y-2">
+                                                <Label htmlFor="name">
+                                                    Device Name
+                                                </Label>
+                                                <Input
+                                                    id="name"
+                                                    name="name"
+                                                    value={selectedDevice.name}
+                                                    onChange={(e) =>
+                                                        setSelectedDevice({
+                                                            ...selectedDevice,
+                                                            name: e.target
+                                                                .value,
+                                                        })
+                                                    }
+                                                />
+                                            </div>
+                                            <div className="space-y-2">
+                                                <Label htmlFor="status">
+                                                    Status
+                                                </Label>
+                                                <Select
+                                                    value={
+                                                        selectedDevice.status
+                                                    }
+                                                    onValueChange={(value) =>
+                                                        setSelectedDevice({
+                                                            ...selectedDevice,
+                                                            status: value,
+                                                        })
+                                                    }>
+                                                    <SelectTrigger
+                                                        id="status"
+                                                        name="status"
+                                                        className="w-full">
+                                                        <SelectValue placeholder="Select status" />
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        <SelectItem value="Active">
+                                                            Active
+                                                        </SelectItem>
+                                                        <SelectItem value="Inactive">
+                                                            Inactive
+                                                        </SelectItem>
+                                                    </SelectContent>
+                                                </Select>
+                                            </div>
+                                            <div className="space-y-2">
+                                                <Label htmlFor="location">
+                                                    Location
+                                                </Label>
+                                                <Input
+                                                    id="location"
+                                                    name="location"
+                                                    value={
+                                                        selectedDevice.location
+                                                    }
+                                                    onChange={(e) =>
+                                                        setSelectedDevice({
+                                                            ...selectedDevice,
+                                                            location:
+                                                                e.target.value,
+                                                        })
+                                                    }
+                                                />
+                                            </div>
+                                        </div>
+                                        <DialogFooter>
+                                            <DialogClose asChild>
+                                                <Button variant="outline">
+                                                    Cancel
+                                                </Button>
+                                            </DialogClose>
+                                            <Button type="submit">
+                                                Save changes
+                                            </Button>
+                                        </DialogFooter>
+                                    </DialogContent>
+                                </form>
+                            </Dialog>
                         </TableBody>
                     </Table>
                 </div>
