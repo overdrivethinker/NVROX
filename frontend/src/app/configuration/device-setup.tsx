@@ -14,6 +14,10 @@ import {
 } from "@/components/ui/sidebar";
 import { ModeToggle } from "@/components/mode-toggle";
 import DeviceDataTable from "@/components/device-table";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Plus, Search } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 export default function DeviceSetup() {
     return (
@@ -43,7 +47,37 @@ export default function DeviceSetup() {
                     </div>
                     <ModeToggle />
                 </header>
-                <div className="flex flex-1 flex-col gap-4 pt-0 mb-10">
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between px-2 lg:px-6 w-full">
+                    <div className="flex flex-wrap gap-4 items-end">
+                        <div className="flex flex-col min-w-[200px]">
+                            <Label
+                                htmlFor="device-selector"
+                                className="mb-2 text-sm font-medium">
+                                Search Device
+                            </Label>
+                            <Input
+                                id="device-selector"
+                                type="text"
+                                placeholder="Enter device name or MAC"
+                                className="text-sm"
+                            />
+                        </div>
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            className="h-9 mt-6">
+                            <Search className="mr-2 h-4 w-4" /> Search
+                        </Button>
+                    </div>
+
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        className="h-9 w-fit mt-2 sm:mt-6">
+                        <Plus className="mr-2 h-4 w-4" /> Add Device
+                    </Button>
+                </div>
+                <div className="flex flex-1 flex-col gap-4 pt-0 mt-3">
                     <DeviceDataTable />
                 </div>
             </SidebarInset>

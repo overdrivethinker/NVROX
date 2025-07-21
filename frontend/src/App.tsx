@@ -7,12 +7,13 @@ import Historical from "./app/environment/historical";
 import MonthlyReport from "./app/environment/monthly-reports";
 import DeviceSetup from "@/app/configuration/device-setup";
 import UserAccess from "./app/configuration/user-acccess";
+import { Toaster } from "@/components/ui/sonner";
 
 function App() {
     return (
-        <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
+        <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
+            <Toaster position="top-center" />
             <Routes>
-                {/* Default route */}
                 <Route path="/" element={<Navigate to="overview" replace />} />
                 <Route path="overview" element={<Overview />} />
                 <Route path="alert-warning" element={<AlertWarning />} />

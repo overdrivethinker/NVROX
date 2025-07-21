@@ -11,8 +11,8 @@ router.get("/", async (req, res) => {
         const parsedPage = parseInt(page);
         const offset = (parsedPage - 1) * parsedLimit;
 
-        const rows = await knex("devices").
-            select("*")
+        const rows = await knex("devices")
+            .select("*")
             .orderBy("device_name", "asc")
             .limit(parsedLimit)
             .offset(offset);
@@ -26,8 +26,8 @@ router.get("/", async (req, res) => {
                 page: parsedPage,
                 limit: parsedLimit,
                 total,
-                pages: Math.ceil(total / parsedLimit)
-            }
+                pages: Math.ceil(total / parsedLimit),
+            },
         });
     } catch (err) {
         console.error("GET /devices/paginated error:", err.message);
@@ -45,6 +45,23 @@ router.get("/list", async (req, res) => {
     }
 });
 
+router.delete("/:mac", async (req, res) => {
+    const { mac } = req.params;
+    try {
+        const deleted = await knex("devices")
+            .delete()
+            .where({ mac_address: mac })
+            .del();
+        if (deleted) {
+            res.status(200).json({ message: "Device deleted successfully." });
+        } else {
+            res.status(404).json({ message: "Device not found." });
+        }
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+});
 
 router.post("/", async (req, res) => {
     const { mac_address, location, status } = req.body;
