@@ -30,8 +30,8 @@ import {
 import { toast } from "sonner";
 import { CheckCircle, XCircle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { DeleteDeviceDialog } from "@/app/configuration/delete-device-dialog";
-import { EditDeviceDialog } from "@/app/configuration/edit-device-dialog";
+import { DeleteDeviceDialog } from "@/app/configuration/dialog/delete-device-dialog";
+import { EditDeviceDialog } from "@/app/configuration/dialog/edit-device-dialog";
 
 type DeviceData = {
     device_name: string;
