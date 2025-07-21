@@ -18,16 +18,6 @@ import {
     TableRow,
 } from "@/components/ui/table";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
-import {
-    AlertDialog,
-    AlertDialogAction,
-    AlertDialogCancel,
-    AlertDialogContent,
-    AlertDialogDescription,
-    AlertDialogFooter,
-    AlertDialogHeader,
-    AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
 
 import {
     DropdownMenu,
@@ -38,27 +28,10 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 import { toast } from "sonner";
-
-import {
-    Dialog,
-    DialogClose,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { CheckCircle, XCircle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import {
-    Select,
-    SelectTrigger,
-    SelectValue,
-    SelectContent,
-    SelectItem,
-} from "@/components/ui/select";
+import { DeleteDeviceDialog } from "@/app/configuration/delete-device-dialog";
+import { EditDeviceDialog } from "@/app/configuration/edit-device-dialog";
 
 type DeviceData = {
     device_name: string;
@@ -257,146 +230,22 @@ export default function DeviceDataTable() {
                                     </TableCell>
                                 </TableRow>
                             )}
-                            <AlertDialog
+                            <DeleteDeviceDialog
                                 open={openDialog}
-                                onOpenChange={setOpenDialog}>
-                                <AlertDialogContent>
-                                    <AlertDialogHeader>
-                                        <AlertDialogTitle>
-                                            Are you absolutely sure?
-                                        </AlertDialogTitle>
-                                        <AlertDialogDescription>
-                                            This will permanently delete the
-                                            device{" "}
-                                            <strong>
-                                                {selectedDevice?.name}
-                                            </strong>
-                                            . This action cannot be undone.
-                                        </AlertDialogDescription>
-                                    </AlertDialogHeader>
-                                    <AlertDialogFooter>
-                                        <AlertDialogCancel>
-                                            Cancel
-                                        </AlertDialogCancel>
-                                        <AlertDialogAction
-                                            onClick={() => {
-                                                handleDelete(
-                                                    selectedDevice?.mac
-                                                );
-                                            }}>
-                                            Delete
-                                        </AlertDialogAction>
-                                    </AlertDialogFooter>
-                                </AlertDialogContent>
-                            </AlertDialog>
-                            <Dialog
+                                onOpenChange={setOpenDialog}
+                                onDelete={handleDelete}
+                                device={selectedDevice}
+                            />
+                            <EditDeviceDialog
                                 open={editDialog}
-                                onOpenChange={setEditDialog}>
-                                <form>
-                                    <DialogContent className="sm:max-w-2xl">
-                                        <DialogHeader>
-                                            <DialogTitle>
-                                                Edit Device
-                                            </DialogTitle>
-                                            <DialogDescription>
-                                                Make changes to device
-                                                information. Click save when
-                                                done.
-                                            </DialogDescription>
-                                        </DialogHeader>
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-2">
-                                            <div className="space-y-2">
-                                                <Label htmlFor="mac">
-                                                    MAC Address
-                                                </Label>
-                                                <Input
-                                                    id="mac"
-                                                    name="mac"
-                                                    value={selectedDevice.mac}
-                                                    disabled
-                                                    className="bg-muted text-muted-foreground cursor-not-allowed"
-                                                />
-                                            </div>
-                                            <div className="space-y-2">
-                                                <Label htmlFor="name">
-                                                    Device Name
-                                                </Label>
-                                                <Input
-                                                    id="name"
-                                                    name="name"
-                                                    value={selectedDevice.name}
-                                                    onChange={(e) =>
-                                                        setSelectedDevice({
-                                                            ...selectedDevice,
-                                                            name: e.target
-                                                                .value,
-                                                        })
-                                                    }
-                                                />
-                                            </div>
-                                            <div className="space-y-2">
-                                                <Label htmlFor="status">
-                                                    Status
-                                                </Label>
-                                                <Select
-                                                    value={
-                                                        selectedDevice.status
-                                                    }
-                                                    onValueChange={(value) =>
-                                                        setSelectedDevice({
-                                                            ...selectedDevice,
-                                                            status: value,
-                                                        })
-                                                    }>
-                                                    <SelectTrigger
-                                                        id="status"
-                                                        name="status"
-                                                        className="w-full">
-                                                        <SelectValue placeholder="Select status" />
-                                                    </SelectTrigger>
-                                                    <SelectContent>
-                                                        <SelectItem value="Active">
-                                                            Active
-                                                        </SelectItem>
-                                                        <SelectItem value="Inactive">
-                                                            Inactive
-                                                        </SelectItem>
-                                                    </SelectContent>
-                                                </Select>
-                                            </div>
-                                            <div className="space-y-2">
-                                                <Label htmlFor="location">
-                                                    Location
-                                                </Label>
-                                                <Input
-                                                    id="location"
-                                                    name="location"
-                                                    value={
-                                                        selectedDevice.location
-                                                    }
-                                                    onChange={(e) =>
-                                                        setSelectedDevice({
-                                                            ...selectedDevice,
-                                                            location:
-                                                                e.target.value,
-                                                        })
-                                                    }
-                                                />
-                                            </div>
-                                        </div>
-                                        <DialogFooter>
-                                            <DialogClose asChild>
-                                                <Button variant="outline">
-                                                    Cancel
-                                                </Button>
-                                            </DialogClose>
-                                            <Button type="submit">
-                                                Save changes
-                                            </Button>
-                                        </DialogFooter>
-                                    </DialogContent>
-                                </form>
-                            </Dialog>
+                                onOpenChange={setEditDialog}
+                                device={selectedDevice}
+                                setDevice={setSelectedDevice}
+                                onSubmit={() => {
+                                    setEditDialog(false);
+                                    toast.success("Device updated");
+                                }}
+                            />
                         </TableBody>
                     </Table>
                 </div>
