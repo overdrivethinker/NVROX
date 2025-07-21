@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { AppSidebar } from "@/components/app-sidebar";
 import {
     Breadcrumb,
@@ -18,8 +19,25 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Plus, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { AddDeviceDialog } from "./dialog/add-device-dialog";
 
 export default function DeviceSetup() {
+    const [addDialogOpen, setAddDialogOpen] = useState(false);
+    const [newDevice, setNewDevice] = useState({
+        mac: "",
+        name: "",
+        location: "",
+        status: "Active", // default
+    });
+
+    const handleAddSubmit = async () => {
+        console.log("Adding device:", newDevice);
+        // TODO: Panggil API di sini untuk simpan data
+        setAddDialogOpen(false);
+        // Clear form jika mau:
+        setNewDevice({ mac: "", name: "", location: "", status: "Active" });
+    };
+
     return (
         <SidebarProvider>
             <AppSidebar />
@@ -73,10 +91,18 @@ export default function DeviceSetup() {
                     <Button
                         variant="outline"
                         size="sm"
-                        className="h-9 w-fit mt-2 sm:mt-6">
+                        className="h-9 w-fit mt-2 sm:mt-6"
+                        onClick={() => setAddDialogOpen(true)}>
                         <Plus className="mr-2 h-4 w-4" /> Add Device
                     </Button>
                 </div>
+                <AddDeviceDialog
+                    open={addDialogOpen}
+                    onOpenChange={setAddDialogOpen}
+                    device={newDevice}
+                    setDevice={setNewDevice}
+                    onSubmit={handleAddSubmit}
+                />
                 <div className="flex flex-1 flex-col gap-4 pt-0 mt-3">
                     <DeviceDataTable />
                 </div>
