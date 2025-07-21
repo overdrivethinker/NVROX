@@ -1,8 +1,8 @@
-import { Moon, Sun, Laptop } from "lucide-react";
+import { Moon, Sun } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useTheme } from "@/hooks/use-theme";
 
-const themes = ["light", "dark", "system"] as const;
+const themes = ["light", "dark"] as const;
 
 export function ModeToggle() {
     const { theme, setTheme } = useTheme();
@@ -18,9 +18,8 @@ export function ModeToggle() {
     };
 
     const renderIcon = () => {
-        if (theme === "light") return <Sun className="h-4 w-4" />;
-        if (theme === "dark") return <Moon className="h-4 w-4" />;
-        return <Laptop className="h-4 w-4" />;
+        if (theme === "light") return <Moon className="h-4 w-4" />;
+        if (theme === "dark") return <Sun className="h-4 w-4" />;
     };
 
     return (
