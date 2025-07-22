@@ -230,24 +230,24 @@ export default function DeviceDataTable() {
                                     </TableCell>
                                 </TableRow>
                             )}
-                            <DeleteDeviceDialog
-                                open={openDialog}
-                                onOpenChange={setOpenDialog}
-                                onDelete={handleDelete}
-                                device={selectedDevice}
-                            />
-                            <EditDeviceDialog
-                                open={editDialog}
-                                onOpenChange={setEditDialog}
-                                device={selectedDevice}
-                                setDevice={setSelectedDevice}
-                                onSubmit={() => {
-                                    setEditDialog(false);
-                                    toast.success("Device updated");
-                                }}
-                            />
                         </TableBody>
                     </Table>
+                    <DeleteDeviceDialog
+                        open={openDialog}
+                        onOpenChange={setOpenDialog}
+                        onDelete={handleDelete}
+                        device={selectedDevice}
+                    />
+                    <EditDeviceDialog
+                        open={editDialog}
+                        onOpenChange={setEditDialog}
+                        device={selectedDevice}
+                        setDevice={setSelectedDevice}
+                        onSubmit={() => {
+                            setEditDialog(false);
+                            toast.success("Device updated");
+                        }}
+                    />
                 </div>
                 <div className="flex items-center justify-between">
                     <div className="text-muted-foreground text-sm">
