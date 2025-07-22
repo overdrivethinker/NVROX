@@ -292,6 +292,7 @@ export function ChartAreaInteractive() {
                                     value: chartConfig.temp.label,
                                     angle: -90,
                                     position: "outsideLeft",
+                                    dx: -20,
                                     style: {
                                         textAnchor: "middle",
                                         fill: chartConfig.temp.color,
@@ -390,6 +391,7 @@ export function ChartAreaInteractive() {
                                     value: chartConfig.humid.label,
                                     angle: -90,
                                     position: "outsideLeft",
+                                    dx: -20,
                                     style: {
                                         textAnchor: "middle",
                                         fill: chartConfig.humid.color,
