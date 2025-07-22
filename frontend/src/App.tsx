@@ -4,7 +4,7 @@ import Overview from "@/app/dashboard/overview";
 import AlertWarning from "./app/dashboard/alert-warning";
 import LiveMonitoring from "./app/environment/live-monitoring";
 import Historical from "./app/environment/historical";
-import MonthlyReport from "./app/environment/monthly-reports";
+import RecentCondition from "./app/environment/recent-condition";
 import DeviceSetup from "@/app/configuration/device-setup";
 import UserAccess from "./app/configuration/user-acccess";
 import LoginPage from "./app/login/page";
@@ -21,7 +21,7 @@ function App() {
                 <Route path="alert-warning" element={<AlertWarning />} />
                 <Route path="live-monitoring" element={<LiveMonitoring />} />
                 <Route path="historical-logs" element={<Historical />} />
-                <Route path="monthly-reports" element={<MonthlyReport />} />
+                <Route path="recent-condition" element={<RecentCondition />} />
                 <Route path="device-setup" element={<DeviceSetup />} />
                 <Route path="user-access" element={<UserAccess />} />
             </Routes>

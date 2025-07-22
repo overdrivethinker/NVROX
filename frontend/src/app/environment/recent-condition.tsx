@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/sidebar";
 import { ModeToggle } from "@/components/mode-toggle";
 import { ChartAreaInteractive } from "@/components/chart-area-interactive";
-export default function MonthlyReport() {
+export default function RecentCondition() {
     return (
         <SidebarProvider>
             <AppSidebar />
@@ -34,7 +34,7 @@ export default function MonthlyReport() {
                                 <BreadcrumbSeparator className="hidden md:block" />
                                 <BreadcrumbItem>
                                     <BreadcrumbPage>
-                                        Monthly Reports
+                                        Recent Condition
                                     </BreadcrumbPage>
                                 </BreadcrumbItem>
                             </BreadcrumbList>

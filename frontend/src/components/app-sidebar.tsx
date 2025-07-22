@@ -36,7 +36,7 @@ const navData = [
         items: [
             { title: "Live Monitoring", url: "/live-monitoring" },
             { title: "Historical Logs", url: "/historical-logs" },
-            { title: "Monthly Reports", url: "/monthly-reports" },
+            { title: "Recent Condition", url: "/recent-condition" },
         ],
     },
     {
