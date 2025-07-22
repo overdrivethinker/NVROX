@@ -113,7 +113,9 @@ export default function DeviceDataTable() {
                 `${import.meta.env.VITE_API_BASE_URL}/devices/${mac}`
             );
             await fetchData();
-            toast.success(`Device ${selectedDevice.name} deleted`);
+            toast.success(
+                `${selectedDevice.name} successfully removed from the system`
+            );
         } catch (err) {
             console.error("Delete error:", err);
             toast.error("Delete Failed");
