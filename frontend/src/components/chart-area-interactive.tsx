@@ -1,6 +1,5 @@
 "use client";
 import { useState } from "react";
-import * as React from "react";
 import {
     Area,
     AreaChart,
@@ -11,7 +10,6 @@ import {
     ResponsiveContainer,
 } from "recharts";
 
-import { useIsMobile } from "@/hooks/use-mobile";
 import {
     Card,
     CardAction,
@@ -43,100 +41,62 @@ type Limits = {
 };
 
 export const description = "An interactive area chart";
-
-const chartData = [
-    { date: "2024-04-01", temp: 26.2, humid: 67 },
-    { date: "2024-04-02", temp: 27.1, humid: 70 },
-    { date: "2024-04-03", temp: 28.3, humid: 68 },
-    { date: "2024-04-04", temp: 29.0, humid: 72 },
-    { date: "2024-04-05", temp: 30.4, humid: 75 },
-    { date: "2024-04-06", temp: 31.1, humid: 78 },
-    { date: "2024-04-07", temp: 30.0, humid: 70 },
-    { date: "2024-04-08", temp: 32.5, humid: 76 },
-    { date: "2024-04-09", temp: 25.6, humid: 60 },
-    { date: "2024-04-10", temp: 27.8, humid: 69 },
-    { date: "2024-04-11", temp: 29.2, humid: 73 },
-    { date: "2024-04-12", temp: 28.7, humid: 71 },
-    { date: "2024-04-13", temp: 30.0, humid: 79 },
-    { date: "2024-04-14", temp: 26.5, humid: 65 },
-    { date: "2024-04-15", temp: 25.9, humid: 63 },
-    { date: "2024-04-16", temp: 26.4, humid: 66 },
-    { date: "2024-04-17", temp: 32.0, humid: 81 },
-    { date: "2024-04-18", temp: 31.3, humid: 83 },
-    { date: "2024-04-19", temp: 28.5, humid: 68 },
-    { date: "2024-04-20", temp: 24.7, humid: 62 },
-    { date: "2024-04-21", temp: 26.2, humid: 67 },
-    { date: "2024-04-22", temp: 27.5, humid: 66 },
-    { date: "2024-04-23", temp: 26.3, humid: 71 },
-    { date: "2024-04-24", temp: 30.8, humid: 75 },
-    { date: "2024-04-25", temp: 28.0, humid: 74 },
-    { date: "2024-04-26", temp: 25.3, humid: 61 },
-    { date: "2024-04-27", temp: 30.6, humid: 82 },
-    { date: "2024-04-28", temp: 26.0, humid: 68 },
-    { date: "2024-04-29", temp: 29.5, humid: 72 },
-    { date: "2024-04-30", temp: 32.2, humid: 80 },
-    { date: "2024-05-01", temp: 27.2, humid: 69 },
-    { date: "2024-05-02", temp: 29.0, humid: 76 },
-    { date: "2024-05-03", temp: 28.1, humid: 68 },
-    { date: "2024-05-04", temp: 30.7, humid: 82 },
-    { date: "2024-05-05", temp: 33.0, humid: 85 },
-    { date: "2024-05-06", temp: 33.8, humid: 88 },
-    { date: "2024-05-07", temp: 31.2, humid: 77 },
-    { date: "2024-05-08", temp: 26.4, humid: 69 },
-    { date: "2024-05-09", temp: 27.9, humid: 67 },
-    { date: "2024-05-10", temp: 29.1, humid: 79 },
-    { date: "2024-05-11", temp: 30.2, humid: 74 },
-    { date: "2024-05-12", temp: 27.6, humid: 71 },
-    { date: "2024-05-13", temp: 27.4, humid: 66 },
-    { date: "2024-05-14", temp: 32.4, humid: 84 },
-    { date: "2024-05-15", temp: 33.1, humid: 81 },
-    { date: "2024-05-16", temp: 30.7, humid: 78 },
-    { date: "2024-05-17", temp: 33.5, humid: 82 },
-    { date: "2024-05-18", temp: 29.6, humid: 75 },
-    { date: "2024-05-19", temp: 27.3, humid: 68 },
-    { date: "2024-05-20", temp: 26.5, humid: 70 },
-    { date: "2024-05-21", temp: 25.1, humid: 64 },
-    { date: "2024-05-22", temp: 24.9, humid: 61 },
-    { date: "2024-05-23", temp: 28.2, humid: 75 },
-    { date: "2024-05-24", temp: 29.3, humid: 71 },
-    { date: "2024-05-25", temp: 27.8, humid: 73 },
-    { date: "2024-05-26", temp: 28.0, humid: 66 },
-    { date: "2024-05-27", temp: 31.9, humid: 84 },
-    { date: "2024-05-28", temp: 28.4, humid: 70 },
-    { date: "2024-05-29", temp: 25.0, humid: 63 },
-    { date: "2024-05-30", temp: 30.0, humid: 76 },
-    { date: "2024-05-31", temp: 26.3, humid: 70 },
-    { date: "2024-06-01", temp: 26.1, humid: 68 },
-    { date: "2024-06-02", temp: 32.9, humid: 83 },
-    { date: "2024-06-03", temp: 25.7, humid: 65 },
-    { date: "2024-06-04", temp: 31.8, humid: 80 },
-    { date: "2024-06-05", temp: 24.8, humid: 64 },
-    { date: "2024-06-06", temp: 29.3, humid: 72 },
-    { date: "2024-06-07", temp: 30.1, humid: 78 },
-    { date: "2024-06-08", temp: 30.6, humid: 74 },
-    { date: "2024-06-09", temp: 31.7, humid: 86 },
-    { date: "2024-06-10", temp: 26.7, humid: 69 },
-    { date: "2024-06-11", temp: 25.4, humid: 67 },
-    { date: "2024-06-12", temp: 33.2, humid: 84 },
-    { date: "2024-06-13", temp: 24.7, humid: 62 },
-    { date: "2024-06-14", temp: 32.5, humid: 79 },
-    { date: "2024-06-15", temp: 30.3, humid: 76 },
-    { date: "2024-06-16", temp: 31.1, humid: 73 },
-    { date: "2024-06-17", temp: 33.0, humid: 89 },
-    { date: "2024-06-18", temp: 25.9, humid: 66 },
-    { date: "2024-06-19", temp: 29.4, humid: 72 },
-    { date: "2024-06-20", temp: 31.0, humid: 81 },
-    { date: "2024-06-21", temp: 26.6, humid: 70 },
-    { date: "2024-06-22", temp: 29.8, humid: 74 },
-    { date: "2024-06-23", temp: 33.4, humid: 88 },
-    { date: "2024-06-24", temp: 25.5, humid: 68 },
-    { date: "2024-06-25", temp: 25.8, humid: 69 },
-    { date: "2024-06-26", temp: 31.6, humid: 80 },
-    { date: "2024-06-27", temp: 32.4, humid: 85 },
-    { date: "2024-06-28", temp: 26.4, humid: 67 },
-    { date: "2024-06-29", temp: 25.7, humid: 65 },
-    { date: "2024-06-30", temp: 32.0, humid: 82 },
+const fullDayData = [
+    { date: "2025-07-20", temp: 26.4, humid: 65 },
+    { date: "2025-07-21", temp: 28.1, humid: 70 },
+    { date: "2025-07-22", temp: 27.3, humid: 68 },
 ];
+
+function getRandomOffset(range: number) {
+    return (Math.random() * range * 2 - range); // e.g. range = 1 → -1 to +1
+}
+
+function dailyPattern(hour: number, peakHour: number, amplitude: number) {
+    // Pola sinus naik turun sehari, puncak di peakHour
+    const radians = ((hour - peakHour) / 24) * 2 * Math.PI;
+    return amplitude * Math.cos(radians);
+}
+
+const chartData = fullDayData.flatMap((entry) => {
+    const [year, month, day] = entry.date.split("-").map(Number);
+
+    let tempPrev = entry.temp + getRandomOffset(1.5);
+    let humidPrev = entry.humid + getRandomOffset(2);
+
+    return Array.from({ length: 24 }, (_, hour) => {
+        // Pola harian (misal suhu puncak jam 14)
+        const tempPattern = dailyPattern(hour, 14, 4); // ±4°C daily variation
+        const humidPattern = dailyPattern(hour, 6, 10); // ±10% RH daily variation (misal pagi)
+
+        // Random walk step kecil + noise moderate
+        tempPrev =
+            tempPrev * 0.7 +
+            (entry.temp + tempPattern) * 0.3 +
+            (Math.random() - 0.5) * 1.5;
+        humidPrev =
+            humidPrev * 0.7 +
+            (entry.humid + humidPattern) * 0.3 +
+            (Math.random() - 0.5) * 3;
+
+        // Fluktuasi min/max sekitar nilai tengah
+        const tempFluctuation = 1 + Math.random() * 1.5; // 1 – 2.5°C
+        const humidFluctuation = 3 + Math.random() * 5; // 3 – 8%
+
+        const tempMin = +(tempPrev - tempFluctuation).toFixed(1);
+        const tempMax = +(tempPrev + tempFluctuation).toFixed(1);
+
+        const humidMin = Math.max(0, +(humidPrev - humidFluctuation).toFixed(0));
+        const humidMax = Math.min(100, +(humidPrev + humidFluctuation).toFixed(0));
+
+        return {
+            datetime: new Date(year, month - 1, day, hour).toISOString(),
+            tempMin,
+            tempMax,
+            humidMin,
+            humidMax,
+        };
+    });
+});
 
 const chartConfig = {
     temp: {
@@ -156,40 +116,40 @@ export function ChartAreaInteractive() {
         humidMin: 50,
         humidMax: 75,
     };
-    const isMobile = useIsMobile();
-    const [timeRange, setTimeRange] = React.useState("90d");
-
-    React.useEffect(() => {
-        if (isMobile) {
-            setTimeRange("7d");
-        }
-    }, [isMobile]);
+    const [timeRange, setTimeRange] = useState<"today" | "yesterday" | "2daysago">("today");
 
     const filteredData = chartData.filter((item) => {
-        const date = new Date(item.date);
-        const referenceDate = new Date("2024-06-30");
-        let daysToSubtract = 90;
-        if (timeRange === "30d") {
-            daysToSubtract = 30;
-        } else if (timeRange === "7d") {
-            daysToSubtract = 7;
-        }
-        const startDate = new Date(referenceDate);
-        startDate.setDate(startDate.getDate() - daysToSubtract);
-        return date >= startDate;
+        const itemDate = new Date(item.datetime);
+        const now = new Date();
+        const dateOnly = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate());
+        const itemDateOnly = dateOnly(itemDate);
+        const today = dateOnly(now);
+        const diffDays = Math.floor((today.getTime() - itemDateOnly.getTime()) / (1000 * 60 * 60 * 24));
+
+        const match = {
+            today: 0,
+            yesterday: 1,
+            "2daysago": 2,
+        };
+
+        return diffDays === match[timeRange];
     });
+
+
     const [selectedMac, setSelectedMac] = useState<string | undefined>(
         undefined
     );
+
+    const validRanges = ["today", "yesterday", "2daysago"] as const;
     return (
         <Card className="@container/card">
             <CardHeader>
                 <CardTitle>Device Status</CardTitle>
                 <CardDescription>
                     <span className="hidden @[540px]/card:block">
-                        Monitoring for the last 3 months
+                        Monitoring for the last 3 days
                     </span>
-                    <span className="@[540px]/card:hidden">Last 3 months</span>
+                    <span className="@[540px]/card:hidden">Last 3 days</span>
                 </CardDescription>
 
                 <CardAction className="flex flex-col sm:flex-row gap-4 sm:items-center">
@@ -203,22 +163,30 @@ export function ChartAreaInteractive() {
                     <ToggleGroup
                         type="single"
                         value={timeRange}
-                        onValueChange={setTimeRange}
+                        onValueChange={(val) => {
+                            if (validRanges.includes(val as typeof validRanges[number])) {
+                                setTimeRange(val as typeof timeRange);
+                            }
+                        }}
                         variant="outline"
                         className="hidden @[767px]/card:flex *:data-[slot=toggle-group-item]:!px-4">
-                        <ToggleGroupItem value="90d">
-                            Last 3 months
+                        <ToggleGroupItem value="today">
+                            Today
                         </ToggleGroupItem>
-                        <ToggleGroupItem value="30d">
-                            Last 30 days
+                        <ToggleGroupItem value="yesterday">
+                            Yesterday
                         </ToggleGroupItem>
-                        <ToggleGroupItem value="7d">
-                            Last 7 days
+                        <ToggleGroupItem value="2daysago">
+                            2 Days Ago
                         </ToggleGroupItem>
                     </ToggleGroup>
 
                     {/* Select Dropdown for Mobile */}
-                    <Select value={timeRange} onValueChange={setTimeRange}>
+                    <Select value={timeRange} onValueChange={(val) => {
+                        if (validRanges.includes(val as typeof validRanges[number])) {
+                            setTimeRange(val as typeof timeRange);
+                        }
+                    }}>
                         <SelectTrigger
                             className="flex w-40 @[767px]/card:hidden"
                             size="sm"
@@ -226,14 +194,14 @@ export function ChartAreaInteractive() {
                             <SelectValue placeholder="Last 3 months" />
                         </SelectTrigger>
                         <SelectContent className="rounded-xl">
-                            <SelectItem value="90d" className="rounded-lg">
-                                Last 3 months
+                            <SelectItem value="today" className="rounded-lg">
+                                Today
                             </SelectItem>
-                            <SelectItem value="30d" className="rounded-lg">
-                                Last 30 days
+                            <SelectItem value="yesterday" className="rounded-lg">
+                                Yesterday
                             </SelectItem>
-                            <SelectItem value="7d" className="rounded-lg">
-                                Last 7 days
+                            <SelectItem value="2daysago" className="rounded-lg">
+                                2 Days Ago
                             </SelectItem>
                         </SelectContent>
                     </Select>
@@ -267,20 +235,17 @@ export function ChartAreaInteractive() {
                             </defs>
                             <CartesianGrid vertical={false} />
                             <XAxis
-                                dataKey="date"
-                                tickLine={false}
-                                axisLine={false}
-                                tickMargin={8}
-                                minTickGap={32}
+                                dataKey="datetime"
                                 tickFormatter={(value) =>
-                                    new Date(value).toLocaleDateString(
-                                        "en-US",
-                                        {
-                                            month: "short",
-                                            day: "numeric",
-                                        }
-                                    )
+                                    new Date(value).toLocaleTimeString("en-US", {
+                                        hour: "2-digit",
+                                        minute: "2-digit",
+                                        hour12: false,
+                                    })
                                 }
+                                tick={{
+                                    dy: 15
+                                }}
                             />
                             <YAxis
                                 stroke={chartConfig.temp.color}
@@ -313,7 +278,7 @@ export function ChartAreaInteractive() {
                             />
                             <ChartTooltip
                                 cursor={false}
-                                defaultIndex={isMobile ? -1 : 10}
+                                defaultIndex={10}
                                 content={
                                     <ChartTooltipContent
                                         labelFormatter={(value) =>
@@ -331,9 +296,17 @@ export function ChartAreaInteractive() {
                             />
                             <Area
                                 type="monotone"
-                                dataKey="temp"
+                                dataKey="tempMax"
                                 stroke={chartConfig.temp.color}
                                 fill="url(#fillTemp)"
+                                dot={false}
+                            />
+                            <Area
+                                type="monotone"
+                                dataKey="tempMin"
+                                stroke={chartConfig.temp.color}
+                                fillOpacity={0}
+                                dot={false}
                             />
                         </AreaChart>
                     </ResponsiveContainer>
@@ -366,21 +339,19 @@ export function ChartAreaInteractive() {
                             </defs>
                             <CartesianGrid vertical={false} />
                             <XAxis
-                                dataKey="date"
-                                tickLine={false}
-                                axisLine={false}
-                                tickMargin={8}
-                                minTickGap={32}
+                                dataKey="datetime"
                                 tickFormatter={(value) =>
-                                    new Date(value).toLocaleDateString(
-                                        "en-US",
-                                        {
-                                            month: "short",
-                                            day: "numeric",
-                                        }
-                                    )
+                                    new Date(value).toLocaleTimeString("en-US", {
+                                        hour: "2-digit",
+                                        minute: "2-digit",
+                                        hour12: false,
+                                    })
                                 }
+                                tick={{
+                                    dy: 15
+                                }}
                             />
+
                             <YAxis
                                 stroke={chartConfig.humid.color}
                                 fontSize={12}
@@ -412,7 +383,7 @@ export function ChartAreaInteractive() {
                             />
                             <ChartTooltip
                                 cursor={false}
-                                defaultIndex={isMobile ? -1 : 10}
+                                defaultIndex={10}
                                 content={
                                     <ChartTooltipContent
                                         labelFormatter={(value) =>
@@ -430,9 +401,17 @@ export function ChartAreaInteractive() {
                             />
                             <Area
                                 type="monotone"
-                                dataKey="humid"
+                                dataKey="humidMax"
                                 stroke={chartConfig.humid.color}
                                 fill="url(#fillHumid)"
+                                dot={false}
+                            />
+                            <Area
+                                type="monotone"
+                                dataKey="humidMin"
+                                stroke={chartConfig.humid.color}
+                                fillOpacity={0}
+                                dot={false}
                             />
                         </AreaChart>
                     </ResponsiveContainer>
