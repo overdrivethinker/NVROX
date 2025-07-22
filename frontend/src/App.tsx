@@ -7,6 +7,7 @@ import Historical from "./app/environment/historical";
 import MonthlyReport from "./app/environment/monthly-reports";
 import DeviceSetup from "@/app/configuration/device-setup";
 import UserAccess from "./app/configuration/user-acccess";
+import LoginPage from "./app/login/page";
 import { Toaster } from "@/components/ui/sonner";
 
 function App() {
@@ -14,7 +15,8 @@ function App() {
         <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
             <Toaster position="top-center" />
             <Routes>
-                <Route path="/" element={<Navigate to="overview" replace />} />
+                <Route path="/" element={<Navigate to="login" replace />} />
+                <Route path="login" element={<LoginPage />} />
                 <Route path="overview" element={<Overview />} />
                 <Route path="alert-warning" element={<AlertWarning />} />
                 <Route path="live-monitoring" element={<LiveMonitoring />} />
