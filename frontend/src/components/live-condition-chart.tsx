@@ -27,7 +27,7 @@ import {
 import type { ChartConfig } from "@/components/ui/chart";
 import { DeviceSelector } from "./device-selector";
 import { Badge } from "@/components/ui/badge";
-import { AlertTriangle, Loader2, AudioLines } from "lucide-react";
+import { AlertTriangle, Loader2, AudioLines, Droplet, Thermometer } from "lucide-react";
 import io from "socket.io-client";
 
 type ChartPoint = {
@@ -157,7 +157,7 @@ export function LiveChart() {
                     <>
                         <div className="flex flex-col lg:flex-row gap-6">
                             <div className="w-full lg:w-1/2">
-                                <div className="flex justify-center px-6 sm:px-10 mb-6">
+                                <div className="flex justify-center px-2 mb-6">
                                     <Card
                                         className={`w-full overflow-visible ${latestData &&
                                             (latestData.temperature < limits.tempMin || latestData.temperature > limits.tempMax)
@@ -172,9 +172,13 @@ export function LiveChart() {
                                             </CardDescription>
                                         </CardHeader>
                                         <CardContent className="flex justify-center items-center overflow-visible mb-10">
-                                            <div className="text-[clamp(2rem,6vw,8rem)] font-bold text-primary leading-none whitespace-nowrap overflow-visible">
-                                                {latestData ? `${Number(latestData.temperature).toFixed(2)}°C` : "--"}
+                                            <div className="flex items-center justify-center text-[clamp(2rem,6vw,8rem)] font-bold text-primary leading-none whitespace-nowrap overflow-visible">
+                                                <Thermometer className="w-[clamp(2rem,6vw,8rem)] h-auto text-primary" />
+                                                {latestData?.temperature != null
+                                                    ? `${Number(latestData.temperature).toFixed(2)}%`
+                                                    : "--"}
                                             </div>
+
                                         </CardContent>
                                     </Card>
                                 </div>
@@ -189,8 +193,8 @@ export function LiveChart() {
                                             data={chartData}
                                             margin={{
                                                 top: 10,
-                                                right: 30,
-                                                left: 0,
+                                                right: 10,
+                                                left: -30,
                                                 bottom: 40,
                                             }}>
                                             <defs>
@@ -250,19 +254,6 @@ export function LiveChart() {
                                                 tickLine={false}
                                                 axisLine={false}
                                                 domain={[20, 40]}
-                                            // label={{
-                                            //     value: chartConfig.temp
-                                            //         .label,
-                                            //     angle: -90,
-                                            //     position: "outsideLeft",
-                                            //     dx: -20,
-                                            //     style: {
-                                            //         textAnchor: "middle",
-                                            //         fill: chartConfig.temp
-                                            //             .color,
-                                            //         fontSize: 16,
-                                            //     },
-                                            // }}
                                             />
                                             <ChartTooltip
                                                 cursor={false}
@@ -316,7 +307,7 @@ export function LiveChart() {
                             {/* Chart Humidity */}
                             <div className="w-full lg:w-1/2">
                                 {/* Label atas Temperature */}
-                                <div className="flex justify-center px-6 sm:px-10 mb-6">
+                                <div className="flex justify-center px-2 mb-6">
                                     <Card className={`w-full overflow-visible ${latestData &&
                                         (latestData.humidity < limits.humidMin || latestData.humidity > limits.humidMax)
                                         ? "bg-red-500 animate-pulse"
@@ -328,7 +319,8 @@ export function LiveChart() {
                                             <CardDescription className="text-sm text-black dark:text-white">Live Humidity Data</CardDescription>
                                         </CardHeader>
                                         <CardContent className="flex justify-center items-center overflow-visible mb-10">
-                                            <div className="text-[clamp(2rem,6vw,8rem)] font-bold text-primary leading-none whitespace-nowrap overflow-visible">
+                                            <div className="flex items-center justify-center text-[clamp(2rem,6vw,8rem)] font-bold text-primary leading-none whitespace-nowrap overflow-visible">
+                                                <Droplet className="w-[clamp(2rem,6vw,8rem)] h-auto text-primary" />
                                                 {latestData?.humidity != null
                                                     ? `${Number(latestData.humidity).toFixed(2)}%`
                                                     : "--"}
@@ -346,8 +338,8 @@ export function LiveChart() {
                                             data={chartData}
                                             margin={{
                                                 top: 10,
-                                                right: 30,
-                                                left: 0,
+                                                right: 10,
+                                                left: -30,
                                                 bottom: 40,
                                             }}>
                                             <defs>
@@ -406,19 +398,6 @@ export function LiveChart() {
                                                 tickLine={false}
                                                 axisLine={false}
                                                 domain={[30, 90]}
-                                            // label={{
-                                            //     value: chartConfig.humid
-                                            //         .label,
-                                            //     angle: -90,
-                                            //     position: "outsideLeft",
-                                            //     dx: -20,
-                                            //     style: {
-                                            //         textAnchor: "middle",
-                                            //         fill: chartConfig.humid
-                                            //             .color,
-                                            //         fontSize: 16,
-                                            //     },
-                                            // }}
                                             />
                                             <ChartTooltip
                                                 cursor={false}
