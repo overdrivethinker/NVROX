@@ -75,12 +75,18 @@ router.get("/3days-hourly", async (req, res) => {
             return res.status(400).json({ error: "Invalid range value" });
         }
 
+        const dialect = knex.client.config.client;
+        const hourGroupExpr =
+            dialect === "mysql" || dialect === "mysql2"
+                ? "DATE_FORMAT(r.recorded_at, '%Y-%m-%d %H:00:00')"
+                : "DATE_TRUNC('hour', r.recorded_at)";
+
         const result = await knex("sensor_readings as r")
             .join("devices as d", "r.mac_address", "=", "d.mac_address")
             .select(
                 "r.mac_address",
                 "d.device_name",
-                knex.raw("DATE_TRUNC('hour', r.recorded_at) as hour"),
+                knex.raw(`${hourGroupExpr} as hour`),
                 knex.raw("MIN(CAST(r.temperature AS FLOAT)) as min_temp"),
                 knex.raw("MAX(CAST(r.temperature AS FLOAT)) as max_temp"),
                 knex.raw("AVG(CAST(r.temperature AS FLOAT)) as avg_temp"),
@@ -90,11 +96,7 @@ router.get("/3days-hourly", async (req, res) => {
             )
             .where("r.mac_address", mac_address)
             .whereBetween("r.recorded_at", [start, now])
-            .groupBy(
-                "r.mac_address",
-                "d.device_name",
-                knex.raw("DATE_TRUNC('hour', r.recorded_at)")
-            )
+            .groupByRaw(`r.mac_address, d.device_name, ${hourGroupExpr}`)
             .orderBy("hour", "asc");
 
         res.json({ data: result });
@@ -103,5 +105,6 @@ router.get("/3days-hourly", async (req, res) => {
         res.status(500).json({ error: "Internal Server Error" });
     }
 });
+
 
 module.exports = router;
