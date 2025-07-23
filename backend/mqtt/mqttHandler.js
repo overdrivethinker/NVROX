@@ -5,6 +5,7 @@ const knex = require("@db/knex");
 const { brokerUrl, options, topic, qos } = require("@mqtt/mqttConfig");
 const { getDeviceId, clearDeviceCache } = require("@redis/deviceCache");
 const { getThresholds, clearThresholdCache } = require("@redis/thresholdCache");
+const { emitToClients } = require("@socket/socketHandler");
 
 const clearAllCache = async () => {
     console.log("[INIT] Clearing Redis cache");
@@ -54,6 +55,13 @@ const clearAllCache = async () => {
                 temperature: temp,
                 humidity: humid,
                 recorded_at: knex.fn.now(),
+            });
+
+            emitToClients("sensor_data", {
+                mac_address,
+                temperature: temp,
+                humidity: humid,
+                recorded_at: timestamp || new Date().toISOString(),
             });
 
             console.log(`[SAVED] ${mac_address} | ${temp}°C | ${humid}%`);

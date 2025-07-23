@@ -40,7 +40,19 @@ router.get("/list", async (req, res) => {
         const rows = await knex("devices").select("*");
         res.json(rows);
     } catch (err) {
-        console.error("GET /devices error:", err.message);
+        console.error("GET /devices/list error:", err.message);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+});
+
+router.get("/list-active", async (req, res) => {
+    try {
+        const rows = await knex("devices")
+            .select("*")
+            .where("status", "Active");
+        res.json(rows);
+    } catch (err) {
+        console.error("GET /devices/list-active error:", err.message);
         res.status(500).json({ error: "Internal Server Error" });
     }
 });
