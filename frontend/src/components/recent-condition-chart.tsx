@@ -216,7 +216,7 @@ export function RecentChart() {
 
             <CardContent className="w-full overflow-x-hidden px-2 sm:px-6 pt-2 sm:pt-4 mb-3">
                 {!selectedMac ? (
-                    <div className="flex justify-center py-12">
+                    <div className="flex justify-center py-85">
                         <Badge
                             variant="outline"
                             className="text-base border-red-700 text-red-700 dark:text-red-400 dark:border-red-400">
@@ -225,7 +225,7 @@ export function RecentChart() {
                         </Badge>
                     </div>
                 ) : isLoading || delayedLoading ? (
-                    <div className="flex flex-col items-center justify-center py-12">
+                    <div className="flex flex-col items-center justify-center py-85">
                         <Badge
                             variant="outline"
                             className="text-base border-blue-700 text-blue-700 dark:text-blue-400 dark:border-blue-400">
@@ -234,10 +234,10 @@ export function RecentChart() {
                         </Badge>
                     </div>
                 ) : chartData.length === 0 ? (
-                    <div className="flex justify-center py-12">
+                    <div className="flex justify-center py-85">
                         <Badge
                             variant="outline"
-                            className="text-base border-yellow-500 text-yellow-600 dark:border-yellow-900 dark:text-yellow-300 text-sm">
+                            className="text-base border-yellow-500 text-yellow-600 dark:border-yellow-900 dark:text-yellow-300">
                             <AlertTriangle className="w-4 h-4 me-1.5" />
                             No data available
                         </Badge>
@@ -247,7 +247,7 @@ export function RecentChart() {
                         {/* Temperature Chart */}
                         <ChartContainer
                             config={chartConfig}
-                            className="h-[330px] w-full">
+                            className="h-[335px] w-full">
                             <ResponsiveContainer width="100%" height="100%">
                                 <AreaChart data={chartData}>
                                     <defs>
@@ -262,7 +262,7 @@ export function RecentChart() {
                                                 stopColor={
                                                     chartConfig.temp.color
                                                 }
-                                                stopOpacity={0.3}
+                                                stopOpacity={0.1}
                                             />
                                             <stop
                                                 offset="95%"
@@ -302,7 +302,7 @@ export function RecentChart() {
                                             style: {
                                                 textAnchor: "middle",
                                                 fill: chartConfig.temp.color,
-                                                fontSize: 16,
+                                                fontSize: 14,
                                             },
                                         }}
                                     />
@@ -355,13 +355,13 @@ export function RecentChart() {
                                         y={limits.tempMax}
                                         stroke="red"
                                         strokeDasharray="20 10"
-                                        strokeWidth={2}
+                                        strokeWidth={1}
                                     />
                                     <ReferenceLine
                                         y={limits.tempMin}
                                         stroke="red"
                                         strokeDasharray="20 10"
-                                        strokeWidth={2}
+                                        strokeWidth={1}
                                     />
                                 </AreaChart>
                             </ResponsiveContainer>
@@ -369,7 +369,7 @@ export function RecentChart() {
                         {/* Humidity Chart */}
                         <ChartContainer
                             config={chartConfig}
-                            className="h-[330px] w-full mt-10">
+                            className="h-[335px] w-full mt-10">
                             <ResponsiveContainer width="100%" height="100%">
                                 <AreaChart data={chartData}>
                                     <defs>
@@ -384,7 +384,7 @@ export function RecentChart() {
                                                 stopColor={
                                                     chartConfig.humid.color
                                                 }
-                                                stopOpacity={0.3}
+                                                stopOpacity={0.1}
                                             />
                                             <stop
                                                 offset="95%"
@@ -424,7 +424,7 @@ export function RecentChart() {
                                             style: {
                                                 textAnchor: "middle",
                                                 fill: chartConfig.humid.color,
-                                                fontSize: 16,
+                                                fontSize: 14,
                                             },
                                         }}
                                     />
@@ -477,13 +477,13 @@ export function RecentChart() {
                                         y={limits.humidMax}
                                         stroke="red"
                                         strokeDasharray="20 10"
-                                        strokeWidth={2}
+                                        strokeWidth={1}
                                     />
                                     <ReferenceLine
                                         y={limits.humidMin}
                                         stroke="red"
                                         strokeDasharray="20 10"
-                                        strokeWidth={2}
+                                        strokeWidth={1}
                                     />
                                 </AreaChart>
                             </ResponsiveContainer>
