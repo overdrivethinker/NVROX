@@ -60,9 +60,9 @@ export function LiveChart() {
 
     const limits = {
         tempMin: 22,
-        tempMax: 35,
+        tempMax: 30,
         humidMin: 40,
-        humidMax: 75,
+        humidMax: 50,
     };
 
     const [selectedMac, setSelectedMac] = useState<string | undefined>(
@@ -71,6 +71,7 @@ export function LiveChart() {
     const [chartData, setChartData] = useState<ChartPoint[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [delayedLoading, setDelayedLoading] = useState(false);
+    const [latestData, setLatestData] = useState<SensorData | null>(null);
 
     // SOCKET.IO - aktif setelah pilih MAC
     useEffect(() => {
@@ -93,7 +94,7 @@ export function LiveChart() {
                 temp: data.temperature,
                 humid: data.humidity,
             };
-
+            setLatestData(data);
             setChartData((prev) => [...prev.slice(-20), point]);
             setIsLoading(false);
             setDelayedLoading(false);
@@ -126,7 +127,7 @@ export function LiveChart() {
             </CardHeader>
             <CardContent className="w-full overflow-x-hidden px-2 sm:px-6 pt-2 sm:pt-4 mb-3">
                 {!selectedMac ? (
-                    <div className="flex justify-center py-12">
+                    <div className="flex justify-center py-85">
                         <Badge
                             variant="outline"
                             className="text-base border-red-700 text-red-700 dark:text-red-400 dark:border-red-400">
@@ -135,7 +136,7 @@ export function LiveChart() {
                         </Badge>
                     </div>
                 ) : isLoading || delayedLoading ? (
-                    <div className="flex flex-col items-center justify-center py-12">
+                    <div className="flex flex-col items-center justify-center py-85">
                         <Badge
                             variant="outline"
                             className="text-base border-blue-700 text-blue-700 dark:text-blue-400 dark:border-blue-400">
@@ -144,10 +145,10 @@ export function LiveChart() {
                         </Badge>
                     </div>
                 ) : chartData.length === 0 ? (
-                    <div className="flex justify-center py-12">
+                    <div className="flex justify-center py-85">
                         <Badge
                             variant="outline"
-                            className="text-base border-yellow-500 text-yellow-600 dark:border-yellow-900 dark:text-yellow-300 text-sm">
+                            className="text-base border-yellow-500 text-yellow-600 dark:border-yellow-900 dark:text-yellow-300">
                             <AlertTriangle className="w-4 h-4 me-1.5" />
                             No data available
                         </Badge>
@@ -155,16 +156,32 @@ export function LiveChart() {
                 ) : (
                     <>
                         <div className="flex flex-col lg:flex-row gap-6">
-                            <div className="flex-1">
-                                <div className="flex justify-center px-2 sm:px-4 mb-2">
-                                    <span className="text-2xl font-bold text-primary">
-                                        xxx
-                                    </span>
+                            <div className="w-full lg:w-1/2">
+                                <div className="flex justify-center px-6 sm:px-10 mb-6">
+                                    <Card
+                                        className={`w-full overflow-visible ${latestData &&
+                                            (latestData.temperature < limits.tempMin || latestData.temperature > limits.tempMax)
+                                            ? "bg-red-500 animate-pulse"
+                                            : ""
+                                            }`}
+                                    >
+                                        <CardHeader className="text-center">
+                                            <CardTitle className="text-lg">Temperature</CardTitle>
+                                            <CardDescription className="text-sm text-black dark:text-white">
+                                                Live Temperature Data
+                                            </CardDescription>
+                                        </CardHeader>
+                                        <CardContent className="flex justify-center items-center overflow-visible mb-10">
+                                            <div className="text-[clamp(2rem,6vw,8rem)] font-bold text-primary leading-none whitespace-nowrap overflow-visible">
+                                                {latestData ? `${Number(latestData.temperature).toFixed(2)}°C` : "--"}
+                                            </div>
+                                        </CardContent>
+                                    </Card>
                                 </div>
                                 {/* Chart Temperature */}
                                 <ChartContainer
                                     config={chartConfig}
-                                    className="h-[330px] w-full">
+                                    className="h-[403px] w-full">
                                     <ResponsiveContainer
                                         width="100%"
                                         height="100%">
@@ -189,7 +206,7 @@ export function LiveChart() {
                                                             chartConfig.temp
                                                                 .color
                                                         }
-                                                        stopOpacity={0.3}
+                                                        stopOpacity={0.1}
                                                     />
                                                     <stop
                                                         offset="95%"
@@ -233,19 +250,19 @@ export function LiveChart() {
                                                 tickLine={false}
                                                 axisLine={false}
                                                 domain={[20, 40]}
-                                                label={{
-                                                    value: chartConfig.temp
-                                                        .label,
-                                                    angle: -90,
-                                                    position: "outsideLeft",
-                                                    dx: -20,
-                                                    style: {
-                                                        textAnchor: "middle",
-                                                        fill: chartConfig.temp
-                                                            .color,
-                                                        fontSize: 16,
-                                                    },
-                                                }}
+                                            // label={{
+                                            //     value: chartConfig.temp
+                                            //         .label,
+                                            //     angle: -90,
+                                            //     position: "outsideLeft",
+                                            //     dx: -20,
+                                            //     style: {
+                                            //         textAnchor: "middle",
+                                            //         fill: chartConfig.temp
+                                            //             .color,
+                                            //         fontSize: 16,
+                                            //     },
+                                            // }}
                                             />
                                             <ChartTooltip
                                                 cursor={false}
@@ -283,13 +300,13 @@ export function LiveChart() {
                                                 y={limits.tempMax}
                                                 stroke="red"
                                                 strokeDasharray="20 10"
-                                                strokeWidth={2}
+                                                strokeWidth={1}
                                             />
                                             <ReferenceLine
                                                 y={limits.tempMin}
                                                 stroke="red"
                                                 strokeDasharray="20 10"
-                                                strokeWidth={2}
+                                                strokeWidth={1}
                                             />
                                         </AreaChart>
                                     </ResponsiveContainer>
@@ -297,16 +314,31 @@ export function LiveChart() {
                             </div>
 
                             {/* Chart Humidity */}
-                            <div className="flex-1">
+                            <div className="w-full lg:w-1/2">
                                 {/* Label atas Temperature */}
-                                <div className="flex justify-center px-2 sm:px-4 mb-2">
-                                    <span className="text-2xl font-bold text-primary">
-                                        xxx
-                                    </span>
+                                <div className="flex justify-center px-6 sm:px-10 mb-6">
+                                    <Card className={`w-full overflow-visible ${latestData &&
+                                        (latestData.humidity < limits.humidMin || latestData.humidity > limits.humidMax)
+                                        ? "bg-red-500 animate-pulse"
+                                        : ""
+                                        }`}
+                                    >
+                                        <CardHeader className="text-center">
+                                            <CardTitle className="text-lg">Humidity</CardTitle>
+                                            <CardDescription className="text-sm text-black dark:text-white">Live Humidity Data</CardDescription>
+                                        </CardHeader>
+                                        <CardContent className="flex justify-center items-center overflow-visible mb-10">
+                                            <div className="text-[clamp(2rem,6vw,8rem)] font-bold text-primary leading-none whitespace-nowrap overflow-visible">
+                                                {latestData?.humidity != null
+                                                    ? `${Number(latestData.humidity).toFixed(2)}%`
+                                                    : "--"}
+                                            </div>
+                                        </CardContent>
+                                    </Card>
                                 </div>
                                 <ChartContainer
                                     config={chartConfig}
-                                    className="h-[330px] w-full">
+                                    className="h-[403px] w-full">
                                     <ResponsiveContainer
                                         width="100%"
                                         height="100%">
@@ -331,7 +363,7 @@ export function LiveChart() {
                                                             chartConfig.humid
                                                                 .color
                                                         }
-                                                        stopOpacity={0.3}
+                                                        stopOpacity={0.1}
                                                     />
                                                     <stop
                                                         offset="95%"
@@ -374,19 +406,19 @@ export function LiveChart() {
                                                 tickLine={false}
                                                 axisLine={false}
                                                 domain={[30, 90]}
-                                                label={{
-                                                    value: chartConfig.humid
-                                                        .label,
-                                                    angle: -90,
-                                                    position: "outsideLeft",
-                                                    dx: -20,
-                                                    style: {
-                                                        textAnchor: "middle",
-                                                        fill: chartConfig.humid
-                                                            .color,
-                                                        fontSize: 16,
-                                                    },
-                                                }}
+                                            // label={{
+                                            //     value: chartConfig.humid
+                                            //         .label,
+                                            //     angle: -90,
+                                            //     position: "outsideLeft",
+                                            //     dx: -20,
+                                            //     style: {
+                                            //         textAnchor: "middle",
+                                            //         fill: chartConfig.humid
+                                            //             .color,
+                                            //         fontSize: 16,
+                                            //     },
+                                            // }}
                                             />
                                             <ChartTooltip
                                                 cursor={false}
@@ -424,13 +456,13 @@ export function LiveChart() {
                                                 y={limits.humidMax}
                                                 stroke="red"
                                                 strokeDasharray="20 10"
-                                                strokeWidth={2}
+                                                strokeWidth={1}
                                             />
                                             <ReferenceLine
                                                 y={limits.humidMin}
                                                 stroke="red"
                                                 strokeDasharray="20 10"
-                                                strokeWidth={2}
+                                                strokeWidth={1}
                                             />
                                         </AreaChart>
                                     </ResponsiveContainer>
@@ -440,6 +472,6 @@ export function LiveChart() {
                     </>
                 )}
             </CardContent>
-        </Card>
+        </Card >
     );
 }
