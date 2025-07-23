@@ -41,7 +41,7 @@ export function DeviceSelector({ value, onChange }: DeviceSelectorProps) {
                     <SelectItem
                         key={device.mac_address}
                         value={device.mac_address}>
-                        {device.device_name} — {device.location}
+                        {device.device_name} [{device.location}]
                     </SelectItem>
                 ))}
             </SelectContent>
