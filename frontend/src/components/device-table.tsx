@@ -153,8 +153,8 @@ export default function DeviceDataTable() {
                                                 variant="outline"
                                                 className={
                                                     row.status === "Active"
-                                                        ? "bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-400"
-                                                        : "bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-400"
+                                                        ? "border-green-300 text-green-500 dark:border-green-900 dark:text-green-400"
+                                                        : "border-red-300 text-red-500 dark:border-red-900 dark:text-red-400"
                                                 }>
                                                 {row.status === "Active" ? (
                                                     <>
