@@ -13,7 +13,7 @@ import {
     SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { ModeToggle } from "@/components/mode-toggle";
-import { ChartAreaInteractive } from "@/components/chart-area-interactive";
+import { RecentChart } from "@/components/recent-condition-chart";
 export default function RecentCondition() {
     return (
         <SidebarProvider>
@@ -43,7 +43,7 @@ export default function RecentCondition() {
                     <ModeToggle />
                 </header>
                 <div className="flex flex-1 flex-col gap-4 p-6 pt-0">
-                    <ChartAreaInteractive />
+                    <RecentChart />
                 </div>
             </SidebarInset>
         </SidebarProvider>
