@@ -200,7 +200,7 @@ export function LiveChart() {
                     <div className="flex flex-col lg:flex-row gap-4 w-full">
                         {/* Temperature Section */}
                         <div className="w-full lg:w-1/2">
-                            <div className="flex justify-center px-2 mb-4">
+                            <div className="flex justify-center px-3 mb-4">
                                 <Card
                                     className={`w-full overflow-visible ${
                                         latestData &&
@@ -350,7 +350,7 @@ export function LiveChart() {
 
                         {/* Humidity Section */}
                         <div className="w-full lg:w-1/2">
-                            <div className="flex justify-center px-2 mb-4">
+                            <div className="flex justify-center px-3 mb-4">
                                 <Card
                                     className={`w-full overflow-visible ${
                                         latestData &&
