@@ -78,10 +78,12 @@ export default function Overview() {
                     </div>
                     <ModeToggle />
                 </header>
-                <SensorCardGrid
-                    devices={deviceListFromDB}
-                    limitsMap={limitsMap}
-                />
+                <div className="flex flex-1 justify-center flex-col">
+                    <SensorCardGrid
+                        devices={deviceListFromDB}
+                        limitsMap={limitsMap}
+                    />
+                </div>
             </SidebarInset>
         </SidebarProvider>
     );

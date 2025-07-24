@@ -104,7 +104,7 @@ export default function SensorCardGrid({
                         <div className="px-4 py-2 bg-blue-200 dark:bg-blue-700 font-semibold text-sm flex items-center justify-between">
                             <div>
                                 {device.device_name} <br />
-                                <span className="text-xs font-normal text-blue-500 dark:text-blue-400">
+                                <span className="text-xs font-normal text-blue-500 dark:text-blue-200">
                                     {device.location}
                                 </span>
                             </div>

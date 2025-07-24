@@ -84,21 +84,30 @@ export default function Historical() {
                                         variant="outline"
                                         size="sm"
                                         className="h-9 justify-start text-left font-normal"
-                                        id="view-selector"
-                                    >
+                                        id="view-selector">
                                         {dateRange?.from ? (
                                             dateRange.to ? (
-                                                `${format(dateRange.from, "yyyy/MM/dd")} to ${format(dateRange.to, "yyyy/MM/dd")}`
+                                                `${format(
+                                                    dateRange.from,
+                                                    "yyyy/MM/dd"
+                                                )} to ${format(
+                                                    dateRange.to,
+                                                    "yyyy/MM/dd"
+                                                )}`
                                             ) : (
                                                 format(dateRange.from, "P")
                                             )
                                         ) : (
-                                            <span className="text-muted-foreground">Pick a date range</span>
+                                            <span className="text-muted-foreground">
+                                                Pick a date range
+                                            </span>
                                         )}
                                         <CalendarIcon className="ml-2 h-4 w-4 opacity-50" />
                                     </Button>
                                 </PopoverTrigger>
-                                <PopoverContent className="w-auto p-2" align="start">
+                                <PopoverContent
+                                    className="w-auto p-2"
+                                    align="start">
                                     <DateRangePopover
                                         dateRange={dateRange}
                                         onDateChange={setDateRange}
@@ -107,15 +116,15 @@ export default function Historical() {
                                         <Button
                                             variant="ghost"
                                             size="sm"
-                                            onClick={() => setDateRange(undefined)}
-                                            className="text-sm text-muted-foreground hover:text-foreground"
-                                        >
+                                            onClick={() =>
+                                                setDateRange(undefined)
+                                            }
+                                            className="text-sm text-muted-foreground hover:text-foreground">
                                             Reset
                                         </Button>
                                     </div>
                                 </PopoverContent>
                             </Popover>
-
                         </div>
 
                         <Button

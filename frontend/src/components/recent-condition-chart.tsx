@@ -162,7 +162,7 @@ export function RecentChart() {
     }, [selectedMac, timeRange]);
 
     return (
-        <Card className="@container/card">
+        <Card className="@container/card flex-1 min-h-[600px] overflow-hidden">
             <CardHeader>
                 <CardTitle>Device Status</CardTitle>
                 <CardDescription>
@@ -227,9 +227,9 @@ export function RecentChart() {
                 </CardAction>
             </CardHeader>
 
-            <CardContent className="w-full overflow-x-hidden px-2 sm:px-6 pt-2 sm:pt-4 mb-3">
+            <CardContent className="flex flex-col flex-1 justify-center items-center overflow-x-auto overflow-y-auto px-2 sm:px-4 pt-2 sm:pt-3 mb-2">
                 {!selectedMac ? (
-                    <div className="flex justify-center py-85">
+                    <div className="flex justify-center items-center min-h-[200px] w-full">
                         <Badge
                             variant="outline"
                             className="text-base border-red-700 text-red-700 dark:text-red-400 dark:border-red-400">
@@ -238,7 +238,7 @@ export function RecentChart() {
                         </Badge>
                     </div>
                 ) : isLoading || delayedLoading ? (
-                    <div className="flex flex-col items-center justify-center py-85">
+                    <div className="flex justify-center items-center min-h-[200px] w-full">
                         <Badge
                             variant="outline"
                             className="text-base border-blue-700 text-blue-700 dark:text-blue-400 dark:border-blue-400">
@@ -247,7 +247,7 @@ export function RecentChart() {
                         </Badge>
                     </div>
                 ) : chartData.length === 0 ? (
-                    <div className="flex justify-center py-85">
+                    <div className="flex justify-center items-center min-h-[200px] w-full">
                         <Badge
                             variant="outline"
                             className="text-base border-yellow-500 text-yellow-600 dark:border-yellow-900 dark:text-yellow-300">
