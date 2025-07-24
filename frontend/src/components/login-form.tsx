@@ -13,8 +13,6 @@ export function LoginForm({
     const [showPassword, setShowPassword] = useState(false);
     const navigate = useNavigate();
     const handleLogin = () => {
-        // Nanti bisa simpan token di sini
-        // localStorage.setItem("token", "dummy");
         navigate("/overview");
     };
     return (
@@ -60,6 +58,9 @@ export function LoginForm({
                     Login
                 </Button>
             </div>
+            <footer className="text-center text-sm text-muted-foreground pb-6">
+                <p>© {new Date().getFullYear()} NVROX. All rights reserved.</p>
+            </footer>
         </form>
     );
 }
