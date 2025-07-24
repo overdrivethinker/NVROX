@@ -65,14 +65,14 @@ export function RecentChart() {
     const chartConfig = {
         temp: {
             label: "Temperature (°C)",
-            color: isDark ? "#3b82f6" : "#1a92eeff",
+            color: isDark ? "#3b82f6" : "#0ea5e9",
         },
         humid: {
             label: "Humidity (%)",
-            color: isDark ? "#55de87ff" : "#00b84dff",
+            color: isDark ? "#34d399" : "#10b981",
         },
         avg: {
-            color: isDark ? "#fffb00ff" : "#ff6600ff",
+            color: isDark ? "#fde047" : "#f59e0b",
         },
     } satisfies ChartConfig;
 
@@ -232,7 +232,7 @@ export function RecentChart() {
                     <div className="flex justify-center items-center min-h-[200px] w-full">
                         <Badge
                             variant="outline"
-                            className="text-base border-red-700 text-red-700 dark:text-red-400 dark:border-red-400">
+                            className="text-base border-green-300 text-green-500 dark:border-green-900 dark:text-green-400">
                             <AudioLines className="w-4 h-4 me-1.5" />
                             Select device first
                         </Badge>

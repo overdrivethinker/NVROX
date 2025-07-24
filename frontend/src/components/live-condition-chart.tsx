@@ -57,11 +57,11 @@ export function LiveChart() {
     const chartConfig = {
         temp: {
             label: "Temperature (°C)",
-            color: isDark ? "#3b82f6" : "#1a92eeff",
+            color: isDark ? "#3b82f6" : "#0ea5e9",
         },
         humid: {
             label: "Humidity (%)",
-            color: isDark ? "#55de87ff" : "#00b84dff",
+            color: isDark ? "#34d399" : "#10b981",
         },
     } satisfies ChartConfig;
 
@@ -173,7 +173,7 @@ export function LiveChart() {
                     <div className="flex justify-center items-center min-h-[200px] w-full">
                         <Badge
                             variant="outline"
-                            className="text-base border-red-700 text-red-700 dark:text-red-400 dark:border-red-400">
+                            className="text-base border-green-300 text-green-500 dark:border-green-900 dark:text-green-400">
                             <AudioLines className="w-4 h-4 me-1.5" />
                             Select device first
                         </Badge>
@@ -202,15 +202,14 @@ export function LiveChart() {
                         <div className="w-full lg:w-1/2">
                             <div className="flex justify-center px-3 mb-4">
                                 <Card
-                                    className={`w-full overflow-visible ${
-                                        latestData &&
+                                    className={`w-full overflow-visible ${latestData &&
                                         (latestData.temperature <
                                             limits.tempMin ||
                                             latestData.temperature >
-                                                limits.tempMax)
-                                            ? "bg-red-600 animate-pulse"
-                                            : ""
-                                    }`}>
+                                            limits.tempMax)
+                                        ? "bg-red-600 animate-pulse"
+                                        : ""
+                                        }`}>
                                     <CardHeader className="text-center">
                                         <CardTitle className="text-lg">
                                             Temperature
@@ -224,8 +223,8 @@ export function LiveChart() {
                                             <Thermometer className="w-[clamp(2rem,6vw,8rem)] h-auto text-primary" />
                                             {latestData?.temperature != null
                                                 ? `${Number(
-                                                      latestData.temperature
-                                                  ).toFixed(2)}°C`
+                                                    latestData.temperature
+                                                ).toFixed(2)}°C`
                                                 : "--"}
                                         </div>
                                     </CardContent>
@@ -352,15 +351,14 @@ export function LiveChart() {
                         <div className="w-full lg:w-1/2">
                             <div className="flex justify-center px-3 mb-4">
                                 <Card
-                                    className={`w-full overflow-visible ${
-                                        latestData &&
+                                    className={`w-full overflow-visible ${latestData &&
                                         (latestData.humidity <
                                             limits.humidMin ||
                                             latestData.humidity >
-                                                limits.humidMax)
-                                            ? "bg-red-600 animate-pulse"
-                                            : ""
-                                    }`}>
+                                            limits.humidMax)
+                                        ? "bg-red-600 animate-pulse"
+                                        : ""
+                                        }`}>
                                     <CardHeader className="text-center">
                                         <CardTitle className="text-lg">
                                             Humidity
@@ -374,8 +372,8 @@ export function LiveChart() {
                                             <Droplet className="w-[clamp(2rem,6vw,8rem)] h-auto text-primary" />
                                             {latestData?.humidity != null
                                                 ? `${Number(
-                                                      latestData.humidity
-                                                  ).toFixed(2)}%`
+                                                    latestData.humidity
+                                                ).toFixed(2)}%`
                                                 : "--"}
                                         </div>
                                     </CardContent>
