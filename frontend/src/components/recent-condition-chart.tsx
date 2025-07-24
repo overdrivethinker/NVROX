@@ -39,13 +39,6 @@ import axios from "axios";
 import { Badge } from "@/components/ui/badge";
 import { AlertTriangle, Loader2, AudioLines } from "lucide-react";
 
-type Limits = {
-    tempMin: number;
-    tempMax: number;
-    humidMin: number;
-    humidMax: number;
-};
-
 type ChartPoint = {
     datetime: string;
     tempMin: number;
@@ -82,12 +75,20 @@ export function RecentChart() {
             color: isDark ? "#fffb00ff" : "#ff6600ff",
         },
     } satisfies ChartConfig;
-    const limits: Limits = {
-        tempMin: 22,
-        tempMax: 35,
-        humidMin: 40,
-        humidMax: 75,
+
+    type Limits = {
+        tempMin: number;
+        tempMax: number;
+        humidMin: number;
+        humidMax: number;
     };
+
+    const [limits, setLimits] = useState<Limits>({
+        tempMin: 0,
+        tempMax: 100,
+        humidMin: 0,
+        humidMax: 100,
+    });
 
     const validRanges = ["today", "yesterday", "2daysago"] as const;
     type TimeRange = (typeof validRanges)[number];
@@ -105,6 +106,18 @@ export function RecentChart() {
 
         setIsLoading(true);
         setDelayedLoading(true);
+        axios
+            .get(`${import.meta.env.VITE_API_BASE_URL}/devices/threshold`, {
+                params: {
+                    mac: selectedMac,
+                },
+            })
+            .then((res) => {
+                setLimits(res.data);
+            })
+            .catch((err) => {
+                console.error("Failed to fetch limits", err);
+            });
 
         const delayTimeout = setTimeout(() => {
             setDelayedLoading(false);
@@ -293,7 +306,10 @@ export function RecentChart() {
                                         fontSize={12}
                                         tickLine={false}
                                         axisLine={false}
-                                        domain={[20, 40]}
+                                        domain={[
+                                            limits.tempMin - 10,
+                                            limits.tempMax + 10,
+                                        ]}
                                         label={{
                                             value: chartConfig.temp.label,
                                             angle: -90,
@@ -415,7 +431,10 @@ export function RecentChart() {
                                         fontSize={12}
                                         tickLine={false}
                                         axisLine={false}
-                                        domain={[30, 90]}
+                                        domain={[
+                                            limits.humidMin - 20,
+                                            limits.humidMax + 20,
+                                        ]}
                                         label={{
                                             value: chartConfig.humid.label,
                                             angle: -90,

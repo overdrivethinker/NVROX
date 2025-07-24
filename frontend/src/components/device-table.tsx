@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
 import axios from "axios";
-import { format, parseISO } from "date-fns";
 import {
     IconChevronLeft,
     IconChevronRight,
@@ -28,7 +27,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 import { toast } from "sonner";
-import { CheckCircle, XCircle } from "lucide-react";
+import { CheckCircle, XCircle, ArrowUp, ArrowDown } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { DeleteDeviceDialog } from "@/app/configuration/dialog/delete-device-dialog";
 import { EditDeviceDialog } from "@/app/configuration/dialog/edit-device-dialog";
@@ -38,8 +37,10 @@ type DeviceData = {
     mac_address: string;
     location: string;
     status: string;
-    created_at: string;
-    updated_at: string;
+    tempMin: number;
+    tempMax: number;
+    humidMin: number;
+    humidMax: number;
 };
 
 type PaginationInfo = {
@@ -75,7 +76,7 @@ export default function DeviceDataTable() {
         setLoading(true);
         try {
             const res = await axios.get(
-                import.meta.env.VITE_API_BASE_URL + "/devices",
+                import.meta.env.VITE_API_BASE_URL + "/devices/with-thresholds",
                 {
                     params: {
                         page: pagination.page,
@@ -102,9 +103,6 @@ export default function DeviceDataTable() {
         }
     };
 
-    const formatDate = (dateStr: string) => {
-        return format(parseISO(dateStr), "yyyy-MM-dd HH:mm:ss");
-    };
     const [openDialog, setOpenDialog] = useState(false);
     const [editDialog, setEditDialog] = useState(false);
     const handleDelete = async (mac: string) => {
@@ -135,8 +133,12 @@ export default function DeviceDataTable() {
                                 <TableHead>MAC Address</TableHead>
                                 <TableHead>Location</TableHead>
                                 <TableHead>Status</TableHead>
-                                <TableHead>Created At</TableHead>
-                                <TableHead>Updated At</TableHead>
+                                <TableHead>Temp Min</TableHead>
+                                <TableHead>Temp Max</TableHead>
+                                <TableHead>Humid Min</TableHead>
+                                <TableHead>Humid Max</TableHead>
+                                {/* <TableHead>Created At</TableHead>
+                                <TableHead>Updated At</TableHead> */}
                                 <TableHead></TableHead>
                             </TableRow>
                         </TableHeader>
@@ -170,10 +172,28 @@ export default function DeviceDataTable() {
                                             </Badge>
                                         </TableCell>
                                         <TableCell>
-                                            {formatDate(row.created_at)}
+                                            <div className="flex items-center gap-1">
+                                                <ArrowDown className="w-4 h-4 text-blue-500" />
+                                                <span>{row.tempMin}°C</span>
+                                            </div>
                                         </TableCell>
                                         <TableCell>
-                                            {formatDate(row.updated_at)}
+                                            <div className="flex items-center gap-1">
+                                                <ArrowUp className="w-4 h-4 text-red-500" />
+                                                <span>{row.tempMax}°C</span>
+                                            </div>
+                                        </TableCell>
+                                        <TableCell>
+                                            <div className="flex items-center gap-1">
+                                                <ArrowDown className="w-4 h-4 text-blue-500" />
+                                                <span>{row.humidMin}%</span>
+                                            </div>
+                                        </TableCell>
+                                        <TableCell>
+                                            <div className="flex items-center gap-1">
+                                                <ArrowUp className="w-4 h-4 text-red-500" />
+                                                <span>{row.humidMax}%</span>
+                                            </div>
                                         </TableCell>
                                         <TableCell className="p-0 pr-2 text-right w-[40px]">
                                             <DropdownMenu>

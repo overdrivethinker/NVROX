@@ -27,8 +27,15 @@ import {
 import type { ChartConfig } from "@/components/ui/chart";
 import { DeviceSelector } from "./device-selector";
 import { Badge } from "@/components/ui/badge";
-import { AlertTriangle, Loader2, AudioLines, Droplet, Thermometer } from "lucide-react";
+import {
+    AlertTriangle,
+    Loader2,
+    AudioLines,
+    Droplet,
+    Thermometer,
+} from "lucide-react";
 import io from "socket.io-client";
+import axios from "axios";
 
 type ChartPoint = {
     datetime: string;
@@ -49,21 +56,28 @@ export function LiveChart() {
 
     const chartConfig = {
         temp: {
-            label: "Temperature (°C)",
+            label: "Temperature (°C)-",
             color: isDark ? "#3b82f6" : "#1a92eeff",
         },
         humid: {
-            label: "Humidity (%)",
+            label: "Humidity (%)-",
             color: isDark ? "#55de87ff" : "#00b84dff",
         },
     } satisfies ChartConfig;
 
-    const limits = {
-        tempMin: 22,
-        tempMax: 30,
-        humidMin: 40,
-        humidMax: 50,
+    type Limits = {
+        tempMin: number;
+        tempMax: number;
+        humidMin: number;
+        humidMax: number;
     };
+
+    const [limits, setLimits] = useState<Limits>({
+        tempMin: 0,
+        tempMax: 100,
+        humidMin: 0,
+        humidMax: 100,
+    });
 
     const [selectedMac, setSelectedMac] = useState<string | undefined>(
         undefined
@@ -72,19 +86,39 @@ export function LiveChart() {
     const [isLoading, setIsLoading] = useState(false);
     const [delayedLoading, setDelayedLoading] = useState(false);
     const [latestData, setLatestData] = useState<SensorData | null>(null);
+    const [isDisconnected, setIsDisconnected] = useState(false);
 
-    // SOCKET.IO - aktif setelah pilih MAC
     useEffect(() => {
         if (!selectedMac) return;
 
         setIsLoading(true);
         setChartData([]);
+        setIsDisconnected(false);
+        axios
+            .get(`${import.meta.env.VITE_API_BASE_URL}/devices/threshold`, {
+                params: {
+                    mac: selectedMac,
+                },
+            })
+            .then((res) => {
+                setLimits(res.data);
+            })
+            .catch((err) => {
+                console.error("Failed to fetch limits", err);
+            });
 
-        const socket = io("http://localhost:3000", {
+        const socket = io(import.meta.env.VITE_SOCKET_URL, {
             query: { mac: selectedMac },
         });
 
-        const timeout = setTimeout(() => setDelayedLoading(true), 1000);
+        const loadingTimeout = setTimeout(() => setDelayedLoading(true), 1000);
+
+        let noDataTimeout = setTimeout(() => {
+            setIsLoading(false);
+            setDelayedLoading(false);
+            setIsDisconnected(true);
+            setChartData([]);
+        }, 3000);
 
         socket.on("sensor_data", (data: SensorData) => {
             if (data.mac_address !== selectedMac) return;
@@ -94,16 +128,26 @@ export function LiveChart() {
                 temp: data.temperature,
                 humid: data.humidity,
             };
+
             setLatestData(data);
             setChartData((prev) => [...prev.slice(-20), point]);
             setIsLoading(false);
             setDelayedLoading(false);
-            clearTimeout(timeout);
+            setIsDisconnected(false);
+
+            clearTimeout(loadingTimeout);
+            clearTimeout(noDataTimeout);
+
+            noDataTimeout = setTimeout(() => {
+                setIsDisconnected(true);
+                setChartData([]);
+            }, 3000);
         });
 
         return () => {
             socket.disconnect();
-            clearTimeout(timeout);
+            clearTimeout(loadingTimeout);
+            clearTimeout(noDataTimeout);
         };
     }, [selectedMac]);
 
@@ -136,21 +180,21 @@ export function LiveChart() {
                         </Badge>
                     </div>
                 ) : isLoading || delayedLoading ? (
-                    <div className="flex flex-col items-center justify-center py-85">
+                    <div className="flex justify-center py-85">
                         <Badge
                             variant="outline"
                             className="text-base border-blue-700 text-blue-700 dark:text-blue-400 dark:border-blue-400">
                             <Loader2 className="w-4 h-4 me-1.5 animate-spin" />
-                            Loading chart...
+                            Waiting for live data...
                         </Badge>
                     </div>
-                ) : chartData.length === 0 ? (
+                ) : isDisconnected ? (
                     <div className="flex justify-center py-85">
                         <Badge
                             variant="outline"
                             className="text-base border-yellow-500 text-yellow-600 dark:border-yellow-900 dark:text-yellow-300">
                             <AlertTriangle className="w-4 h-4 me-1.5" />
-                            No data available
+                            Lost Connection
                         </Badge>
                     </div>
                 ) : (
@@ -159,14 +203,19 @@ export function LiveChart() {
                             <div className="w-full lg:w-1/2">
                                 <div className="flex justify-center px-2 mb-6">
                                     <Card
-                                        className={`w-full overflow-visible ${latestData &&
-                                            (latestData.temperature < limits.tempMin || latestData.temperature > limits.tempMax)
-                                            ? "bg-red-500 animate-pulse"
-                                            : ""
-                                            }`}
-                                    >
+                                        className={`w-full overflow-visible ${
+                                            latestData &&
+                                            (latestData.temperature <
+                                                limits.tempMin ||
+                                                latestData.temperature >
+                                                    limits.tempMax)
+                                                ? "bg-red-600 animate-pulse"
+                                                : ""
+                                        }`}>
                                         <CardHeader className="text-center">
-                                            <CardTitle className="text-lg">Temperature</CardTitle>
+                                            <CardTitle className="text-lg">
+                                                Temperature
+                                            </CardTitle>
                                             <CardDescription className="text-sm text-black dark:text-white">
                                                 Live Temperature Data
                                             </CardDescription>
@@ -175,10 +224,11 @@ export function LiveChart() {
                                             <div className="flex items-center justify-center text-[clamp(2rem,6vw,8rem)] font-bold text-primary leading-none whitespace-nowrap overflow-visible">
                                                 <Thermometer className="w-[clamp(2rem,6vw,8rem)] h-auto text-primary" />
                                                 {latestData?.temperature != null
-                                                    ? `${Number(latestData.temperature).toFixed(2)}%`
+                                                    ? `${Number(
+                                                          latestData.temperature
+                                                      ).toFixed(2)}°C`
                                                     : "--"}
                                             </div>
-
                                         </CardContent>
                                     </Card>
                                 </div>
@@ -253,7 +303,10 @@ export function LiveChart() {
                                                 fontSize={12}
                                                 tickLine={false}
                                                 axisLine={false}
-                                                domain={[20, 40]}
+                                                domain={[
+                                                    limits.tempMin - 10,
+                                                    limits.tempMax + 10,
+                                                ]}
                                             />
                                             <ChartTooltip
                                                 cursor={false}
@@ -308,21 +361,31 @@ export function LiveChart() {
                             <div className="w-full lg:w-1/2">
                                 {/* Label atas Temperature */}
                                 <div className="flex justify-center px-2 mb-6">
-                                    <Card className={`w-full overflow-visible ${latestData &&
-                                        (latestData.humidity < limits.humidMin || latestData.humidity > limits.humidMax)
-                                        ? "bg-red-500 animate-pulse"
-                                        : ""
-                                        }`}
-                                    >
+                                    <Card
+                                        className={`w-full overflow-visible ${
+                                            latestData &&
+                                            (latestData.humidity <
+                                                limits.humidMin ||
+                                                latestData.humidity >
+                                                    limits.humidMax)
+                                                ? "bg-red-600 animate-pulse"
+                                                : ""
+                                        }`}>
                                         <CardHeader className="text-center">
-                                            <CardTitle className="text-lg">Humidity</CardTitle>
-                                            <CardDescription className="text-sm text-black dark:text-white">Live Humidity Data</CardDescription>
+                                            <CardTitle className="text-lg">
+                                                Humidity
+                                            </CardTitle>
+                                            <CardDescription className="text-sm text-black dark:text-white">
+                                                Live Humidity Data
+                                            </CardDescription>
                                         </CardHeader>
                                         <CardContent className="flex justify-center items-center overflow-visible mb-10">
                                             <div className="flex items-center justify-center text-[clamp(2rem,6vw,8rem)] font-bold text-primary leading-none whitespace-nowrap overflow-visible">
                                                 <Droplet className="w-[clamp(2rem,6vw,8rem)] h-auto text-primary" />
                                                 {latestData?.humidity != null
-                                                    ? `${Number(latestData.humidity).toFixed(2)}%`
+                                                    ? `${Number(
+                                                          latestData.humidity
+                                                      ).toFixed(2)}%`
                                                     : "--"}
                                             </div>
                                         </CardContent>
@@ -397,7 +460,10 @@ export function LiveChart() {
                                                 fontSize={12}
                                                 tickLine={false}
                                                 axisLine={false}
-                                                domain={[30, 90]}
+                                                domain={[
+                                                    limits.humidMin - 20,
+                                                    limits.humidMax + 20,
+                                                ]}
                                             />
                                             <ChartTooltip
                                                 cursor={false}
@@ -451,6 +517,6 @@ export function LiveChart() {
                     </>
                 )}
             </CardContent>
-        </Card >
+        </Card>
     );
 }

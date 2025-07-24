@@ -35,9 +35,77 @@ router.get("/", async (req, res) => {
     }
 });
 
+router.get("/with-thresholds", async (req, res) => {
+    try {
+        const { page = 1, limit = 15 } = req.query;
+        const parsedLimit = parseInt(limit);
+        const parsedPage = parseInt(page);
+        const offset = (parsedPage - 1) * parsedLimit;
+
+        const rows = await knex("devices as d")
+            .leftJoin(
+                knex("sensor_thresholds")
+                    .select(
+                        "mac_address",
+                        "lower_limit as tempMin",
+                        "upper_limit as tempMax"
+                    )
+                    .where("parameter", "Temperature")
+                    .as("t"),
+                "d.mac_address",
+                "t.mac_address"
+            )
+            .leftJoin(
+                knex("sensor_thresholds")
+                    .select(
+                        "mac_address",
+                        "lower_limit as humidMin",
+                        "upper_limit as humidMax"
+                    )
+                    .where("parameter", "Humidity")
+                    .as("h"),
+                "d.mac_address",
+                "h.mac_address"
+            )
+            .select(
+                "d.device_name",
+                "d.mac_address",
+                "d.location",
+                "d.status",
+                "t.tempMin",
+                "t.tempMax",
+                "h.humidMin",
+                "h.humidMax",
+                "d.created_at",
+                "d.updated_at"
+            )
+            .orderBy("d.device_name", "asc")
+            .limit(parsedLimit)
+            .offset(offset);
+
+        const totalResult = await knex("devices").count("* as count").first();
+        const total = totalResult?.count || 0;
+
+        res.json({
+            data: rows,
+            pagination: {
+                page: parsedPage,
+                limit: parsedLimit,
+                total,
+                pages: Math.ceil(total / parsedLimit),
+            },
+        });
+    } catch (err) {
+        console.error("GET /devices error:", err.message);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+});
+
 router.get("/list", async (req, res) => {
     try {
-        const rows = await knex("devices").select("*");
+        const rows = await knex("devices")
+            .select("*")
+            .orderBy("device_name", "asc");
         res.json(rows);
     } catch (err) {
         console.error("GET /devices/list error:", err.message);
@@ -72,6 +140,66 @@ router.delete("/:mac", async (req, res) => {
     } catch (err) {
         console.error(err);
         res.status(500).json({ error: "Internal Server Error" });
+    }
+});
+
+router.get("/threshold", async (req, res) => {
+    const { mac } = req.query;
+    if (!mac) return res.status(400).json({ error: "mac is required" });
+
+    try {
+        const rows = await knex("sensor_thresholds") // ganti dengan nama tabelmu
+            .select("parameter", "lower_limit", "upper_limit")
+            .where("mac_address", mac);
+
+        const limits = {};
+        for (const row of rows) {
+            if (row.parameter === "Temperature") {
+                limits.tempMin = parseFloat(row.lower_limit);
+                limits.tempMax = parseFloat(row.upper_limit);
+            } else if (row.parameter === "Humidity") {
+                limits.humidMin = parseFloat(row.lower_limit);
+                limits.humidMax = parseFloat(row.upper_limit);
+            }
+        }
+
+        res.json(limits);
+    } catch (err) {
+        console.error("GET /devices/threshold error:", err.message);
+        res.status(500).json({ error: "Internal server error" });
+    }
+});
+
+router.get("/threshold/all", async (req, res) => {
+    try {
+        const rows = await knex("sensor_thresholds") // ganti nama tabel jika perlu
+            .select("mac_address", "parameter", "lower_limit", "upper_limit");
+
+        const grouped = {};
+
+        for (const row of rows) {
+            const mac = row.mac_address;
+
+            if (!grouped[mac]) {
+                grouped[mac] = {
+                    mac_address: mac,
+                };
+            }
+
+            if (row.parameter === "Temperature") {
+                grouped[mac].tempMin = parseFloat(row.lower_limit);
+                grouped[mac].tempMax = parseFloat(row.upper_limit);
+            } else if (row.parameter === "Humidity") {
+                grouped[mac].humidMin = parseFloat(row.lower_limit);
+                grouped[mac].humidMax = parseFloat(row.upper_limit);
+            }
+        }
+
+        const result = Object.values(grouped);
+        res.json(result);
+    } catch (err) {
+        console.error("GET /devices/threshold/all error:", err.message);
+        res.status(500).json({ error: "Internal server error" });
     }
 });
 
