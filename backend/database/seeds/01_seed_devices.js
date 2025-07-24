@@ -2,6 +2,11 @@
  * @param { import("knex").Knex } knex
  * @returns { Promise<void> }
  */
+function getRandomStatus() {
+    const num = Math.floor(Math.random() * 100);
+    return num % 2 === 0 ? "Inactive" : "Active";
+}
+
 exports.seed = async function (knex) {
     await knex("devices").del();
 
@@ -16,7 +21,7 @@ exports.seed = async function (knex) {
                 .padStart(2, "0")
                 .toUpperCase()}`,
             location: `Building ${num}`,
-            status: num % 2 == 0 ? "Inactive" : "Active",
+            status: getRandomStatus(),
             created_at: now,
             updated_at: now,
         };
