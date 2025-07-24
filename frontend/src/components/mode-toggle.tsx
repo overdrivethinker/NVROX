@@ -18,8 +18,8 @@ export function ModeToggle() {
     };
 
     const renderIcon = () => {
-        if (theme === "light") return <Moon className="h-4 w-4" />;
-        if (theme === "dark") return <Sun className="h-4 w-4" />;
+        if (theme === "light") return <Sun className="h-4 w-4" />;
+        if (theme === "dark") return <Moon className="h-4 w-4" />;
     };
 
     return (
