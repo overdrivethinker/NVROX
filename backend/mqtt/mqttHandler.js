@@ -42,8 +42,8 @@ const clearAllCache = async () => {
             const data = JSON.parse(message.toString());
             const { mac_address, temp, humid, timestamp } = data;
 
-            const device_id = await getDeviceId(mac_address);
-            if (!device_id) {
+            const device = await getDeviceId(mac_address);
+            if (!device) {
                 console.warn(
                     `[IGNORED] ${mac_address} not registered or inactive`
                 );
@@ -62,6 +62,8 @@ const clearAllCache = async () => {
                 temperature: temp,
                 humidity: humid,
                 recorded_at: timestamp || new Date().toISOString(),
+                device_name: device.device_name,
+                location: device.location,
             });
 
             console.log(`[SAVED] ${mac_address} | ${temp}°C | ${humid}%`);
