@@ -10,6 +10,7 @@ import {
 import { useEffect, useRef, useState } from "react";
 import io from "socket.io-client";
 import classNames from "classnames";
+import { throttle } from "lodash";
 
 type Device = {
     mac_address: string;
@@ -47,29 +48,35 @@ export default function SensorCardGrid({
     >({});
     const deviceTimeouts = useRef<Record<string, NodeJS.Timeout>>({});
 
+    const throttledUpdates: Record<string, Function> = {};
+
     useEffect(() => {
         const socket = io(import.meta.env.VITE_SOCKET_URL);
+        const timeouts = deviceTimeouts.current;
 
         const initialStates: Record<string, "no_data"> = {};
         devices.forEach((d) => {
             initialStates[d.mac_address] = "no_data";
-        });
-        setDeviceStates(initialStates);
 
-        const timeouts = deviceTimeouts.current;
+            throttledUpdates[d.mac_address] = throttle((data: SensorData) => {
+                setSensors((prev) => ({
+                    ...prev,
+                    [data.mac_address]: data,
+                }));
+
+                setDeviceStates((prev) => ({
+                    ...prev,
+                    [data.mac_address]: "ok",
+                }));
+            }, 500);
+        });
+
+        setDeviceStates(initialStates);
 
         socket.on("sensor_data", (data: SensorData) => {
             const { mac_address } = data;
 
-            setSensors((prev) => ({
-                ...prev,
-                [mac_address]: data,
-            }));
-
-            setDeviceStates((prev) => ({
-                ...prev,
-                [mac_address]: "ok",
-            }));
+            throttledUpdates[mac_address]?.(data);
 
             if (timeouts[mac_address]) {
                 clearTimeout(timeouts[mac_address]);
@@ -145,14 +152,14 @@ export default function SensorCardGrid({
                                             {
                                                 "bg-red-600 text-white animate-pulse":
                                                     sensor.temperature <
-                                                        limit.tempMin ||
+                                                    limit.tempMin ||
                                                     sensor.temperature >
-                                                        limit.tempMax,
+                                                    limit.tempMax,
                                                 "bg-blue-100 dark:bg-blue-900":
                                                     sensor.temperature >=
-                                                        limit.tempMin &&
+                                                    limit.tempMin &&
                                                     sensor.temperature <=
-                                                        limit.tempMax,
+                                                    limit.tempMax,
                                             }
                                         )}>
                                         <span className="text-xs mb-1">
@@ -173,14 +180,14 @@ export default function SensorCardGrid({
                                             {
                                                 "bg-red-600 text-white animate-pulse":
                                                     sensor.humidity <
-                                                        limit.humidMin ||
+                                                    limit.humidMin ||
                                                     sensor.humidity >
-                                                        limit.humidMax,
+                                                    limit.humidMax,
                                                 "bg-emerald-100 dark:bg-emerald-900":
                                                     sensor.humidity >=
-                                                        limit.humidMin &&
+                                                    limit.humidMin &&
                                                     sensor.humidity <=
-                                                        limit.humidMax,
+                                                    limit.humidMax,
                                             }
                                         )}>
                                         <span className="text-xs mb-1">
