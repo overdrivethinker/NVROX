@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/table";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 
-import { CheckCircle, XCircle, ArrowUp, ArrowDown } from "lucide-react";
+import { Droplet, Thermometer, ArrowUp, ArrowDown } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
 type DeviceData = {
@@ -108,33 +108,41 @@ export default function AlertsDataTable() {
                                                 className={
                                                     row.parameter ===
                                                     "Temperature"
-                                                        ? "border-green-300 text-green-500 dark:border-green-900 dark:text-green-400"
-                                                        : "border-red-300 text-red-500 dark:border-red-900 dark:text-red-400"
+                                                        ? "border-amber-500 text-amber-400"
+                                                        : "border-amber-600 text-amber-500"
                                                 }>
                                                 {row.status ===
                                                 "Temperature" ? (
                                                     <>
-                                                        <CheckCircle className="w-4 h-4" />
+                                                        <Thermometer className="w-4 h-4" />
                                                         Temperature
                                                     </>
                                                 ) : (
                                                     <>
-                                                        <XCircle className="w-4 h-4" />
+                                                        <Droplet className="w-4 h-4" />
                                                         Humidity
                                                     </>
                                                 )}
                                             </Badge>
                                         </TableCell>
-                                        <TableCell>{row.value}</TableCell>
-                                        <TableCell>{row.threshold}</TableCell>
+                                        <TableCell>
+                                            {row.parameter === "Temperature"
+                                                ? `${row.value}°C`
+                                                : `${row.value}%`}
+                                        </TableCell>
+                                        <TableCell>
+                                            {row.parameter === "Temperature"
+                                                ? `${row.threshold}°C`
+                                                : `${row.threshold}%`}
+                                        </TableCell>
                                         <TableCell>
                                             {" "}
                                             <Badge
                                                 variant="outline"
                                                 className={
                                                     row.status === "Exceed"
-                                                        ? "border-green-300 text-green-500 dark:border-green-900 dark:text-green-400"
-                                                        : "border-red-300 text-red-500 dark:border-red-900 dark:text-red-400"
+                                                        ? "border-red-300 text-red-500 dark:border-red-900 dark:text-red-400"
+                                                        : "border-blue-300 text-blue-500 dark:border-blue-900 dark:text-blue-400"
                                                 }>
                                                 {row.status === "Exceed" ? (
                                                     <>
@@ -155,7 +163,7 @@ export default function AlertsDataTable() {
                             ) : (
                                 <TableRow>
                                     <TableCell
-                                        colSpan={6}
+                                        colSpan={7}
                                         className="text-center font-medium">
                                         {loading
                                             ? "Loading..."
