@@ -4,6 +4,13 @@ const express = require("express");
 const router = express.Router();
 const knex = require("@db/knex");
 
+const dayjs = require("dayjs");
+const utc = require("dayjs/plugin/utc");
+const timezone = require("dayjs/plugin/timezone");
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
+
 router.get("/", async (req, res) => {
     try {
         const { page = 1, limit = 15 } = req.query;
@@ -31,6 +38,57 @@ router.get("/", async (req, res) => {
         });
     } catch (err) {
         console.error("GET /devices/paginated error:", err.message);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+});
+
+router.get("/alerts", async (req, res) => {
+    try {
+        const { page = 1, limit = 5 } = req.query;
+        const parsedLimit = parseInt(limit);
+        const parsedPage = parseInt(page);
+        const offset = (parsedPage - 1) * parsedLimit;
+
+        const rows = await knex("alerts")
+            .select(
+                "devices.device_name",
+                "devices.location",
+                "alerts.parameter",
+                "alerts.value",
+                "alerts.threshold",
+                "alerts.status",
+                "alerts.recorded_at"
+            )
+            .leftJoin("devices", "alerts.mac_address", "devices.mac_address")
+            .orderBy([
+                { column: "alerts.recorded_at", order: "desc" },
+                { column: "alerts.id", order: "desc" },
+            ])
+            .limit(parsedLimit)
+            .offset(offset);
+
+        // Format waktu agar tetap pakai Asia/Jakarta (GMT+7)
+        const fixedRows = rows.map((row) => ({
+            ...row,
+            recorded_at: dayjs(row.recorded_at)
+                .tz("Asia/Jakarta")
+                .format("YYYY-MM-DD HH:mm:ssZ"),
+        }));
+
+        const totalResult = await knex("alerts").count("* as count").first();
+        const total = Number(totalResult?.count || 0);
+
+        res.json({
+            data: fixedRows,
+            pagination: {
+                page: parsedPage,
+                limit: parsedLimit,
+                total,
+                pages: Math.ceil(total / parsedLimit),
+            },
+        });
+    } catch (err) {
+        console.error("GET /devices/alerts error:", err.message);
         res.status(500).json({ error: "Internal Server Error" });
     }
 });
