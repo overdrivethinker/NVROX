@@ -19,6 +19,7 @@ import { Tabs, TabsContent } from "@/components/ui/tabs";
 
 import { Droplet, Thermometer, ArrowUp, ArrowDown } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { format, parseISO } from "date-fns";
 
 type DeviceData = {
     device_name: string;
@@ -77,6 +78,9 @@ export default function AlertsDataTable() {
             setPagination((prev) => ({ ...prev, page }));
         }
     };
+    const formatDate = (dateStr: string) => {
+        return format(parseISO(dateStr), "yyyy-MM-dd HH:mm:ss");
+    };
     return (
         <Tabs defaultValue="outline" className="w-full flex-col gap-4">
             <TabsContent
@@ -98,7 +102,7 @@ export default function AlertsDataTable() {
                         <TableBody>
                             {data.length > 0 ? (
                                 data.map((row) => (
-                                    <TableRow key={row.device_name}>
+                                    <TableRow>
                                         <TableCell>{row.device_name}</TableCell>
                                         <TableCell>{row.location}</TableCell>
                                         <TableCell>
@@ -107,12 +111,12 @@ export default function AlertsDataTable() {
                                                 variant="outline"
                                                 className={
                                                     row.parameter ===
-                                                    "Temperature"
+                                                        "Temperature"
                                                         ? "border-amber-500 text-amber-400"
                                                         : "border-amber-600 text-amber-500"
                                                 }>
-                                                {row.status ===
-                                                "Temperature" ? (
+                                                {row.parameter ===
+                                                    "Temperature" ? (
                                                     <>
                                                         <Thermometer className="w-4 h-4" />
                                                         Temperature
@@ -157,7 +161,7 @@ export default function AlertsDataTable() {
                                                 )}
                                             </Badge>
                                         </TableCell>
-                                        <TableCell>{row.recorded_at}</TableCell>
+                                        <TableCell>{formatDate(row.recorded_at)}</TableCell>
                                     </TableRow>
                                 ))
                             ) : (
