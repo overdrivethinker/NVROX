@@ -188,27 +188,27 @@ export function AlertsChart() {
                         </BarChart>
                     </ResponsiveContainer>
                 </ChartContainer>
+                <CardFooter className="flex justify-center text-sm gap-4 mt-10">
+                    <div className="flex items-center gap-2">
+                        <span
+                            className="h-3 w-3 rounded-full"
+                            style={{ backgroundColor: chartConfig.temp.color }}
+                        />
+                        <span className="text-muted-foreground">
+                            Temperature Alarm
+                        </span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <span
+                            className="h-3 w-3 rounded-full"
+                            style={{ backgroundColor: chartConfig.humid.color }}
+                        />
+                        <span className="text-muted-foreground">
+                            Humidity Alarm
+                        </span>
+                    </div>
+                </CardFooter>
             </CardContent>
-            <CardFooter className="flex justify-center text-sm gap-4">
-                <div className="flex items-center gap-2">
-                    <span
-                        className="h-3 w-3 rounded-full"
-                        style={{ backgroundColor: chartConfig.temp.color }}
-                    />
-                    <span className="text-muted-foreground">
-                        Temperature Alarm
-                    </span>
-                </div>
-                <div className="flex items-center gap-2">
-                    <span
-                        className="h-3 w-3 rounded-full"
-                        style={{ backgroundColor: chartConfig.humid.color }}
-                    />
-                    <span className="text-muted-foreground">
-                        Humidity Alarm
-                    </span>
-                </div>
-            </CardFooter>
             <AlertsDataTable />
         </Card>
     );
