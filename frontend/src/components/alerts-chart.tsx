@@ -136,14 +136,14 @@ export function AlertsChart() {
             <CardContent className="flex flex-col flex-1 justify-center items-center overflow-x-auto overflow-y-auto sm:px-4 pt-2 sm:pt-3">
                 <ChartContainer
                     config={chartConfig}
-                    className="h-[350px] w-full">
+                    className="h-[40vh] sm:h-[360px] w-full">
                     <ResponsiveContainer width="100%" height="100%">
                         <BarChart
                             data={chartData}
                             margin={{
                                 top: 0,
-                                right: 0,
-                                left: 0,
+                                right: 10,
+                                left: -20,
                                 bottom: 30,
                             }}>
                             <XAxis
