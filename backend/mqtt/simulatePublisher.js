@@ -40,7 +40,6 @@ for (let i = 0; i < TOTAL_DEVICES; i++) {
                 mac_address: macAddress,
                 temp,
                 humid,
-                timestamp: new Date().toISOString(),
             });
 
             client.publish(topic, payload, { qos });

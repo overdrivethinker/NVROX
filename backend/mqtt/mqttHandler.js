@@ -40,7 +40,7 @@ const clearAllCache = async () => {
 
         try {
             const data = JSON.parse(message.toString());
-            const { mac_address, temp, humid, timestamp } = data;
+            const { mac_address, temp, humid } = data;
 
             const device = await getDeviceId(mac_address);
             if (!device) {
@@ -49,19 +49,20 @@ const clearAllCache = async () => {
                 );
                 return;
             }
+            const now = new Date();
 
             await knex("sensor_readings").insert({
                 mac_address,
                 temperature: temp,
                 humidity: humid,
-                recorded_at: knex.fn.now(),
+                recorded_at: now,
             });
 
             emitToClients("sensor_data", {
                 mac_address,
                 temperature: temp,
                 humidity: humid,
-                recorded_at: timestamp || new Date().toISOString(),
+                recorded_at: now.toISOString(),
                 device_name: device.device_name,
                 location: device.location,
             });
