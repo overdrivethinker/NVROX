@@ -68,7 +68,7 @@ export default function SensorCardGrid({
                     ...prev,
                     [data.mac_address]: "ok",
                 }));
-            }, 500);
+            }, 1000);
         });
 
         setDeviceStates(initialStates);
