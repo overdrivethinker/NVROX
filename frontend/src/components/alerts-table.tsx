@@ -42,7 +42,7 @@ export default function AlertsDataTable() {
     const [data, setData] = useState<DeviceData[]>([]);
     const [pagination, setPagination] = useState<PaginationInfo>({
         page: 1,
-        limit: 5,
+        limit: 15,
         total: 0,
         pages: 1,
     });
@@ -85,7 +85,7 @@ export default function AlertsDataTable() {
         <Tabs defaultValue="outline" className="w-full flex-col gap-4">
             <TabsContent
                 value="outline"
-                className="relative flex flex-col gap-4 overflow-auto px-4 lg:px-6">
+                className="relative flex flex-col gap-4 overflow-auto">
                 <div className="overflow-x-auto rounded-lg border">
                     <Table className="min-w-[600px]">
                         <TableHeader className="bg-muted sticky top-0 z-10">

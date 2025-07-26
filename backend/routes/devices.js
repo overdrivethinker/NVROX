@@ -44,7 +44,7 @@ router.get("/", async (req, res) => {
 
 router.get("/alerts", async (req, res) => {
     try {
-        const { page = 1, limit = 5 } = req.query;
+        const { page = 1, limit = 15 } = req.query;
         const parsedLimit = parseInt(limit);
         const parsedPage = parseInt(page);
         const offset = (parsedPage - 1) * parsedLimit;
