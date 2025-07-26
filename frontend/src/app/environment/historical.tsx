@@ -78,7 +78,7 @@ export default function Historical() {
                         </CardHeader>
                         <CardContent>
                             <Tabs defaultValue="logs">
-                                <TabsList className="grid w-full grid-cols-2">
+                                <TabsList className="grid w-full grid-cols-2 p-0">
                                     <TabsTrigger value="logs">
                                         Historical Logs
                                     </TabsTrigger>
@@ -86,96 +86,94 @@ export default function Historical() {
                                         Device Alerts
                                     </TabsTrigger>
                                 </TabsList>
-                                <TabsContent value="logs">
-                                    <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between w-full mb-4">
-                                        <div className="flex flex-wrap gap-4 items-end">
-                                            <div className="flex flex-col min-w-[150px]">
-                                                <DeviceSelector
-                                                    value={selectedMac}
-                                                    onChange={setSelectedMac}
-                                                />
-                                            </div>
+                                <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between w-full mb-1 ">
+                                    <div className="flex flex-wrap gap-4 items-end">
+                                        <div className="flex flex-col min-w-[150px]">
+                                            <DeviceSelector
+                                                value={selectedMac}
+                                                onChange={setSelectedMac}
+                                            />
+                                        </div>
 
-                                            <div className="flex flex-col min-w-[100px]">
-                                                <Popover>
-                                                    <PopoverTrigger asChild>
-                                                        <Button
-                                                            variant="outline"
-                                                            size="sm"
-                                                            className="h-9 justify-start text-left font-normal"
-                                                            id="view-selector">
-                                                            {dateRange?.from ? (
-                                                                dateRange.to ? (
-                                                                    `${format(
-                                                                        dateRange.from,
-                                                                        "yyyy/MM/dd"
-                                                                    )} to ${format(
-                                                                        dateRange.to,
-                                                                        "yyyy/MM/dd"
-                                                                    )}`
-                                                                ) : (
-                                                                    format(
-                                                                        dateRange.from,
-                                                                        "P"
-                                                                    )
-                                                                )
+                                        <div className="flex flex-col min-w-[100px]">
+                                            <Popover>
+                                                <PopoverTrigger asChild>
+                                                    <Button
+                                                        variant="outline"
+                                                        size="sm"
+                                                        className="h-9 justify-start text-left font-normal"
+                                                        id="view-selector">
+                                                        {dateRange?.from ? (
+                                                            dateRange.to ? (
+                                                                `${format(
+                                                                    dateRange.from,
+                                                                    "yyyy/MM/dd"
+                                                                )} to ${format(
+                                                                    dateRange.to,
+                                                                    "yyyy/MM/dd"
+                                                                )}`
                                                             ) : (
-                                                                <span className="text-muted-foreground">
-                                                                    Pick a date
-                                                                    range
-                                                                </span>
-                                                            )}
-                                                            <CalendarIcon className="ml-2 h-4 w-4 opacity-50" />
+                                                                format(
+                                                                    dateRange.from,
+                                                                    "P"
+                                                                )
+                                                            )
+                                                        ) : (
+                                                            <span className="text-muted-foreground">
+                                                                Pick a date
+                                                                range
+                                                            </span>
+                                                        )}
+                                                        <CalendarIcon className="ml-2 h-4 w-4 opacity-50" />
+                                                    </Button>
+                                                </PopoverTrigger>
+                                                <PopoverContent
+                                                    className="w-auto p-2"
+                                                    align="start">
+                                                    <DateRangePopover
+                                                        dateRange={dateRange}
+                                                        onDateChange={
+                                                            setDateRange
+                                                        }
+                                                    />
+                                                    <div className="flex justify-end">
+                                                        <Button
+                                                            variant="ghost"
+                                                            size="sm"
+                                                            onClick={() =>
+                                                                setDateRange(
+                                                                    undefined
+                                                                )
+                                                            }
+                                                            className="text-sm text-muted-foreground hover:text-foreground">
+                                                            Reset
                                                         </Button>
-                                                    </PopoverTrigger>
-                                                    <PopoverContent
-                                                        className="w-auto p-2"
-                                                        align="start">
-                                                        <DateRangePopover
-                                                            dateRange={
-                                                                dateRange
-                                                            }
-                                                            onDateChange={
-                                                                setDateRange
-                                                            }
-                                                        />
-                                                        <div className="flex justify-end">
-                                                            <Button
-                                                                variant="ghost"
-                                                                size="sm"
-                                                                onClick={() =>
-                                                                    setDateRange(
-                                                                        undefined
-                                                                    )
-                                                                }
-                                                                className="text-sm text-muted-foreground hover:text-foreground">
-                                                                Reset
-                                                            </Button>
-                                                        </div>
-                                                    </PopoverContent>
-                                                </Popover>
-                                            </div>
-
-                                            <Button
-                                                variant="outline"
-                                                size="sm"
-                                                className="h-9 mt-6 ">
-                                                <Search className="mr-2 h-4 w-4" />{" "}
-                                                Search
-                                            </Button>
+                                                    </div>
+                                                </PopoverContent>
+                                            </Popover>
                                         </div>
 
                                         <Button
                                             variant="outline"
                                             size="sm"
-                                            className="h-9 w-fit mt-2 sm:mt-6">
-                                            <Download className="mr-2 h-4 w-4" />{" "}
-                                            Export
+                                            className="h-9 mt-1">
+                                            <Search className="mr-2 h-4 w-4" />{" "}
+                                            Search
                                         </Button>
                                     </div>
+
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        className="h-9 w-fit mt-1 sm:mt-1">
+                                        <Download className="mr-2 h-4 w-4" />{" "}
+                                        Export
+                                    </Button>
+                                </div>
+                                <TabsContent value="logs">
                                     <SensorDataTable />
                                 </TabsContent>
-                                <TabsContent value="alerts" className="mt-4">
+                                <TabsContent value="alerts">
                                     <AlertsDataTable />
                                 </TabsContent>
                             </Tabs>
