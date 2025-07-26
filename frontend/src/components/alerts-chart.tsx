@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Bar, BarChart, XAxis, YAxis } from "recharts";
 import {
     Card,
@@ -24,50 +24,41 @@ import {
 } from "@/components/ui/select";
 import type { ChartConfig } from "@/components/ui/chart";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import AlertsDataTable from "./alerts-table";
 export const description = "A multiple bar chart";
+import axios from "axios";
+import io from "socket.io-client";
+import { Badge } from "@/components/ui/badge";
+import { AlertTriangle, Loader2 } from "lucide-react";
 
-const chartData = [
-    { device: "NVROX-01", temp: 186, humid: 80 },
-    { device: "NVROX-02", temp: 305, humid: 200 },
-    { device: "NVROX-03", temp: 237, humid: 120 },
-    { device: "NVROX-04", temp: 73, humid: 190 },
-    { device: "NVROX-05", temp: 209, humid: 130 },
-    { device: "NVROX-06", temp: 214, humid: 140 },
-    { device: "NVROX-07", temp: 165, humid: 110 },
-    { device: "NVROX-08", temp: 98, humid: 85 },
-    { device: "NVROX-09", temp: 125, humid: 95 },
-    { device: "NVROX-10", temp: 144, humid: 105 },
-    { device: "NVROX-11", temp: 178, humid: 90 },
-    { device: "NVROX-12", temp: 222, humid: 115 },
-    { device: "NVROX-13", temp: 133, humid: 120 },
-    { device: "NVROX-14", temp: 156, humid: 98 },
-    { device: "NVROX-15", temp: 189, humid: 76 },
-    { device: "NVROX-16", temp: 210, humid: 89 },
-    { device: "NVROX-17", temp: 195, humid: 102 },
-    { device: "NVROX-18", temp: 160, humid: 117 },
-    { device: "NVROX-19", temp: 130, humid: 108 },
-    { device: "NVROX-20", temp: 175, humid: 95 },
-    { device: "NVROX-21", temp: 140, humid: 132 },
-    { device: "NVROX-22", temp: 199, humid: 121 },
-    { device: "NVROX-23", temp: 183, humid: 110 },
-    { device: "NVROX-24", temp: 121, humid: 107 },
-    { device: "NVROX-25", temp: 134, humid: 123 },
-    { device: "NVROX-26", temp: 169, humid: 92 },
-    { device: "NVROX-27", temp: 205, humid: 119 },
-    { device: "NVROX-28", temp: 157, humid: 100 },
-    { device: "NVROX-29", temp: 190, humid: 105 },
-    { device: "NVROX-30", temp: 177, humid: 88 },
-];
+type Device = {
+    device_name: string;
+    mac_address: string;
+    location: string;
+    status: string;
+    created_at: string;
+    updated_at: string;
+};
+
+type AlertData = {
+    device: string;
+    temp: number;
+    humid: number;
+};
+
+type ChartPoint = {
+    device_name: string;
+    temperature: number;
+    humidity: number;
+};
 
 const chartConfig = {
     temp: {
         label: "Temperature",
-        color: "#fbbf24",
+        color: "#fca5a5",
     },
     humid: {
         label: "Humidity",
-        color: "#f59e0b",
+        color: "#ef4444",
     },
 } satisfies ChartConfig;
 
@@ -76,13 +67,118 @@ export function AlertsChart() {
     type TimeRange = (typeof validRanges)[number];
     const [timeRange, setTimeRange] =
         useState<(typeof validRanges)[number]>("today");
+    const [alertSum, setAlertSum] = useState<ChartPoint[]>([]);
+    const [devices, setDevices] = useState<Device[]>([]);
+    const [isLoading, setIsLoading] = useState(false);
+    const [delayedLoading, setDelayedLoading] = useState(false);
+
+    useEffect(() => {
+        setIsLoading(true);
+        setDelayedLoading(true);
+        const delayTimeout = setTimeout(() => {
+            setDelayedLoading(false);
+        }, 1000);
+        axios
+            .get(import.meta.env.VITE_API_BASE_URL + "/devices/list")
+            .then((res) => {
+                setDevices(res.data);
+                const initialChartData: ChartPoint[] = res.data.map(
+                    (device: Device) => ({
+                        device_name: device.device_name,
+                        temperature: 0,
+                        humidity: 0,
+                    })
+                );
+                setAlertSum(initialChartData);
+            })
+            .catch((err) => console.error("Error fetching devices", err));
+        return () => clearTimeout(delayTimeout);
+    }, []);
+
+    const deviceMap = useMemo(() => {
+        const map: Record<string, string> = {};
+        devices.forEach((device) => {
+            map[device.mac_address] = device.device_name;
+        });
+        return map;
+    }, [devices]);
+
+    useEffect(() => {
+        if (devices.length === 0) return;
+        setIsLoading(true);
+        axios
+            .get(`${import.meta.env.VITE_API_BASE_URL}/devices/alerts-sum`, {
+                params: { range: timeRange },
+            })
+            .then((res) => {
+                const chartData: ChartPoint[] = devices.map((device) => {
+                    const alertData = res.data.find(
+                        (d: AlertData) => d.device === device.device_name
+                    );
+                    return {
+                        device_name: device.device_name,
+                        temperature: alertData?.temp || 0,
+                        humidity: alertData?.humid || 0,
+                    };
+                });
+                setAlertSum(chartData);
+            })
+            .catch((err) => {
+                console.error("Failed to fetch alerts summary", err);
+                const resetData: ChartPoint[] = devices.map((device) => ({
+                    device_name: device.device_name,
+                    temperature: 0,
+                    humidity: 0,
+                }));
+                setAlertSum(resetData);
+            })
+            .finally(() => {
+                setIsLoading(false);
+            });
+    }, [timeRange, devices]);
+
+    useEffect(() => {
+        if (timeRange !== "today" || devices.length === 0) return;
+
+        const socket = io(import.meta.env.VITE_SOCKET_URL);
+
+        function handleRealtimeUpdate(data: {
+            mac_address: string;
+            temperature: number;
+            humidity: number;
+        }) {
+            const device_name = deviceMap[data.mac_address];
+            if (!device_name) return;
+
+            setAlertSum((prev) => {
+                return prev.map((item) => {
+                    if (item.device_name === device_name) {
+                        return {
+                            ...item,
+                            temperature: item.temperature + data.temperature,
+                            humidity: item.humidity + data.humidity,
+                        };
+                    }
+                    return item;
+                });
+            });
+        }
+
+        socket.on("new_alerts", handleRealtimeUpdate);
+
+        return () => {
+            socket.off("new_alerts", handleRealtimeUpdate);
+            socket.disconnect();
+        };
+    }, [timeRange, deviceMap, devices.length]);
+
     return (
         <Card className="@container/card flex-1 min-h-[600px] overflow-hidden">
             <CardHeader>
-                <CardTitle>Device Alarm</CardTitle>
+                <CardTitle>Device Alerts</CardTitle>
                 <CardDescription>
                     <span className="hidden @[540px]/card:block">
-                        Alarm count for the last 3 days
+                        Alerts count for the last 3 days
                     </span>
                     <span className="@[540px]/card:hidden">Last 3 days</span>
                 </CardDescription>
@@ -134,78 +230,114 @@ export function AlertsChart() {
                 </CardAction>
             </CardHeader>
             <CardContent className="flex flex-col flex-1 justify-center items-center overflow-x-auto overflow-y-auto sm:px-4 pt-2 sm:pt-3">
-                <ChartContainer
-                    config={chartConfig}
-                    className="h-[40vh] sm:h-[360px] w-full">
-                    <BarChart
-                        data={chartData}
-                        margin={{
-                            top: 0,
-                            right: 10,
-                            left: -20,
-                            bottom: 30,
-                        }}>
-                        <XAxis
-                            dataKey="device"
-                            tickLine={true}
-                            interval={0}
-                            tickMargin={5}
-                            axisLine={true}
-                            tick={({ x, y, payload }) => (
-                                <text
-                                    x={x}
-                                    y={y + 10}
-                                    textAnchor="end"
-                                    transform={`rotate(-45, ${x}, ${y})`}
-                                    fontSize={12}>
-                                    {payload.value}
-                                </text>
-                            )}
-                        />
-                        <YAxis
-                            stroke={chartConfig.temp.color}
-                            fontSize={12}
-                            tickLine={false}
-                            axisLine={false}
-                            domain={[0, 100]}
-                        />
-                        <ChartTooltip
-                            content={<ChartTooltipContent indicator="dot" />}
-                        />
-                        <Bar
-                            dataKey="temp"
-                            fill={chartConfig.temp.color}
-                            radius={4}
-                        />
-                        <Bar
-                            dataKey="humid"
-                            fill={chartConfig.humid.color}
-                            radius={4}
-                        />
-                    </BarChart>
-                </ChartContainer>
-                <CardFooter className="flex justify-center text-sm gap-4 mt-10">
-                    <div className="flex items-center gap-2">
-                        <span
-                            className="h-3 w-3 rounded-full"
-                            style={{ backgroundColor: chartConfig.temp.color }}
-                        />
-                        <span className="text-muted-foreground">
-                            Temperature Alarm
-                        </span>
+                {isLoading || delayedLoading ? (
+                    <div className="flex justify-center items-center min-h-[200px] w-full">
+                        <Badge
+                            variant="outline"
+                            className="text-base border-blue-700 text-blue-700 dark:text-blue-400 dark:border-blue-400">
+                            <Loader2 className="w-4 h-4 me-1.5 animate-spin" />
+                            Loading chart...
+                        </Badge>
                     </div>
-                    <div className="flex items-center gap-2">
-                        <span
-                            className="h-3 w-3 rounded-full"
-                            style={{ backgroundColor: chartConfig.humid.color }}
-                        />
-                        <span className="text-muted-foreground">
-                            Humidity Alarm
-                        </span>
+                ) : alertSum.length === 0 ||
+                  alertSum.every(
+                      (item) => item.temperature === 0 && item.humidity === 0
+                  ) ? (
+                    <div className="flex justify-center items-center min-h-[200px] w-full">
+                        <Badge
+                            variant="outline"
+                            className="text-base border-yellow-500 text-yellow-600 dark:border-yellow-900 dark:text-yellow-300">
+                            <AlertTriangle className="w-4 h-4 me-1.5" />
+                            No data available
+                        </Badge>
                     </div>
-                </CardFooter>
+                ) : (
+                    <>
+                        <ChartContainer
+                            config={chartConfig}
+                            className="h-[650px] w-full">
+                            <BarChart
+                                key={timeRange}
+                                data={alertSum}
+                                margin={{
+                                    top: 0,
+                                    right: 10,
+                                    left: -20,
+                                    bottom: 30,
+                                }}>
+                                <XAxis
+                                    dataKey="device_name"
+                                    tickLine={true}
+                                    interval={0}
+                                    tickMargin={5}
+                                    axisLine={true}
+                                    tick={({ x, y, payload }) => (
+                                        <text
+                                            x={x}
+                                            y={y + 10}
+                                            textAnchor="end"
+                                            transform={`rotate(-45, ${x}, ${y})`}
+                                            fontSize={12}>
+                                            {payload.value}
+                                        </text>
+                                    )}
+                                />
+                                <YAxis
+                                    stroke={chartConfig.temp.color}
+                                    fontSize={12}
+                                    tickLine={true}
+                                    axisLine={false}
+                                    domain={[
+                                        (dataMin: number) =>
+                                            Math.max(0, dataMin - 5),
+                                        (dataMax: number) => dataMax + 5,
+                                    ]}
+                                />
+                                <ChartTooltip
+                                    content={
+                                        <ChartTooltipContent indicator="dot" />
+                                    }
+                                />
+                                <Bar
+                                    dataKey="temperature"
+                                    fill={chartConfig.temp.color}
+                                    radius={4}
+                                />
+                                <Bar
+                                    dataKey="humidity"
+                                    fill={chartConfig.humid.color}
+                                    radius={4}
+                                />
+                            </BarChart>
+                        </ChartContainer>
+                        <CardFooter className="flex justify-center text-sm gap-4 mt-10">
+                            <div className="flex items-center gap-2">
+                                <span
+                                    className="h-3 w-3 rounded-full"
+                                    style={{
+                                        backgroundColor: chartConfig.temp.color,
+                                    }}
+                                />
+                                <span className="text-muted-foreground">
+                                    Temperature Alerts
+                                </span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <span
+                                    className="h-3 w-3 rounded-full"
+                                    style={{
+                                        backgroundColor:
+                                            chartConfig.humid.color,
+                                    }}
+                                />
+                                <span className="text-muted-foreground">
+                                    Humidity Alerts
+                                </span>
+                            </div>
+                        </CardFooter>
+                    </>
+                )}
             </CardContent>
-            <AlertsDataTable />
         </Card>
     );
 }

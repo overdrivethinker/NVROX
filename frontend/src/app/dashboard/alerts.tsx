@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/sidebar";
 import { ModeToggle } from "@/components/mode-toggle";
 import { AlertsChart } from "@/components/alerts-chart";
-export default function AlertWarning() {
+export default function Alerts() {
     return (
         <SidebarProvider>
             <AppSidebar />
@@ -33,9 +33,7 @@ export default function AlertWarning() {
                                 </BreadcrumbItem>
                                 <BreadcrumbSeparator className="hidden md:block" />
                                 <BreadcrumbItem>
-                                    <BreadcrumbPage>
-                                        Alert & Warning
-                                    </BreadcrumbPage>
+                                    <BreadcrumbPage>Alerts</BreadcrumbPage>
                                 </BreadcrumbItem>
                             </BreadcrumbList>
                         </Breadcrumb>

@@ -261,6 +261,62 @@ router.get("/threshold/all", async (req, res) => {
     }
 });
 
+router.get("/alerts-sum", async (req, res) => {
+    const { range } = req.query;
+
+    if (!range) {
+        return res.status(400).json({ error: "range is required" });
+    }
+
+    try {
+        const now = new Date();
+        let start = new Date();
+
+        if (range === "today") {
+            start.setHours(0, 0, 0, 0);
+        } else if (range === "yesterday") {
+            start.setDate(now.getDate() - 1);
+            start.setHours(0, 0, 0, 0);
+            now.setDate(now.getDate() - 1);
+            now.setHours(23, 59, 59, 999);
+        } else if (range === "2daysago") {
+            start.setDate(now.getDate() - 2);
+            start.setHours(0, 0, 0, 0);
+            now.setDate(now.getDate() - 2);
+            now.setHours(23, 59, 59, 999);
+        } else {
+            return res.status(400).json({ error: "Invalid range" });
+        }
+
+        const rows = await knex("alerts as a")
+            .join("devices as d", "a.mac_address", "=", "d.mac_address")
+            .select("a.mac_address", "d.device_name", "a.parameter")
+            .count("* as count")
+            .whereBetween("a.recorded_at", [start, now])
+            .groupBy("a.mac_address", "d.device_name", "a.parameter");
+
+        // Transform to chart-friendly format
+        const map = {};
+        for (const row of rows) {
+            const device = row.device_name || row.mac_address;
+            if (!map[device]) {
+                map[device] = { device, temp: 0, humid: 0 };
+            }
+            if (row.parameter === "Temperature") {
+                map[device].temp = parseInt(row.count);
+            } else if (row.parameter === "Humidity") {
+                map[device].humid = parseInt(row.count);
+            }
+        }
+
+        const chartData = Object.values(map);
+        res.json(chartData);
+    } catch (err) {
+        console.error("GET /alerts-summary error:", err.message);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+});
+
 router.post("/", async (req, res) => {
     const { mac_address, location, status } = req.body;
 

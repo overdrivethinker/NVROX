@@ -26,7 +26,7 @@ const navData = [
         icon: Gauge,
         items: [
             { title: "Overview", url: "/overview" },
-            { title: "Alert & Warning", url: "/alert-warning" },
+            { title: "Alerts", url: "/alerts" },
         ],
     },
     {

@@ -1,7 +1,7 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import { ThemeProvider } from "@/components/theme-provider";
 import Overview from "@/app/dashboard/overview";
-import AlertWarning from "./app/dashboard/alert-warning";
+import Alerts from "./app/dashboard/alerts";
 import LiveMonitoring from "./app/environment/live-monitoring";
 import Historical from "./app/environment/historical";
 import RecentCondition from "./app/environment/recent-condition";
@@ -18,7 +18,7 @@ function App() {
                 <Route path="/" element={<Navigate to="login" replace />} />
                 <Route path="login" element={<LoginPage />} />
                 <Route path="overview" element={<Overview />} />
-                <Route path="alert-warning" element={<AlertWarning />} />
+                <Route path="alerts" element={<Alerts />} />
                 <Route path="live-monitoring" element={<LiveMonitoring />} />
                 <Route path="historical-logs" element={<Historical />} />
                 <Route path="recent-condition" element={<RecentCondition />} />

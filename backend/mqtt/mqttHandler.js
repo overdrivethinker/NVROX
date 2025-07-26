@@ -96,6 +96,18 @@ const clearAllCache = async () => {
                     `[ALERT] Triggered for ${mac_address}: ${alerts.length} alert(s)`
                 );
             }
+            const tempAlerts = alerts.filter(
+                (a) => a.parameter === "Temperature"
+            );
+            const humidAlerts = alerts.filter(
+                (a) => a.parameter === "Humidity"
+            );
+
+            emitToClients("new_alerts", {
+                mac_address,
+                temperature: tempAlerts.length,
+                humidity: humidAlerts.length,
+            });
         } catch (err) {
             console.error("[ERROR] handling message:", err.message);
         }
