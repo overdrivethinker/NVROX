@@ -6,7 +6,8 @@ function setupSocket(server) {
     console.log("[SETUP] Initializing Socket.IO");
     io = new Server(server, {
         cors: {
-            origin: "*",
+            origin: "http://localhost:5173",
+            methods: ["GET", "POST"],
         },
     });
 

@@ -46,37 +46,34 @@ export default function SensorCardGrid({
     const [deviceStates, setDeviceStates] = useState<
         Record<string, "no_data" | "ok" | "lost">
     >({});
+
+    const socketRef = useRef<ReturnType<typeof io> | null>(null);
     const deviceTimeouts = useRef<Record<string, NodeJS.Timeout>>({});
+    const throttledUpdatesRef = useRef<
+        Record<string, ReturnType<typeof throttle>>
+    >({});
 
-    const throttledUpdates: Record<string, Function> = {};
-
+    // Setup socket once
     useEffect(() => {
-        const socket = io(import.meta.env.VITE_SOCKET_URL);
+        // Buat socket dan assign ke ref
+        socketRef.current = io(import.meta.env.VITE_SOCKET_URL);
+        const socket = socketRef.current;
+
+        // Simpan referensi timeout di awal effect
         const timeouts = deviceTimeouts.current;
 
-        const initialStates: Record<string, "no_data"> = {};
-        devices.forEach((d) => {
-            initialStates[d.mac_address] = "no_data";
-
-            throttledUpdates[d.mac_address] = throttle((data: SensorData) => {
-                setSensors((prev) => ({
-                    ...prev,
-                    [data.mac_address]: data,
-                }));
-
-                setDeviceStates((prev) => ({
-                    ...prev,
-                    [data.mac_address]: "ok",
-                }));
-            }, 1000);
+        socket.on("connect", () => {
+            console.log("[SOCKET] Connected:", socket.id);
         });
 
-        setDeviceStates(initialStates);
+        socket.on("disconnect", () => {
+            console.log("[SOCKET] Disconnected");
+        });
 
         socket.on("sensor_data", (data: SensorData) => {
             const { mac_address } = data;
-
-            throttledUpdates[mac_address]?.(data);
+            const throttled = throttledUpdatesRef.current[mac_address];
+            throttled?.(data);
 
             if (timeouts[mac_address]) {
                 clearTimeout(timeouts[mac_address]);
@@ -92,8 +89,36 @@ export default function SensorCardGrid({
 
         return () => {
             socket.disconnect();
+            socketRef.current = null; // Reset ref
+
+            // Gunakan referensi lokal untuk cleanup
             Object.values(timeouts).forEach(clearTimeout);
         };
+    }, []); // hanya sekali
+
+    // Setup throttled update and initial states setiap devices berubah
+    useEffect(() => {
+        const initialStates: Record<string, "no_data"> = {};
+        const throttledMap: typeof throttledUpdatesRef.current = {};
+
+        devices.forEach((d) => {
+            initialStates[d.mac_address] = "no_data";
+
+            throttledMap[d.mac_address] = throttle((data: SensorData) => {
+                setSensors((prev) => ({
+                    ...prev,
+                    [data.mac_address]: data,
+                }));
+
+                setDeviceStates((prev) => ({
+                    ...prev,
+                    [data.mac_address]: "ok",
+                }));
+            }, 1000);
+        });
+
+        setDeviceStates(initialStates);
+        throttledUpdatesRef.current = throttledMap;
     }, [devices]);
 
     return (
@@ -152,14 +177,14 @@ export default function SensorCardGrid({
                                             {
                                                 "bg-red-600 text-white animate-pulse":
                                                     sensor.temperature <
-                                                    limit.tempMin ||
+                                                        limit.tempMin ||
                                                     sensor.temperature >
-                                                    limit.tempMax,
+                                                        limit.tempMax,
                                                 "bg-blue-100 dark:bg-blue-900":
                                                     sensor.temperature >=
-                                                    limit.tempMin &&
+                                                        limit.tempMin &&
                                                     sensor.temperature <=
-                                                    limit.tempMax,
+                                                        limit.tempMax,
                                             }
                                         )}>
                                         <span className="text-xs mb-1">
@@ -180,14 +205,14 @@ export default function SensorCardGrid({
                                             {
                                                 "bg-red-600 text-white animate-pulse":
                                                     sensor.humidity <
-                                                    limit.humidMin ||
+                                                        limit.humidMin ||
                                                     sensor.humidity >
-                                                    limit.humidMax,
+                                                        limit.humidMax,
                                                 "bg-emerald-100 dark:bg-emerald-900":
                                                     sensor.humidity >=
-                                                    limit.humidMin &&
+                                                        limit.humidMin &&
                                                     sensor.humidity <=
-                                                    limit.humidMax,
+                                                        limit.humidMax,
                                             }
                                         )}>
                                         <span className="text-xs mb-1">

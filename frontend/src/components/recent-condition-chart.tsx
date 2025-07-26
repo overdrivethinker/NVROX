@@ -9,7 +9,6 @@ import {
     XAxis,
     YAxis,
     ReferenceLine,
-    ResponsiveContainer,
 } from "recharts";
 
 import {
@@ -94,9 +93,7 @@ export function RecentChart() {
     type TimeRange = (typeof validRanges)[number];
     const [timeRange, setTimeRange] =
         useState<(typeof validRanges)[number]>("today");
-    const [selectedMac, setSelectedMac] = useState<string | undefined>(
-        undefined
-    );
+    const [selectedMac, setSelectedMac] = useState<string>("");
     const [chartData, setChartData] = useState<ChartPoint[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [delayedLoading, setDelayedLoading] = useState(false);
@@ -261,251 +258,233 @@ export function RecentChart() {
                         <ChartContainer
                             config={chartConfig}
                             className="h-[335px] w-full">
-                            <ResponsiveContainer width="100%" height="100%">
-                                <AreaChart data={chartData}>
-                                    <defs>
-                                        <linearGradient
-                                            id="fillTemp"
-                                            x1="0"
-                                            y1="0"
-                                            x2="0"
-                                            y2="1">
-                                            <stop
-                                                offset="5%"
-                                                stopColor={
-                                                    chartConfig.temp.color
-                                                }
-                                                stopOpacity={0.1}
-                                            />
-                                            <stop
-                                                offset="95%"
-                                                stopColor={
-                                                    chartConfig.temp.color
-                                                }
-                                                stopOpacity={0.1}
-                                            />
-                                        </linearGradient>
-                                    </defs>
-                                    <CartesianGrid vertical={false} />
-                                    <XAxis
-                                        dataKey="datetime"
-                                        tickFormatter={(value) =>
-                                            new Date(value).toLocaleTimeString(
-                                                "en-US",
-                                                {
+                            <AreaChart data={chartData}>
+                                <defs>
+                                    <linearGradient
+                                        id="fillTemp"
+                                        x1="0"
+                                        y1="0"
+                                        x2="0"
+                                        y2="1">
+                                        <stop
+                                            offset="5%"
+                                            stopColor={chartConfig.temp.color}
+                                            stopOpacity={0.1}
+                                        />
+                                        <stop
+                                            offset="95%"
+                                            stopColor={chartConfig.temp.color}
+                                            stopOpacity={0.1}
+                                        />
+                                    </linearGradient>
+                                </defs>
+                                <CartesianGrid vertical={false} />
+                                <XAxis
+                                    dataKey="datetime"
+                                    tickFormatter={(value) =>
+                                        new Date(value).toLocaleTimeString(
+                                            "en-US",
+                                            {
+                                                hour: "2-digit",
+                                                minute: "2-digit",
+                                                hour12: false,
+                                            }
+                                        )
+                                    }
+                                    tick={{ dy: 15 }}
+                                />
+                                <YAxis
+                                    stroke={chartConfig.temp.color}
+                                    fontSize={12}
+                                    tickLine={false}
+                                    axisLine={false}
+                                    domain={[
+                                        limits.tempMin - 10,
+                                        limits.tempMax + 10,
+                                    ]}
+                                    label={{
+                                        value: chartConfig.temp.label,
+                                        angle: -90,
+                                        position: "outsideLeft",
+                                        dx: -20,
+                                        style: {
+                                            textAnchor: "middle",
+                                            fill: chartConfig.temp.color,
+                                            fontSize: 14,
+                                        },
+                                    }}
+                                />
+                                <ChartTooltip
+                                    cursor={false}
+                                    defaultIndex={10}
+                                    content={
+                                        <ChartTooltipContent
+                                            labelFormatter={(value) =>
+                                                new Date(
+                                                    value
+                                                ).toLocaleDateString("en-US", {
+                                                    month: "short",
+                                                    day: "numeric",
                                                     hour: "2-digit",
                                                     minute: "2-digit",
+                                                    second: "2-digit",
                                                     hour12: false,
-                                                }
-                                            )
-                                        }
-                                        tick={{ dy: 15 }}
-                                    />
-                                    <YAxis
-                                        stroke={chartConfig.temp.color}
-                                        fontSize={12}
-                                        tickLine={false}
-                                        axisLine={false}
-                                        domain={[
-                                            limits.tempMin - 10,
-                                            limits.tempMax + 10,
-                                        ]}
-                                        label={{
-                                            value: chartConfig.temp.label,
-                                            angle: -90,
-                                            position: "outsideLeft",
-                                            dx: -20,
-                                            style: {
-                                                textAnchor: "middle",
-                                                fill: chartConfig.temp.color,
-                                                fontSize: 14,
-                                            },
-                                        }}
-                                    />
-                                    <ChartTooltip
-                                        cursor={false}
-                                        defaultIndex={10}
-                                        content={
-                                            <ChartTooltipContent
-                                                labelFormatter={(value) =>
-                                                    new Date(
-                                                        value
-                                                    ).toLocaleDateString(
-                                                        "en-US",
-                                                        {
-                                                            month: "short",
-                                                            day: "numeric",
-                                                            hour: "2-digit",
-                                                            minute: "2-digit",
-                                                            second: "2-digit",
-                                                            hour12: false,
-                                                        }
-                                                    )
-                                                }
-                                                indicator="dot"
-                                            />
-                                        }
-                                    />
-                                    <Area
-                                        type="monotone"
-                                        dataKey="tempMax"
-                                        stroke={chartConfig.temp.color}
-                                        fill="url(#fillTemp)"
-                                        dot={false}
-                                    />
-                                    <Area
-                                        type="monotone"
-                                        dataKey="tempAvg"
-                                        stroke={chartConfig.avg.color}
-                                        fill="url(#fillTemp)"
-                                        dot={false}
-                                    />
-                                    <Area
-                                        type="monotone"
-                                        dataKey="tempMin"
-                                        stroke={chartConfig.temp.color}
-                                        fillOpacity={0}
-                                        dot={false}
-                                    />
-                                    <ReferenceLine
-                                        y={limits.tempMax}
-                                        stroke="red"
-                                        strokeDasharray="20 10"
-                                        strokeWidth={1}
-                                    />
-                                    <ReferenceLine
-                                        y={limits.tempMin}
-                                        stroke="red"
-                                        strokeDasharray="20 10"
-                                        strokeWidth={1}
-                                    />
-                                </AreaChart>
-                            </ResponsiveContainer>
+                                                })
+                                            }
+                                            indicator="dot"
+                                        />
+                                    }
+                                />
+                                <Area
+                                    type="monotone"
+                                    dataKey="tempMax"
+                                    stroke={chartConfig.temp.color}
+                                    fill="url(#fillTemp)"
+                                    dot={false}
+                                />
+                                <Area
+                                    type="monotone"
+                                    dataKey="tempAvg"
+                                    stroke={chartConfig.avg.color}
+                                    fill="url(#fillTemp)"
+                                    dot={false}
+                                />
+                                <Area
+                                    type="monotone"
+                                    dataKey="tempMin"
+                                    stroke={chartConfig.temp.color}
+                                    fillOpacity={0}
+                                    dot={false}
+                                />
+                                <ReferenceLine
+                                    y={limits.tempMax}
+                                    stroke="red"
+                                    strokeDasharray="20 10"
+                                    strokeWidth={1}
+                                />
+                                <ReferenceLine
+                                    y={limits.tempMin}
+                                    stroke="red"
+                                    strokeDasharray="20 10"
+                                    strokeWidth={1}
+                                />
+                            </AreaChart>
                         </ChartContainer>
                         {/* Humidity Chart */}
                         <ChartContainer
                             config={chartConfig}
                             className="h-[335px] w-full mt-10">
-                            <ResponsiveContainer width="100%" height="100%">
-                                <AreaChart data={chartData}>
-                                    <defs>
-                                        <linearGradient
-                                            id="fillHumid"
-                                            x1="0"
-                                            y1="0"
-                                            x2="0"
-                                            y2="1">
-                                            <stop
-                                                offset="5%"
-                                                stopColor={
-                                                    chartConfig.humid.color
-                                                }
-                                                stopOpacity={0.1}
-                                            />
-                                            <stop
-                                                offset="95%"
-                                                stopColor={
-                                                    chartConfig.humid.color
-                                                }
-                                                stopOpacity={0.1}
-                                            />
-                                        </linearGradient>
-                                    </defs>
-                                    <CartesianGrid vertical={false} />
-                                    <XAxis
-                                        dataKey="datetime"
-                                        tickFormatter={(value) =>
-                                            new Date(value).toLocaleTimeString(
-                                                "en-US",
-                                                {
+                            <AreaChart data={chartData}>
+                                <defs>
+                                    <linearGradient
+                                        id="fillHumid"
+                                        x1="0"
+                                        y1="0"
+                                        x2="0"
+                                        y2="1">
+                                        <stop
+                                            offset="5%"
+                                            stopColor={chartConfig.humid.color}
+                                            stopOpacity={0.1}
+                                        />
+                                        <stop
+                                            offset="95%"
+                                            stopColor={chartConfig.humid.color}
+                                            stopOpacity={0.1}
+                                        />
+                                    </linearGradient>
+                                </defs>
+                                <CartesianGrid vertical={false} />
+                                <XAxis
+                                    dataKey="datetime"
+                                    tickFormatter={(value) =>
+                                        new Date(value).toLocaleTimeString(
+                                            "en-US",
+                                            {
+                                                hour: "2-digit",
+                                                minute: "2-digit",
+                                                hour12: false,
+                                            }
+                                        )
+                                    }
+                                    tick={{ dy: 15 }}
+                                />
+                                <YAxis
+                                    stroke={chartConfig.humid.color}
+                                    fontSize={12}
+                                    tickLine={false}
+                                    axisLine={false}
+                                    domain={[
+                                        limits.humidMin - 20,
+                                        limits.humidMax + 20,
+                                    ]}
+                                    label={{
+                                        value: chartConfig.humid.label,
+                                        angle: -90,
+                                        position: "outsideLeft",
+                                        dx: -20,
+                                        style: {
+                                            textAnchor: "middle",
+                                            fill: chartConfig.humid.color,
+                                            fontSize: 14,
+                                        },
+                                    }}
+                                />
+                                <ChartTooltip
+                                    cursor={false}
+                                    defaultIndex={10}
+                                    content={
+                                        <ChartTooltipContent
+                                            labelFormatter={(value) =>
+                                                new Date(
+                                                    value
+                                                ).toLocaleDateString("en-US", {
+                                                    month: "short",
+                                                    day: "numeric",
                                                     hour: "2-digit",
                                                     minute: "2-digit",
+                                                    second: "2-digit",
                                                     hour12: false,
-                                                }
-                                            )
-                                        }
-                                        tick={{ dy: 15 }}
-                                    />
-                                    <YAxis
-                                        stroke={chartConfig.humid.color}
-                                        fontSize={12}
-                                        tickLine={false}
-                                        axisLine={false}
-                                        domain={[
-                                            limits.humidMin - 20,
-                                            limits.humidMax + 20,
-                                        ]}
-                                        label={{
-                                            value: chartConfig.humid.label,
-                                            angle: -90,
-                                            position: "outsideLeft",
-                                            dx: -20,
-                                            style: {
-                                                textAnchor: "middle",
-                                                fill: chartConfig.humid.color,
-                                                fontSize: 14,
-                                            },
-                                        }}
-                                    />
-                                    <ChartTooltip
-                                        cursor={false}
-                                        defaultIndex={10}
-                                        content={
-                                            <ChartTooltipContent
-                                                labelFormatter={(value) =>
-                                                    new Date(
-                                                        value
-                                                    ).toLocaleDateString(
-                                                        "en-US",
-                                                        {
-                                                            month: "short",
-                                                            day: "numeric",
-                                                            hour: "2-digit",
-                                                            minute: "2-digit",
-                                                            second: "2-digit",
-                                                            hour12: false,
-                                                        }
-                                                    )
-                                                }
-                                                indicator="dot"
-                                            />
-                                        }
-                                    />
-                                    <Area
-                                        type="monotone"
-                                        dataKey="humidMax"
-                                        stroke={chartConfig.humid.color}
-                                        fill="url(#fillHumid)"
-                                        dot={false}
-                                    />
-                                    <Area
-                                        type="monotone"
-                                        dataKey="humidAvg"
-                                        stroke={chartConfig.avg.color}
-                                        fill="url(#fillHumid)"
-                                        dot={false}
-                                    />
-                                    <Area
-                                        type="monotone"
-                                        dataKey="humidMin"
-                                        stroke={chartConfig.humid.color}
-                                        fillOpacity={0}
-                                        dot={false}
-                                    />
-                                    <ReferenceLine
-                                        y={limits.humidMax}
-                                        stroke="red"
-                                        strokeDasharray="20 10"
-                                        strokeWidth={1}
-                                    />
-                                    <ReferenceLine
-                                        y={limits.humidMin}
-                                        stroke="red"
-                                        strokeDasharray="20 10"
-                                        strokeWidth={1}
-                                    />
-                                </AreaChart>
-                            </ResponsiveContainer>
+                                                })
+                                            }
+                                            indicator="dot"
+                                        />
+                                    }
+                                />
+                                <Area
+                                    type="monotone"
+                                    dataKey="humidMax"
+                                    stroke={chartConfig.humid.color}
+                                    fill="url(#fillHumid)"
+                                    dot={false}
+                                />
+                                <Area
+                                    type="monotone"
+                                    dataKey="humidAvg"
+                                    stroke={chartConfig.avg.color}
+                                    fill="url(#fillHumid)"
+                                    dot={false}
+                                />
+                                <Area
+                                    type="monotone"
+                                    dataKey="humidMin"
+                                    stroke={chartConfig.humid.color}
+                                    fillOpacity={0}
+                                    dot={false}
+                                />
+                                <ReferenceLine
+                                    y={limits.humidMax}
+                                    stroke="red"
+                                    strokeDasharray="20 10"
+                                    strokeWidth={1}
+                                />
+                                <ReferenceLine
+                                    y={limits.humidMin}
+                                    stroke="red"
+                                    strokeDasharray="20 10"
+                                    strokeWidth={1}
+                                />
+                            </AreaChart>
                         </ChartContainer>
                     </>
                 )}

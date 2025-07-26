@@ -101,8 +101,9 @@ export default function AlertsDataTable() {
                         </TableHeader>
                         <TableBody>
                             {data.length > 0 ? (
-                                data.map((row) => (
-                                    <TableRow>
+                                data.map((row, index) => (
+                                    <TableRow
+                                        key={`${row.device_name}-${row.parameter}-${row.recorded_at}-${index}`}>
                                         <TableCell>{row.device_name}</TableCell>
                                         <TableCell>{row.location}</TableCell>
                                         <TableCell>
@@ -111,12 +112,12 @@ export default function AlertsDataTable() {
                                                 variant="outline"
                                                 className={
                                                     row.parameter ===
-                                                        "Temperature"
+                                                    "Temperature"
                                                         ? "border-amber-500 text-amber-400"
                                                         : "border-amber-600 text-amber-500"
                                                 }>
                                                 {row.parameter ===
-                                                    "Temperature" ? (
+                                                "Temperature" ? (
                                                     <>
                                                         <Thermometer className="w-4 h-4" />
                                                         Temperature
@@ -161,11 +162,13 @@ export default function AlertsDataTable() {
                                                 )}
                                             </Badge>
                                         </TableCell>
-                                        <TableCell>{formatDate(row.recorded_at)}</TableCell>
+                                        <TableCell>
+                                            {formatDate(row.recorded_at)}
+                                        </TableCell>
                                     </TableRow>
                                 ))
                             ) : (
-                                <TableRow>
+                                <TableRow key="no-data">
                                     <TableCell
                                         colSpan={7}
                                         className="text-center font-medium">

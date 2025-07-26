@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { Bar, BarChart, XAxis, YAxis, ResponsiveContainer } from "recharts";
+import { Bar, BarChart, XAxis, YAxis } from "recharts";
 import {
     Card,
     CardContent,
@@ -137,56 +137,52 @@ export function AlertsChart() {
                 <ChartContainer
                     config={chartConfig}
                     className="h-[40vh] sm:h-[360px] w-full">
-                    <ResponsiveContainer width="100%" height="100%">
-                        <BarChart
-                            data={chartData}
-                            margin={{
-                                top: 0,
-                                right: 10,
-                                left: -20,
-                                bottom: 30,
-                            }}>
-                            <XAxis
-                                dataKey="device"
-                                tickLine={true}
-                                interval={0}
-                                tickMargin={5}
-                                axisLine={true}
-                                tick={({ x, y, payload }) => (
-                                    <text
-                                        x={x}
-                                        y={y + 10}
-                                        textAnchor="end"
-                                        transform={`rotate(-45, ${x}, ${y})`}
-                                        fontSize={12}>
-                                        {payload.value}
-                                    </text>
-                                )}
-                            />
-                            <YAxis
-                                stroke={chartConfig.temp.color}
-                                fontSize={12}
-                                tickLine={false}
-                                axisLine={false}
-                                domain={[0, 100]}
-                            />
-                            <ChartTooltip
-                                content={
-                                    <ChartTooltipContent indicator="dot" />
-                                }
-                            />
-                            <Bar
-                                dataKey="temp"
-                                fill={chartConfig.temp.color}
-                                radius={4}
-                            />
-                            <Bar
-                                dataKey="humid"
-                                fill={chartConfig.humid.color}
-                                radius={4}
-                            />
-                        </BarChart>
-                    </ResponsiveContainer>
+                    <BarChart
+                        data={chartData}
+                        margin={{
+                            top: 0,
+                            right: 10,
+                            left: -20,
+                            bottom: 30,
+                        }}>
+                        <XAxis
+                            dataKey="device"
+                            tickLine={true}
+                            interval={0}
+                            tickMargin={5}
+                            axisLine={true}
+                            tick={({ x, y, payload }) => (
+                                <text
+                                    x={x}
+                                    y={y + 10}
+                                    textAnchor="end"
+                                    transform={`rotate(-45, ${x}, ${y})`}
+                                    fontSize={12}>
+                                    {payload.value}
+                                </text>
+                            )}
+                        />
+                        <YAxis
+                            stroke={chartConfig.temp.color}
+                            fontSize={12}
+                            tickLine={false}
+                            axisLine={false}
+                            domain={[0, 100]}
+                        />
+                        <ChartTooltip
+                            content={<ChartTooltipContent indicator="dot" />}
+                        />
+                        <Bar
+                            dataKey="temp"
+                            fill={chartConfig.temp.color}
+                            radius={4}
+                        />
+                        <Bar
+                            dataKey="humid"
+                            fill={chartConfig.humid.color}
+                            radius={4}
+                        />
+                    </BarChart>
                 </ChartContainer>
                 <CardFooter className="flex justify-center text-sm gap-4 mt-10">
                     <div className="flex items-center gap-2">
