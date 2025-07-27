@@ -42,7 +42,7 @@ export default function RecentCondition() {
                     </div>
                     <ModeToggle />
                 </header>
-                <div className="flex flex-1 flex-col gap-4 p-6 pt-0">
+                <div className="flex flex-1 flex-col p-6 pt-0">
                     <RecentChart />
                 </div>
             </SidebarInset>

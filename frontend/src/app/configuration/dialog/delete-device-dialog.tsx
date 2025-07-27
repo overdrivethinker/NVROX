@@ -22,7 +22,7 @@ type Props = {
 export function DeleteDeviceDialog({ open, onOpenChange, onDelete, device }: Props) {
     return (
         <AlertDialog open={open} onOpenChange={onOpenChange}>
-            <AlertDialogContent>
+            <AlertDialogContent className="sm:max-w-sm">
                 <AlertDialogHeader>
                     <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                     <AlertDialogDescription>

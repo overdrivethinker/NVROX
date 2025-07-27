@@ -132,14 +132,12 @@ export default function DeviceDataTable() {
         mac: "",
         name: "",
         location: "",
-        status: "Active", // default
+        status: "Active",
     });
 
     const handleAddSubmit = async () => {
         console.log("Adding device:", newDevice);
-        // TODO: Panggil API di sini untuk simpan data
         setAddDialogOpen(false);
-        // Clear form jika mau:
         setNewDevice({ mac: "", name: "", location: "", status: "Active" });
     };
     return (
@@ -186,8 +184,6 @@ export default function DeviceDataTable() {
                                     <TableHead>Temp Max</TableHead>
                                     <TableHead>Humid Min</TableHead>
                                     <TableHead>Humid Max</TableHead>
-                                    {/* <TableHead>Created At</TableHead>
-                                <TableHead>Updated At</TableHead> */}
                                     <TableHead></TableHead>
                                 </TableRow>
                             </TableHeader>
@@ -308,7 +304,7 @@ export default function DeviceDataTable() {
                                 ) : (
                                     <TableRow>
                                         <TableCell
-                                            colSpan={6}
+                                            colSpan={8}
                                             className="text-center font-medium">
                                             {loading
                                                 ? "Loading..."

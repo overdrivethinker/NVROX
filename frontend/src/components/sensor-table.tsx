@@ -133,7 +133,6 @@ export default function SensorDataTable() {
                     <div className="text-muted-foreground text-sm">
                         {pagination.total} row(s) found.
                     </div>
-
                     <div className="flex items-center gap-1 flex-wrap">
                         <Button
                             variant="outline"
@@ -149,11 +148,9 @@ export default function SensorDataTable() {
                             disabled={pagination.page === 1}>
                             <IconChevronLeft className="h-4 w-4" />
                         </Button>
-
                         <div className="px-2 text-sm font-medium">
                             Page {pagination.page} of {pagination.pages}
                         </div>
-
                         <Button
                             variant="outline"
                             className="h-8 w-8"

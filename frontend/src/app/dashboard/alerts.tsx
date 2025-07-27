@@ -40,7 +40,7 @@ export default function Alerts() {
                     </div>
                     <ModeToggle />
                 </header>
-                <div className="flex flex flex-1 justify-center gap-4 p-6 pt-0">
+                <div className="flex flex flex-1 justify-center p-6 pt-0">
                     <AlertsChart />
                 </div>
             </SidebarInset>

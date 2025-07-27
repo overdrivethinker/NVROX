@@ -240,9 +240,9 @@ export function AlertsChart() {
                         </Badge>
                     </div>
                 ) : alertSum.length === 0 ||
-                  alertSum.every(
-                      (item) => item.temperature === 0 && item.humidity === 0
-                  ) ? (
+                    alertSum.every(
+                        (item) => item.temperature === 0 && item.humidity === 0
+                    ) ? (
                     <div className="flex justify-center items-center min-h-[200px] w-full">
                         <Badge
                             variant="outline"

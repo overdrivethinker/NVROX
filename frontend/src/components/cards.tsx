@@ -53,15 +53,11 @@ export default function SensorCardGrid({
         Record<string, ReturnType<typeof throttle>>
     >({});
 
-    // Setup socket once
     useEffect(() => {
-        // Buat socket dan assign ke ref
         socketRef.current = io(import.meta.env.VITE_SOCKET_URL);
         const socket = socketRef.current;
 
-        // Simpan referensi timeout di awal effect
         const timeouts = deviceTimeouts.current;
-
         socket.on("connect", () => {
             console.log("[SOCKET] Connected:", socket.id);
         });
@@ -89,14 +85,11 @@ export default function SensorCardGrid({
 
         return () => {
             socket.disconnect();
-            socketRef.current = null; // Reset ref
-
-            // Gunakan referensi lokal untuk cleanup
+            socketRef.current = null;
             Object.values(timeouts).forEach(clearTimeout);
         };
-    }, []); // hanya sekali
+    }, []);
 
-    // Setup throttled update and initial states setiap devices berubah
     useEffect(() => {
         const initialStates: Record<string, "no_data"> = {};
         const throttledMap: typeof throttledUpdatesRef.current = {};
@@ -122,45 +115,41 @@ export default function SensorCardGrid({
     }, [devices]);
 
     return (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-5 p-6 pt-1">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-4 p-6 pt-0">
             {devices.map((device) => {
                 const sensor = sensors[device.mac_address];
                 const state = deviceStates[device.mac_address] || "no_data";
                 const limit = limitsMap[device.mac_address];
-
                 return (
                     <div
                         key={device.mac_address}
-                        className="rounded-xl overflow-hidden bg-blue-50 dark:bg-blue-800 text-blue-900 dark:text-white transition-all">
-                        {/* Header */}
-                        <div className="px-4 py-2 bg-blue-200 dark:bg-blue-700 font-semibold text-sm flex items-center justify-between">
+                        className="rounded-md overflow-hidden bg-sky-200 dark:bg-blue-800 text-blue-900 dark:text-white transition-all">
+                        <div className="px-4 py-2 bg-sky-300 dark:bg-blue-700 font-semibold text-sm flex items-center justify-between">
                             <div>
                                 {device.device_name} <br />
-                                <span className="text-xs font-normal text-blue-500 dark:text-blue-200">
+                                <span className="text-xs font-normal text-sky-700 dark:text-blue-200">
                                     {device.location}
                                 </span>
                             </div>
                             <div>
                                 {state === "no_data" ? (
-                                    <IconCircleX className="text-red-400 w-7 h-7" />
+                                    <IconCircleX className="text-red-500 w-7 h-7" />
                                 ) : state === "lost" ? (
-                                    <IconPlugConnected className="text-yellow-500 w-7 h-7" />
+                                    <IconPlugConnected className="text-yellow-600 w-7 h-7" />
                                 ) : (
-                                    <IconCircleCheck className="text-green-500 w-7 h-7" />
+                                    <IconCircleCheck className="text-green-600 w-7 h-7" />
                                 )}
                             </div>
                         </div>
-
-                        {/* Body */}
                         <div className="flex h-25">
                             {!sensor || !limit || state !== "ok" ? (
                                 <div
                                     className={classNames(
                                         "flex items-center justify-center w-full text-sm font-semibold",
                                         {
-                                            "text-red-600 dark:text-red-400":
+                                            "text-red-500 dark:text-red-400":
                                                 state === "no_data",
-                                            "text-yellow-500 dark:text-yellow-400":
+                                            "text-yellow-600 dark:text-yellow-400":
                                                 state === "lost",
                                         }
                                     )}>
@@ -170,21 +159,20 @@ export default function SensorCardGrid({
                                 </div>
                             ) : (
                                 <>
-                                    {/* Temperature */}
                                     <div
                                         className={classNames(
                                             "flex-1 flex flex-col items-center justify-center",
                                             {
                                                 "bg-red-600 text-white animate-pulse":
                                                     sensor.temperature <
-                                                        limit.tempMin ||
+                                                    limit.tempMin ||
                                                     sensor.temperature >
-                                                        limit.tempMax,
-                                                "bg-blue-100 dark:bg-blue-900":
+                                                    limit.tempMax,
+                                                "bg-sky-200 dark:bg-blue-900":
                                                     sensor.temperature >=
-                                                        limit.tempMin &&
+                                                    limit.tempMin &&
                                                     sensor.temperature <=
-                                                        limit.tempMax,
+                                                    limit.tempMax,
                                             }
                                         )}>
                                         <span className="text-xs mb-1">
@@ -197,22 +185,20 @@ export default function SensorCardGrid({
                                             </span>
                                         </div>
                                     </div>
-
-                                    {/* Humidity */}
                                     <div
                                         className={classNames(
                                             "flex-1 flex flex-col items-center justify-center",
                                             {
                                                 "bg-red-600 text-white animate-pulse":
                                                     sensor.humidity <
-                                                        limit.humidMin ||
+                                                    limit.humidMin ||
                                                     sensor.humidity >
-                                                        limit.humidMax,
-                                                "bg-emerald-100 dark:bg-emerald-900":
+                                                    limit.humidMax,
+                                                "bg-emerald-200 dark:bg-emerald-900":
                                                     sensor.humidity >=
-                                                        limit.humidMin &&
+                                                    limit.humidMin &&
                                                     sensor.humidity <=
-                                                        limit.humidMax,
+                                                    limit.humidMax,
                                             }
                                         )}>
                                         <span className="text-xs mb-1">

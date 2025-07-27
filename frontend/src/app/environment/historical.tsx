@@ -68,7 +68,7 @@ export default function Historical() {
                     <ModeToggle />
                 </header>
 
-                <div className="flex flex-1 justify-center gap-4 p-6 pt-0">
+                <div className="flex flex-1 justify-center p-6 pt-0">
                     <Card className="@container/card flex-1 min-h-[600px] overflow-hidden">
                         <CardHeader>
                             <CardTitle>Device Logs & Alerts</CardTitle>

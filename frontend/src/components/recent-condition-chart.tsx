@@ -174,7 +174,6 @@ export function RecentChart() {
                         value={selectedMac}
                         onChange={setSelectedMac}
                     />
-
                     <ToggleGroup
                         type="single"
                         value={timeRange}
@@ -193,8 +192,6 @@ export function RecentChart() {
                             2 Days Ago
                         </ToggleGroupItem>
                     </ToggleGroup>
-
-                    {/* Select Dropdown for Mobile */}
                     <Select
                         value={timeRange}
                         onValueChange={(val) => {
@@ -223,7 +220,6 @@ export function RecentChart() {
                     </Select>
                 </CardAction>
             </CardHeader>
-
             <CardContent className="flex flex-col flex-1 justify-center items-center overflow-x-auto overflow-y-auto px-2 sm:px-4 pt-2 sm:pt-3 mb-2">
                 {!selectedMac ? (
                     <div className="flex justify-center items-center min-h-[200px] w-full">
@@ -370,7 +366,6 @@ export function RecentChart() {
                                 />
                             </AreaChart>
                         </ChartContainer>
-                        {/* Humidity Chart */}
                         <ChartContainer
                             config={chartConfig}
                             className="h-[335px] w-full mt-10">

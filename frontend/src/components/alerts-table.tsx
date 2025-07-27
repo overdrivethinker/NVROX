@@ -112,12 +112,12 @@ export default function AlertsDataTable() {
                                                 variant="outline"
                                                 className={
                                                     row.parameter ===
-                                                    "Temperature"
-                                                        ? "border-amber-500 text-amber-400"
-                                                        : "border-amber-600 text-amber-500"
+                                                        "Temperature"
+                                                        ? "border-sky-500 dark:border-blue-500 text-blue-400"
+                                                        : "border-emerald-500 dark:border-emerald-400 text-emerald-500"
                                                 }>
                                                 {row.parameter ===
-                                                "Temperature" ? (
+                                                    "Temperature" ? (
                                                     <>
                                                         <Thermometer className="w-4 h-4" />
                                                         Temperature

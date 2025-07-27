@@ -43,7 +43,7 @@ export default function DeviceSetup() {
                     </div>
                     <ModeToggle />
                 </header>
-                <div className="flex flex-1 justify-center gap-4 p-6 pt-0">
+                <div className="flex flex-1 justify-center p-6 pt-0">
                     <DeviceDataTable />
                 </div>
             </SidebarInset>
