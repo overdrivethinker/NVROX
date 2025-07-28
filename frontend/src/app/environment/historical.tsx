@@ -35,6 +35,7 @@ import {
     CardHeader,
     CardTitle,
     CardContent,
+    CardAction
 } from "@/components/ui/card";
 
 export default function Historical() {
@@ -75,10 +76,92 @@ export default function Historical() {
                             <CardDescription>
                                 Track device alerts and historical logs
                             </CardDescription>
+                            <CardAction className="flex flex-col sm:flex-row sm:items-center">
+                                <div className="flex flex-wrap gap-2 items-end">
+                                    <div className="flex flex-col min-w-[150px]">
+                                        <DeviceSelector
+                                            value={selectedMac}
+                                            onChange={setSelectedMac}
+                                        />
+                                    </div>
+                                    <div className="flex flex-col min-w-[100px]">
+                                        <Popover>
+                                            <PopoverTrigger asChild>
+                                                <Button
+                                                    variant="outline"
+                                                    size="sm"
+                                                    className="h-9 justify-start text-left font-normal"
+                                                    id="view-selector">
+                                                    {dateRange?.from ? (
+                                                        dateRange.to ? (
+                                                            `${format(
+                                                                dateRange.from,
+                                                                "yyyy/MM/dd"
+                                                            )} to ${format(
+                                                                dateRange.to,
+                                                                "yyyy/MM/dd"
+                                                            )}`
+                                                        ) : (
+                                                            format(
+                                                                dateRange.from,
+                                                                "P"
+                                                            )
+                                                        )
+                                                    ) : (
+                                                        <span className="text-muted-foreground">
+                                                            Pick a date
+                                                            range
+                                                        </span>
+                                                    )}
+                                                    <CalendarIcon className="h-4 w-4 opacity-50" />
+                                                </Button>
+                                            </PopoverTrigger>
+                                            <PopoverContent
+                                                className="w-auto p-2"
+                                                align="end">
+                                                <DateRangePopover
+                                                    dateRange={dateRange}
+                                                    onDateChange={
+                                                        setDateRange
+                                                    }
+                                                />
+                                                <div className="flex justify-start">
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="sm"
+                                                        onClick={() =>
+                                                            setDateRange(
+                                                                undefined
+                                                            )
+                                                        }
+                                                        className="text-sm text-muted-foreground hover:text-foreground">
+                                                        Reset
+                                                    </Button>
+                                                </div>
+                                            </PopoverContent>
+                                        </Popover>
+                                    </div>
+
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        className="h-9">
+                                        <Search className="h-4 w-4" />{" "}
+                                        Search
+                                    </Button>
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        className="h-9">
+                                        <Download className="h-4 w-4" />{" "}
+                                        Export
+                                    </Button>
+                                </div>
+                            </CardAction>
                         </CardHeader>
                         <CardContent>
                             <Tabs defaultValue="logs">
-                                <TabsList className="grid w-full grid-cols-2 p-0">
+                                <TabsList className="grid w-full grid-cols-2 p-0 mb-2">
                                     <TabsTrigger value="logs">
                                         Historical Logs
                                     </TabsTrigger>
@@ -86,90 +169,6 @@ export default function Historical() {
                                         Device Alerts
                                     </TabsTrigger>
                                 </TabsList>
-                                <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between w-full mb-1 ">
-                                    <div className="flex flex-wrap gap-4 items-end">
-                                        <div className="flex flex-col min-w-[150px]">
-                                            <DeviceSelector
-                                                value={selectedMac}
-                                                onChange={setSelectedMac}
-                                            />
-                                        </div>
-
-                                        <div className="flex flex-col min-w-[100px]">
-                                            <Popover>
-                                                <PopoverTrigger asChild>
-                                                    <Button
-                                                        variant="outline"
-                                                        size="sm"
-                                                        className="h-9 justify-start text-left font-normal"
-                                                        id="view-selector">
-                                                        {dateRange?.from ? (
-                                                            dateRange.to ? (
-                                                                `${format(
-                                                                    dateRange.from,
-                                                                    "yyyy/MM/dd"
-                                                                )} to ${format(
-                                                                    dateRange.to,
-                                                                    "yyyy/MM/dd"
-                                                                )}`
-                                                            ) : (
-                                                                format(
-                                                                    dateRange.from,
-                                                                    "P"
-                                                                )
-                                                            )
-                                                        ) : (
-                                                            <span className="text-muted-foreground">
-                                                                Pick a date
-                                                                range
-                                                            </span>
-                                                        )}
-                                                        <CalendarIcon className="ml-2 h-4 w-4 opacity-50" />
-                                                    </Button>
-                                                </PopoverTrigger>
-                                                <PopoverContent
-                                                    className="w-auto p-2"
-                                                    align="start">
-                                                    <DateRangePopover
-                                                        dateRange={dateRange}
-                                                        onDateChange={
-                                                            setDateRange
-                                                        }
-                                                    />
-                                                    <div className="flex justify-end">
-                                                        <Button
-                                                            variant="ghost"
-                                                            size="sm"
-                                                            onClick={() =>
-                                                                setDateRange(
-                                                                    undefined
-                                                                )
-                                                            }
-                                                            className="text-sm text-muted-foreground hover:text-foreground">
-                                                            Reset
-                                                        </Button>
-                                                    </div>
-                                                </PopoverContent>
-                                            </Popover>
-                                        </div>
-
-                                        <Button
-                                            variant="outline"
-                                            size="sm"
-                                            className="h-9 mt-1">
-                                            <Search className="mr-2 h-4 w-4" />{" "}
-                                            Search
-                                        </Button>
-                                    </div>
-
-                                    <Button
-                                        variant="outline"
-                                        size="sm"
-                                        className="h-9 w-fit mt-1 sm:mt-1">
-                                        <Download className="mr-2 h-4 w-4" />{" "}
-                                        Export
-                                    </Button>
-                                </div>
                                 <TabsContent value="logs">
                                     <SensorDataTable />
                                 </TabsContent>
@@ -181,6 +180,6 @@ export default function Historical() {
                     </Card>
                 </div>
             </SidebarInset>
-        </SidebarProvider>
+        </SidebarProvider >
     );
 }
