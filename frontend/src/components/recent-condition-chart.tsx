@@ -169,7 +169,7 @@ export function RecentChart() {
                     <span className="@[540px]/card:hidden">Last 3 days</span>
                 </CardDescription>
 
-                <CardAction className="flex flex-col sm:flex-row gap-4 sm:items-center">
+                <CardAction className="flex flex-col sm:flex-row gap-2 sm:items-center">
                     <DeviceSelector
                         value={selectedMac}
                         onChange={setSelectedMac}
