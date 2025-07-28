@@ -67,7 +67,6 @@ router.get("/alerts", async (req, res) => {
             .limit(parsedLimit)
             .offset(offset);
 
-        // Format waktu agar tetap pakai Asia/Jakarta (GMT+7)
         const fixedRows = rows.map((row) => ({
             ...row,
             recorded_at: dayjs(row.recorded_at)
@@ -206,7 +205,7 @@ router.get("/threshold", async (req, res) => {
     if (!mac) return res.status(400).json({ error: "mac is required" });
 
     try {
-        const rows = await knex("sensor_thresholds") // ganti dengan nama tabelmu
+        const rows = await knex("sensor_thresholds")
             .select("parameter", "lower_limit", "upper_limit")
             .where("mac_address", mac);
 
@@ -230,8 +229,12 @@ router.get("/threshold", async (req, res) => {
 
 router.get("/threshold/all", async (req, res) => {
     try {
-        const rows = await knex("sensor_thresholds") // ganti nama tabel jika perlu
-            .select("mac_address", "parameter", "lower_limit", "upper_limit");
+        const rows = await knex("sensor_thresholds").select(
+            "mac_address",
+            "parameter",
+            "lower_limit",
+            "upper_limit"
+        );
 
         const grouped = {};
 
@@ -295,7 +298,6 @@ router.get("/alerts-sum", async (req, res) => {
             .whereBetween("a.recorded_at", [start, now])
             .groupBy("a.mac_address", "d.device_name", "a.parameter");
 
-        // Transform to chart-friendly format
         const map = {};
         for (const row of rows) {
             const device = row.device_name || row.mac_address;
@@ -317,36 +319,187 @@ router.get("/alerts-sum", async (req, res) => {
     }
 });
 
-router.post("/", async (req, res) => {
-    const { mac_address, location, status } = req.body;
-
-    if (!mac_address) {
-        return res.status(400).json({ error: "mac_address is required" });
-    }
-
-    const validStatus = ["Active", "Inactive"];
-    const finalStatus = validStatus.includes(status) ? status : "Inactive";
+router.put("/:mac", async (req, res) => {
+    const trx = await knex.transaction();
 
     try {
-        const exists = await knex("devices")
-            .select("mac_address")
-            .where({ mac_address })
+        const { mac } = req.params;
+        const { name, location, status, thresholds } = req.body;
+
+        const existingDevice = await trx("devices")
+            .where("mac_address", mac)
             .first();
 
-        if (exists) {
-            return res.status(409).json({ error: "Device already exists" });
+        if (!existingDevice) {
+            return res.status(404).json({
+                error: "Device not found",
+            });
+        }
+
+        if (name && name !== existingDevice.device_name) {
+            const duplicateName = await trx("devices")
+                .where("device_name", name)
+                .whereNot("mac_address", mac)
+                .first();
+
+            if (duplicateName) {
+                return res.status(400).json({
+                    error: "Device with this name already exists",
+                });
+            }
+        }
+
+        await trx("devices").where("mac_address", mac).update({
+            device_name: name,
+            location: location,
+            status: status,
+            updated_at: knex.fn.now(),
+        });
+
+        if (thresholds) {
+            if (thresholds.temperature) {
+                const { min, max } = thresholds.temperature;
+
+                const tempExists = await trx("sensor_thresholds")
+                    .where({ mac_address: mac, parameter: "Temperature" })
+                    .first();
+
+                if (tempExists) {
+                    await trx("sensor_thresholds")
+                        .where({ mac_address: mac, parameter: "Temperature" })
+                        .update({
+                            lower_limit: min,
+                            upper_limit: max,
+                            updated_at: knex.fn.now(),
+                        });
+                } else {
+                    await trx("sensor_thresholds").insert({
+                        mac_address: mac,
+                        parameter: "Temperature",
+                        lower_limit: min,
+                        upper_limit: max,
+                        created_at: knex.fn.now(),
+                        updated_at: knex.fn.now(),
+                    });
+                }
+            }
+
+            if (thresholds.humidity) {
+                const { min, max } = thresholds.humidity;
+
+                const humidExists = await trx("sensor_thresholds")
+                    .where({ mac_address: mac, parameter: "Humidity" })
+                    .first();
+
+                if (humidExists) {
+                    await trx("sensor_thresholds")
+                        .where({ mac_address: mac, parameter: "Humidity" })
+                        .update({
+                            lower_limit: min,
+                            upper_limit: max,
+                            updated_at: knex.fn.now(),
+                        });
+                } else {
+                    await trx("sensor_thresholds").insert({
+                        mac_address: mac,
+                        parameter: "Humidity",
+                        lower_limit: min,
+                        upper_limit: max,
+                        created_at: knex.fn.now(),
+                        updated_at: knex.fn.now(),
+                    });
+                }
+            }
+        }
+
+        await trx.commit();
+
+        res.json({
+            message: "Device updated successfully",
+            mac_address: mac,
+            device_name: name,
+        });
+    } catch (err) {
+        await trx.rollback();
+        console.error("PUT /devices/:mac error:", err.message);
+
+        if (
+            err.code === "ER_DUP_ENTRY" &&
+            err.message.includes("device_name")
+        ) {
+            res.status(400).json({
+                error: "Device with this name already exists",
+            });
+        } else {
+            res.status(500).json({ error: "Internal Server Error" });
+        }
+    }
+});
+
+router.post("/", async (req, res) => {
+    try {
+        const { mac_address, device_name, location, status } = req.body;
+
+        if (!mac_address || !device_name) {
+            return res.status(400).json({
+                error: "MAC address and device name are required",
+            });
+        }
+
+        const existingMacDevice = await knex("devices")
+            .where("mac_address", mac_address)
+            .first();
+
+        if (existingMacDevice) {
+            return res.status(400).json({
+                error: "Device with this MAC address already exists",
+            });
+        }
+
+        const existingNameDevice = await knex("devices")
+            .where("device_name", device_name)
+            .first();
+
+        if (existingNameDevice) {
+            return res.status(400).json({
+                error: "Device with this name already exists",
+            });
         }
 
         await knex("devices").insert({
             mac_address,
-            location: location || null,
-            status: finalStatus,
+            device_name,
+            location: location || "",
+            status: status || "Active",
+            created_at: knex.fn.now(),
+            updated_at: knex.fn.now(),
         });
 
-        res.status(201).json({ message: "Device saved" });
+        res.status(201).json({
+            message: "Device added successfully",
+            mac_address,
+            device_name,
+        });
     } catch (err) {
         console.error("POST /devices error:", err.message);
-        res.status(500).json({ error: "Database error" });
+
+        if (err.code === "ER_DUP_ENTRY" || err.message.includes("UNIQUE")) {
+            if (err.message.includes("mac_address")) {
+                res.status(400).json({
+                    error: "Device with this MAC address already exists",
+                });
+            } else if (err.message.includes("device_name")) {
+                res.status(400).json({
+                    error: "Device with this name already exists",
+                });
+            } else {
+                res.status(400).json({
+                    error: "Duplicate entry found",
+                });
+            }
+        } else {
+            res.status(500).json({ error: "Internal Server Error" });
+        }
     }
 });
 

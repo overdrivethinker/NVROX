@@ -65,11 +65,21 @@ export default function DeviceDataTable() {
         name: string;
         location: string;
         status: string;
+        thresholds?: {
+            temperature?: { min: number; max: number };
+            humidity?: { min: number; max: number };
+            pressure?: { min: number; max: number };
+        };
     }>({
         mac: "",
         name: "",
         location: "",
         status: "",
+        thresholds: {
+            temperature: { min: 0, max: 0 },
+            humidity: { min: 0, max: 0 },
+            pressure: { min: 0, max: 0 },
+        },
     });
 
     const [pagination, setPagination] = useState<PaginationInfo>({
@@ -136,10 +146,126 @@ export default function DeviceDataTable() {
     });
 
     const handleAddSubmit = async () => {
-        console.log("Adding device:", newDevice);
-        setAddDialogOpen(false);
-        setNewDevice({ mac: "", name: "", location: "", status: "Active" });
+        console.log("=== ADD DEVICE DEBUG ===");
+        console.log("newDevice state:", newDevice);
+
+        try {
+            const payload = {
+                mac_address: newDevice.mac,
+                device_name: newDevice.name,
+                location: newDevice.location,
+                status: newDevice.status,
+            };
+
+            console.log("Payload to send:", payload);
+            console.log(
+                "API URL:",
+                `${import.meta.env.VITE_API_BASE_URL}/devices`
+            );
+
+            const response = await axios.post(
+                `${import.meta.env.VITE_API_BASE_URL}/devices`,
+                payload
+            );
+
+            console.log("API Response:", response.data);
+
+            await fetchData();
+            toast.success(`${newDevice.name} added successfully`);
+
+            setAddDialogOpen(false);
+            setNewDevice({
+                mac: "",
+                name: "",
+                location: "",
+                status: "Active",
+            });
+        } catch (err) {
+            console.error("=== ADD DEVICE ERROR ===");
+            console.error("Full error:", err);
+
+            if (axios.isAxiosError(err)) {
+                console.error("Response status:", err.response?.status);
+                console.error("Response data:", err.response?.data);
+                console.error("Request config:", err.config);
+
+                if (err.response?.status === 400) {
+                    toast.error(err.response.data.error || "Invalid data");
+                } else if (err.response?.status === 404) {
+                    toast.error("API endpoint not found");
+                } else {
+                    toast.error(`Request failed: ${err.response?.status}`);
+                }
+            } else {
+                console.error("Non-axios error:", err);
+                toast.error("An unexpected error occurred");
+            }
+        }
     };
+
+    const handleEditSubmit = async () => {
+        try {
+            const existingDevice = data.find(
+                (device) =>
+                    device.device_name.toLowerCase() ===
+                        selectedDevice.name.toLowerCase() &&
+                    device.mac_address !== selectedDevice.mac
+            );
+
+            if (existingDevice) {
+                toast.error(
+                    "A device with this name already exists. Please choose a different name."
+                );
+                return;
+            }
+
+            const payload = {
+                name: selectedDevice.name,
+                location: selectedDevice.location,
+                status: selectedDevice.status,
+                thresholds: selectedDevice.thresholds,
+            };
+
+            await axios.put(
+                `${import.meta.env.VITE_API_BASE_URL}/devices/${
+                    selectedDevice.mac
+                }`,
+                payload
+            );
+
+            await fetchData();
+            toast.success(`${selectedDevice.name} updated successfully`);
+            setEditDialog(false);
+        } catch (err) {
+            console.error("Update error:", err);
+
+            if (axios.isAxiosError(err) && err.response) {
+                const status = err.response.status;
+                const message =
+                    err.response.data?.message ||
+                    err.response.data?.error ||
+                    "";
+
+                if (
+                    (status === 409 || status === 400) &&
+                    (message.toLowerCase().includes("duplicate") ||
+                        message.toLowerCase().includes("already exists") ||
+                        message.toLowerCase().includes("name"))
+                ) {
+                    toast.error(
+                        "A device with this name already exists. Please choose a different name."
+                    );
+                } else if (status === 404) {
+                    toast.error("Device not found");
+                } else {
+                    toast.error("Failed to update device");
+                }
+            } else {
+                toast.error("Network error - please check your connection");
+            }
+        }
+    };
+
     return (
         <Card className="@container/card flex-1 min-h-[600px] overflow-hidden">
             <CardHeader>
@@ -272,6 +398,27 @@ export default function DeviceDataTable() {
                                                                         location:
                                                                             row.location,
                                                                         status: row.status,
+                                                                        thresholds:
+                                                                            {
+                                                                                temperature:
+                                                                                    {
+                                                                                        min:
+                                                                                            row.tempMin ||
+                                                                                            0,
+                                                                                        max:
+                                                                                            row.tempMax ||
+                                                                                            0,
+                                                                                    },
+                                                                                humidity:
+                                                                                    {
+                                                                                        min:
+                                                                                            row.humidMin ||
+                                                                                            0,
+                                                                                        max:
+                                                                                            row.humidMax ||
+                                                                                            0,
+                                                                                    },
+                                                                            },
                                                                     }
                                                                 );
                                                             }}>
@@ -290,6 +437,27 @@ export default function DeviceDataTable() {
                                                                         location:
                                                                             row.location,
                                                                         status: row.status,
+                                                                        thresholds:
+                                                                            {
+                                                                                temperature:
+                                                                                    {
+                                                                                        min:
+                                                                                            row.tempMin ||
+                                                                                            0,
+                                                                                        max:
+                                                                                            row.tempMax ||
+                                                                                            0,
+                                                                                    },
+                                                                                humidity:
+                                                                                    {
+                                                                                        min:
+                                                                                            row.humidMin ||
+                                                                                            0,
+                                                                                        max:
+                                                                                            row.humidMax ||
+                                                                                            0,
+                                                                                    },
+                                                                            },
                                                                     }
                                                                 );
                                                             }}
@@ -317,18 +485,15 @@ export default function DeviceDataTable() {
                         <DeleteDeviceDialog
                             open={openDialog}
                             onOpenChange={setOpenDialog}
-                            onDelete={handleDelete}
                             device={selectedDevice}
+                            onDelete={handleDelete}
                         />
                         <EditDeviceDialog
                             open={editDialog}
                             onOpenChange={setEditDialog}
                             device={selectedDevice}
                             setDevice={setSelectedDevice}
-                            onSubmit={() => {
-                                setEditDialog(false);
-                                toast.success("Device updated");
-                            }}
+                            onSubmit={handleEditSubmit}
                         />
                     </div>
                     <div className="flex items-center justify-between">
