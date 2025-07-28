@@ -146,8 +146,6 @@ export default function DeviceDataTable() {
     });
 
     const handleAddSubmit = async () => {
-        console.log("=== ADD DEVICE DEBUG ===");
-        console.log("newDevice state:", newDevice);
 
         try {
             const payload = {
@@ -181,9 +179,6 @@ export default function DeviceDataTable() {
                 status: "Active",
             });
         } catch (err) {
-            console.error("=== ADD DEVICE ERROR ===");
-            console.error("Full error:", err);
-
             if (axios.isAxiosError(err)) {
                 console.error("Response status:", err.response?.status);
                 console.error("Response data:", err.response?.data);
@@ -208,7 +203,7 @@ export default function DeviceDataTable() {
             const existingDevice = data.find(
                 (device) =>
                     device.device_name.toLowerCase() ===
-                        selectedDevice.name.toLowerCase() &&
+                    selectedDevice.name.toLowerCase() &&
                     device.mac_address !== selectedDevice.mac
             );
 
@@ -227,8 +222,7 @@ export default function DeviceDataTable() {
             };
 
             await axios.put(
-                `${import.meta.env.VITE_API_BASE_URL}/devices/${
-                    selectedDevice.mac
+                `${import.meta.env.VITE_API_BASE_URL}/devices/${selectedDevice.mac
                 }`,
                 payload
             );
@@ -399,26 +393,26 @@ export default function DeviceDataTable() {
                                                                             row.location,
                                                                         status: row.status,
                                                                         thresholds:
+                                                                        {
+                                                                            temperature:
                                                                             {
-                                                                                temperature:
-                                                                                    {
-                                                                                        min:
-                                                                                            row.tempMin ||
-                                                                                            0,
-                                                                                        max:
-                                                                                            row.tempMax ||
-                                                                                            0,
-                                                                                    },
-                                                                                humidity:
-                                                                                    {
-                                                                                        min:
-                                                                                            row.humidMin ||
-                                                                                            0,
-                                                                                        max:
-                                                                                            row.humidMax ||
-                                                                                            0,
-                                                                                    },
+                                                                                min:
+                                                                                    row.tempMin ||
+                                                                                    0,
+                                                                                max:
+                                                                                    row.tempMax ||
+                                                                                    0,
                                                                             },
+                                                                            humidity:
+                                                                            {
+                                                                                min:
+                                                                                    row.humidMin ||
+                                                                                    0,
+                                                                                max:
+                                                                                    row.humidMax ||
+                                                                                    0,
+                                                                            },
+                                                                        },
                                                                     }
                                                                 );
                                                             }}>
@@ -438,26 +432,26 @@ export default function DeviceDataTable() {
                                                                             row.location,
                                                                         status: row.status,
                                                                         thresholds:
+                                                                        {
+                                                                            temperature:
                                                                             {
-                                                                                temperature:
-                                                                                    {
-                                                                                        min:
-                                                                                            row.tempMin ||
-                                                                                            0,
-                                                                                        max:
-                                                                                            row.tempMax ||
-                                                                                            0,
-                                                                                    },
-                                                                                humidity:
-                                                                                    {
-                                                                                        min:
-                                                                                            row.humidMin ||
-                                                                                            0,
-                                                                                        max:
-                                                                                            row.humidMax ||
-                                                                                            0,
-                                                                                    },
+                                                                                min:
+                                                                                    row.tempMin ||
+                                                                                    0,
+                                                                                max:
+                                                                                    row.tempMax ||
+                                                                                    0,
                                                                             },
+                                                                            humidity:
+                                                                            {
+                                                                                min:
+                                                                                    row.humidMin ||
+                                                                                    0,
+                                                                                max:
+                                                                                    row.humidMax ||
+                                                                                    0,
+                                                                            },
+                                                                        },
                                                                     }
                                                                 );
                                                             }}
