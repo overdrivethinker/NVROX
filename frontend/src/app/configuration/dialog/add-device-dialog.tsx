@@ -155,7 +155,7 @@ export function AddDeviceDialog({
                                 onChange={(e) =>
                                     setDevice({
                                         ...device,
-                                        name: e.target.value,
+                                        name: e.target.value.toUpperCase(),
                                     })
                                 }
                             />
