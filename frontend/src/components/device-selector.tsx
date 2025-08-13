@@ -31,16 +31,20 @@ export function DeviceSelector({ value, onChange }: DeviceSelectorProps) {
 
     return (
         <Select value={value} onValueChange={onChange}>
-            <SelectTrigger className="w-[200px]">
+            {/* Trigger fleksibel tapi minimal 200px */}
+            <SelectTrigger className="w-auto min-w-[200px]">
                 <SelectValue placeholder="Select device" />
             </SelectTrigger>
+
+            {/* Dropdown maksimal 300px dan wrap teks panjang */}
             <SelectContent
-                className="max-h-[200px] overflow-y-auto"
+                className="max-w-[300px] min-w-[var(--radix-select-trigger-width)] max-h-[200px] overflow-y-auto"
                 position="popper">
                 {devices.map((device) => (
                     <SelectItem
                         key={device.mac_address}
-                        value={device.mac_address}>
+                        value={device.mac_address}
+                        className="whitespace-normal break-words">
                         {device.device_name} [{device.location}]
                     </SelectItem>
                 ))}
