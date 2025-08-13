@@ -146,7 +146,6 @@ export default function DeviceDataTable() {
     });
 
     const handleAddSubmit = async () => {
-
         try {
             const payload = {
                 mac_address: newDevice.mac,
@@ -203,7 +202,7 @@ export default function DeviceDataTable() {
             const existingDevice = data.find(
                 (device) =>
                     device.device_name.toLowerCase() ===
-                    selectedDevice.name.toLowerCase() &&
+                        selectedDevice.name.toLowerCase() &&
                     device.mac_address !== selectedDevice.mac
             );
 
@@ -222,7 +221,8 @@ export default function DeviceDataTable() {
             };
 
             await axios.put(
-                `${import.meta.env.VITE_API_BASE_URL}/devices/${selectedDevice.mac
+                `${import.meta.env.VITE_API_BASE_URL}/devices/${
+                    selectedDevice.mac
                 }`,
                 payload
             );
@@ -393,26 +393,26 @@ export default function DeviceDataTable() {
                                                                             row.location,
                                                                         status: row.status,
                                                                         thresholds:
-                                                                        {
-                                                                            temperature:
                                                                             {
-                                                                                min:
-                                                                                    row.tempMin ||
-                                                                                    0,
-                                                                                max:
-                                                                                    row.tempMax ||
-                                                                                    0,
+                                                                                temperature:
+                                                                                    {
+                                                                                        min:
+                                                                                            row.tempMin ||
+                                                                                            0,
+                                                                                        max:
+                                                                                            row.tempMax ||
+                                                                                            0,
+                                                                                    },
+                                                                                humidity:
+                                                                                    {
+                                                                                        min:
+                                                                                            row.humidMin ||
+                                                                                            0,
+                                                                                        max:
+                                                                                            row.humidMax ||
+                                                                                            0,
+                                                                                    },
                                                                             },
-                                                                            humidity:
-                                                                            {
-                                                                                min:
-                                                                                    row.humidMin ||
-                                                                                    0,
-                                                                                max:
-                                                                                    row.humidMax ||
-                                                                                    0,
-                                                                            },
-                                                                        },
                                                                     }
                                                                 );
                                                             }}>
@@ -432,26 +432,26 @@ export default function DeviceDataTable() {
                                                                             row.location,
                                                                         status: row.status,
                                                                         thresholds:
-                                                                        {
-                                                                            temperature:
                                                                             {
-                                                                                min:
-                                                                                    row.tempMin ||
-                                                                                    0,
-                                                                                max:
-                                                                                    row.tempMax ||
-                                                                                    0,
+                                                                                temperature:
+                                                                                    {
+                                                                                        min:
+                                                                                            row.tempMin ||
+                                                                                            0,
+                                                                                        max:
+                                                                                            row.tempMax ||
+                                                                                            0,
+                                                                                    },
+                                                                                humidity:
+                                                                                    {
+                                                                                        min:
+                                                                                            row.humidMin ||
+                                                                                            0,
+                                                                                        max:
+                                                                                            row.humidMax ||
+                                                                                            0,
+                                                                                    },
                                                                             },
-                                                                            humidity:
-                                                                            {
-                                                                                min:
-                                                                                    row.humidMin ||
-                                                                                    0,
-                                                                                max:
-                                                                                    row.humidMax ||
-                                                                                    0,
-                                                                            },
-                                                                        },
                                                                     }
                                                                 );
                                                             }}
@@ -500,14 +500,15 @@ export default function DeviceDataTable() {
                                 variant="outline"
                                 className="h-8 w-8"
                                 onClick={() => goToPage(1)}
-                                disabled={pagination.page === 1}>
+                                disabled={loading || pagination.page === 1}>
                                 <IconChevronsLeft className="h-4 w-4" />
                             </Button>
+
                             <Button
                                 variant="outline"
                                 className="h-8 w-8"
                                 onClick={() => goToPage(pagination.page - 1)}
-                                disabled={pagination.page === 1}>
+                                disabled={loading || pagination.page === 1}>
                                 <IconChevronLeft className="h-4 w-4" />
                             </Button>
 
@@ -519,14 +520,21 @@ export default function DeviceDataTable() {
                                 variant="outline"
                                 className="h-8 w-8"
                                 onClick={() => goToPage(pagination.page + 1)}
-                                disabled={pagination.page === pagination.pages}>
+                                disabled={
+                                    loading ||
+                                    pagination.page === pagination.pages
+                                }>
                                 <IconChevronRight className="h-4 w-4" />
                             </Button>
+
                             <Button
                                 variant="outline"
                                 className="h-8 w-8"
                                 onClick={() => goToPage(pagination.pages)}
-                                disabled={pagination.page === pagination.pages}>
+                                disabled={
+                                    loading ||
+                                    pagination.page === pagination.pages
+                                }>
                                 <IconChevronsRight className="h-4 w-4" />
                             </Button>
                         </div>

@@ -112,12 +112,12 @@ export default function AlertsDataTable() {
                                                 variant="outline"
                                                 className={
                                                     row.parameter ===
-                                                        "Temperature"
+                                                    "Temperature"
                                                         ? "border-sky-500 dark:border-blue-500 text-blue-400"
                                                         : "border-emerald-500 dark:border-emerald-400 text-emerald-500"
                                                 }>
                                                 {row.parameter ===
-                                                    "Temperature" ? (
+                                                "Temperature" ? (
                                                     <>
                                                         <Thermometer className="w-4 h-4" />
                                                         Temperature
@@ -191,14 +191,14 @@ export default function AlertsDataTable() {
                             variant="outline"
                             className="h-8 w-8"
                             onClick={() => goToPage(1)}
-                            disabled={pagination.page === 1}>
+                            disabled={loading || pagination.page === 1}>
                             <IconChevronsLeft className="h-4 w-4" />
                         </Button>
                         <Button
                             variant="outline"
                             className="h-8 w-8"
                             onClick={() => goToPage(pagination.page - 1)}
-                            disabled={pagination.page === 1}>
+                            disabled={loading || pagination.page === 1}>
                             <IconChevronLeft className="h-4 w-4" />
                         </Button>
 
@@ -210,14 +210,18 @@ export default function AlertsDataTable() {
                             variant="outline"
                             className="h-8 w-8"
                             onClick={() => goToPage(pagination.page + 1)}
-                            disabled={pagination.page === pagination.pages}>
+                            disabled={
+                                loading || pagination.page === pagination.pages
+                            }>
                             <IconChevronRight className="h-4 w-4" />
                         </Button>
                         <Button
                             variant="outline"
                             className="h-8 w-8"
                             onClick={() => goToPage(pagination.pages)}
-                            disabled={pagination.page === pagination.pages}>
+                            disabled={
+                                loading || pagination.page === pagination.pages
+                            }>
                             <IconChevronsRight className="h-4 w-4" />
                         </Button>
                     </div>
