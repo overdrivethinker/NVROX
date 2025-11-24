@@ -167,9 +167,3 @@ Feel free to use, modify, and distribute as needed.
 
 Contributions are welcome!  
 Feel free to open issues, fork the repo, and submit pull requests.
-
----
-
-## 📬 Contact
-
-For questions or support, please open an issue or contact [debugmeAI](https://github.com/debugmeAI)
