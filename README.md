@@ -151,7 +151,11 @@ nvrox/
 
 ## 📷 Screenshots
 
-> ASAP
+<img width="1912" height="954" alt="image" src="https://github.com/user-attachments/assets/72ca1e7e-1ee5-4ea8-bc10-aa2edb673f54" />
+<img width="1912" height="954" alt="image" src="https://github.com/user-attachments/assets/4874b7b3-5e3d-43fd-b444-79529abd5f97" />
+<img width="1912" height="954" alt="image" src="https://github.com/user-attachments/assets/9c34a092-8855-4e30-b99c-4a773f507c1d" />
+<img width="1912" height="954" alt="image" src="https://github.com/user-attachments/assets/597bc02b-d69e-4394-808f-b82b53115b02" />
+<img width="1912" height="954" alt="image" src="https://github.com/user-attachments/assets/d0162091-2d8b-4587-a4d4-be291b381213" />
 
 ---
 
