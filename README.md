@@ -12,7 +12,7 @@
 -   **Node.js (v18+)**
 -   **EMQX Broker (MQTT)**
 -   **Redis**
--   **MariaDB** or **MySQL**
+-   **Relational Databases (SQL)**
 
 ---
 
@@ -27,7 +27,6 @@
 
 -   **Node.js** + **Express.js**
 -   **Knex.js** (SQL query builder)
--   **MariaDB** (relational database)
 -   **Socket.IO** (WebSocket for real-time data)
 -   **Redis** (caching & fast data access)
 
@@ -160,8 +159,6 @@ nvrox/
 
 This project is licensed under the **MIT License**.  
 Feel free to use, modify, and distribute as needed.
-
----
 
 ## 🤝 Contribution
 
