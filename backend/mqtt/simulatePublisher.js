@@ -42,7 +42,11 @@ for (let i = 0; i < TOTAL_DEVICES; i++) {
                 humid,
             });
 
-            client.publish(topic, payload, { qos });
+            const deviceTopic = `${topic}/device${i + 1}`;
+
+            client.publish(deviceTopic, payload, { qos });
+
+            console.log(`${deviceTopic} publishing: ${payload}`);
         }, 1000);
     });
 

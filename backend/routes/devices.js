@@ -11,6 +11,15 @@ const timezone = require("dayjs/plugin/timezone");
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
+const { getDeviceId, clearDeviceCache } = require("@redis/deviceCache");
+const { getThresholds, clearThresholdCache } = require("@redis/thresholdCache");
+
+const clearAllCache = async () => {
+    console.log("[INIT] Clearing Redis cache");
+    await clearDeviceCache();
+    await clearThresholdCache();
+};
+
 router.get("/", async (req, res) => {
     try {
         const { page = 1, limit = 15 } = req.query;
@@ -57,7 +66,7 @@ router.get("/alerts", async (req, res) => {
                 "alerts.value",
                 "alerts.threshold",
                 "alerts.status",
-                "alerts.recorded_at"
+                "alerts.recorded_at",
             )
             .leftJoin("devices", "alerts.mac_address", "devices.mac_address")
             .orderBy([
@@ -105,24 +114,24 @@ router.get("/with-thresholds", async (req, res) => {
                     .select(
                         "mac_address",
                         "lower_limit as tempMin",
-                        "upper_limit as tempMax"
+                        "upper_limit as tempMax",
                     )
                     .where("parameter", "Temperature")
                     .as("t"),
                 "d.mac_address",
-                "t.mac_address"
+                "t.mac_address",
             )
             .leftJoin(
                 knex("sensor_thresholds")
                     .select(
                         "mac_address",
                         "lower_limit as humidMin",
-                        "upper_limit as humidMax"
+                        "upper_limit as humidMax",
                     )
                     .where("parameter", "Humidity")
                     .as("h"),
                 "d.mac_address",
-                "h.mac_address"
+                "h.mac_address",
             )
             .select(
                 "d.device_name",
@@ -134,7 +143,7 @@ router.get("/with-thresholds", async (req, res) => {
                 "h.humidMin",
                 "h.humidMax",
                 "d.created_at",
-                "d.updated_at"
+                "d.updated_at",
             )
             .orderBy("d.device_name", "asc")
             .limit(parsedLimit)
@@ -233,7 +242,7 @@ router.get("/threshold/all", async (req, res) => {
             "mac_address",
             "parameter",
             "lower_limit",
-            "upper_limit"
+            "upper_limit",
         );
 
         const grouped = {};
@@ -321,6 +330,8 @@ router.get("/alerts-sum", async (req, res) => {
 
 router.put("/:mac", async (req, res) => {
     const trx = await knex.transaction();
+
+    await clearAllCache();
 
     try {
         const { mac } = req.params;

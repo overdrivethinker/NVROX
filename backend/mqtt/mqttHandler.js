@@ -19,14 +19,14 @@ const clearAllCache = async () => {
     const client = mqtt.connect(brokerUrl, {
         ...options,
         clientId: `backend_logger_${Date.now()}_${Math.floor(
-            Math.random() * 1000
+            Math.random() * 1000,
         )}`,
     });
 
     client.on("connect", () => {
         console.log("[CONNECTED] Subscribe to broker");
 
-        client.subscribe(topic, { qos }, (err) => {
+        client.subscribe(`${topic}/+`, { qos }, (err) => {
             if (err) {
                 console.error("[ERROR] Subscribe", err.message);
             } else {
@@ -36,16 +36,21 @@ const clearAllCache = async () => {
     });
 
     client.on("message", async (receivedTopic, message) => {
-        if (receivedTopic !== topic) return;
+        if (!receivedTopic.startsWith("nvrox/temp-hum")) {
+            return;
+        }
 
         try {
+            const deviceName = receivedTopic.split("/").pop();
+
             const data = JSON.parse(message.toString());
             const { mac_address, temp, humid } = data;
 
             const device = await getDeviceId(mac_address);
+
             if (!device) {
                 console.warn(
-                    `[IGNORED] ${mac_address} not registered or inactive`
+                    `[IGNORED] ${mac_address} not registered or inactive`,
                 );
                 return;
             }
@@ -93,14 +98,14 @@ const clearAllCache = async () => {
             if (alerts.length > 0) {
                 await knex("alerts").insert(alerts);
                 console.warn(
-                    `[ALERT] Triggered for ${mac_address}: ${alerts.length} alert(s)`
+                    `[ALERT] Triggered for ${mac_address}: ${alerts.length} alert(s)`,
                 );
             }
             const tempAlerts = alerts.filter(
-                (a) => a.parameter === "Temperature"
+                (a) => a.parameter === "Temperature",
             );
             const humidAlerts = alerts.filter(
-                (a) => a.parameter === "Humidity"
+                (a) => a.parameter === "Humidity",
             );
 
             emitToClients("new_alerts", {
