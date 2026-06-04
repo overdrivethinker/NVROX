@@ -17,7 +17,8 @@ import {
     SidebarMenuSubButton,
     SidebarMenuSubItem,
 } from "@/components/ui/sidebar";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
+import { cn } from "@/lib/utils";
 
 export function NavMain({
     items,
@@ -33,8 +34,12 @@ export function NavMain({
         }[];
     }[];
 }) {
+    const { pathname } = useLocation();
+
     const [openMenu, setOpenMenu] = useState<string | null>(() => {
-        const activeItem = items.find((item) => item.isActive);
+        const activeItem = items.find((item) =>
+            item.items?.some((sub) => sub.url === pathname),
+        );
         return activeItem?.title ?? null;
     });
 
@@ -48,35 +53,76 @@ export function NavMain({
             <SidebarMenu>
                 {items.map((item) => {
                     const isOpen = openMenu === item.title;
+                    const hasActiveChild = item.items?.some(
+                        (sub) => sub.url === pathname,
+                    );
+
                     return (
                         <Collapsible
                             key={item.title}
                             asChild
                             open={isOpen}
                             onOpenChange={() => handleToggle(item.title)}
-                            className="group/collapsible">
+                            className="group/collapsible"
+                        >
                             <SidebarMenuItem>
                                 <CollapsibleTrigger asChild>
-                                    <SidebarMenuButton tooltip={item.title}>
+                                    <SidebarMenuButton
+                                        tooltip={item.title}
+                                        className={cn(
+                                            hasActiveChild && "text-primary",
+                                        )}
+                                    >
                                         {item.icon && <item.icon />}
                                         <span>{item.title}</span>
-                                        <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+
+                                        {hasActiveChild && !isOpen && (
+                                            <span className="w-2 h-2 ml-2 mt-1 rounded-full bg-primary shrink-0" />
+                                        )}
+
+                                        <ChevronRight
+                                            className={cn(
+                                                "ml-auto transition-transform duration-200",
+                                                isOpen && "rotate-90",
+                                            )}
+                                        />
                                     </SidebarMenuButton>
                                 </CollapsibleTrigger>
+
                                 <CollapsibleContent>
                                     <SidebarMenuSub>
-                                        {item.items?.map((subItem) => (
-                                            <SidebarMenuSubItem
-                                                key={subItem.title}>
-                                                <SidebarMenuSubButton asChild>
-                                                    <Link to={subItem.url}>
-                                                        <span>
-                                                            {subItem.title}
-                                                        </span>
-                                                    </Link>
-                                                </SidebarMenuSubButton>
-                                            </SidebarMenuSubItem>
-                                        ))}
+                                        {item.items?.map((subItem) => {
+                                            const isActive =
+                                                pathname === subItem.url;
+                                            return (
+                                                <SidebarMenuSubItem
+                                                    key={subItem.title}
+                                                >
+                                                    <SidebarMenuSubButton
+                                                        asChild
+                                                        isActive={isActive}
+                                                        className={cn(
+                                                            isActive &&
+                                                                "bg-primary/10 text-primary font-medium",
+                                                        )}
+                                                    >
+                                                        <Link to={subItem.url}>
+                                                            <span
+                                                                className={cn(
+                                                                    "w-0.5 h-3.5 mt-0.5 rounded-full shrink-0",
+                                                                    isActive
+                                                                        ? "bg-primary"
+                                                                        : "opacity-0",
+                                                                )}
+                                                            />
+                                                            <span>
+                                                                {subItem.title}
+                                                            </span>
+                                                        </Link>
+                                                    </SidebarMenuSubButton>
+                                                </SidebarMenuSubItem>
+                                            );
+                                        })}
                                     </SidebarMenuSub>
                                 </CollapsibleContent>
                             </SidebarMenuItem>

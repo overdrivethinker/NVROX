@@ -233,7 +233,7 @@ export function AlertsChart() {
                     </Select>
                 </CardAction>
             </CardHeader>
-            <CardContent className="flex flex-col flex-1 justify-center items-center overflow-x-auto overflow-y-auto sm:px-4 pt-2 sm:pt-3">
+            <CardContent className="flex flex-col flex-1 justify-center items-center overflow-x-auto overflow-y-auto sm:px-4 pt-2 sm:pt-2">
                 {isLoading || delayedLoading ? (
                     <div className="flex justify-center items-center min-h-[200px] w-full">
                         <Badge
@@ -261,7 +261,7 @@ export function AlertsChart() {
                     <>
                         <ChartContainer
                             config={chartConfig}
-                            className="h-[480px] w-full"
+                            className="h-[610px] w-full"
                         >
                             <BarChart
                                 key={timeRange}
