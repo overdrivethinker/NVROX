@@ -18,8 +18,7 @@ import {
     SidebarMenuItem,
     useSidebar,
 } from "@/components/ui/sidebar";
-
-import { AboutDialog } from "@/components/about";
+import { AboutMenuItem } from "@/components/about-dropdown";
 
 export function NavUser({
     user,
@@ -88,7 +87,7 @@ export function NavUser({
                             </div>
                         </DropdownMenuLabel>
                         <DropdownMenuSeparator />
-                        <AboutDialog />
+                        <AboutMenuItem />
                         <DropdownMenuItem onClick={handleLogout}>
                             <LogOut className="mr-2 h-4 w-4" />
                             Log out

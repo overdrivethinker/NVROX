@@ -1,66 +1,67 @@
 "use client";
 
-import { useState } from "react";
 import {
-    Dialog,
     DialogContent,
     DialogDescription,
     DialogHeader,
     DialogTitle,
-    DialogTrigger,
 } from "@/components/ui/dialog";
-import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
-import { IconInfoCircle, IconBackground } from "@tabler/icons-react";
+import { IconBoxAlignRight } from "@tabler/icons-react";
 
 export function AboutDialog() {
-    const [open, setOpen] = useState(false);
-
+    const subject = encodeURIComponent("NVROX Feedback");
+    const body = encodeURIComponent(
+        "Hello Gilang,\n\nI would like to share some feedback regarding the NVROX application.\n\nThank you.",
+    );
     return (
-        <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild>
-                <DropdownMenuItem
-                    onSelect={(e) => e.preventDefault()}
-                    onClick={() => setOpen(true)}
-                    className="cursor-pointer"
-                >
-                    <IconInfoCircle className="mr-2 h-4 w-4" />
-                    About
-                </DropdownMenuItem>
-            </DialogTrigger>
-            <DialogContent className="max-w-lg p-6 rounded-lg shadow-lg">
-                <DialogHeader>
-                    <DialogTitle className="text-2xl font-semibold flex items-center gap-2">
-                        <IconBackground className="!size-5 text-primary" />
-                        <span className="text-base font-bold">NVROX</span>
-                        <span className="text-xs text-muted-foreground">/ˈɛn.vaɪ.rɒks/</span>
-                    </DialogTitle>
-                    <DialogDescription className="text-base text-muted-foreground mt-4">
-                        <div className="space-y-4">
-                            <p>
-                                <strong>Version:</strong> 1.0.0
-                            </p>
-                            <p>
-                                NVROX is a state of the art platform designed to deliver real-time insights and management for temperature and humidity IoT devices. Leveraging modern web technologies, it ensures a seamless and intuitive experience for monitoring and controlling environmental conditions in connected systems.
-                            </p>
-                            <p>
-                                <strong>Developed by:</strong> Gilang Fauzi
-                            </p>
-                            <p>
-                                <strong>Contact:</strong>{" "}
-                                <a
-                                    href="mailto:support@nvrox.com"
-                                    className="text-primary hover:underline"
-                                >
-                                    support@nvrox.com
-                                </a>
-                            </p>
-                            <p className="text-sm text-muted-foreground">
-                                © {new Date().getFullYear()} NVROX. All rights reserved.
-                            </p>
-                        </div>
-                    </DialogDescription>
-                </DialogHeader>
-            </DialogContent>
-        </Dialog>
+        <DialogContent className="max-w-lg p-6 rounded-lg">
+            <DialogHeader>
+                <DialogTitle className="font-semibold flex items-center gap-2">
+                    <IconBoxAlignRight className="!size-6" />
+                    <span className="text-md font-bold">NVROX</span>
+                    <span className="text-xs text-muted-foreground">
+                        /ˈɛn.vaɪ.rɒks/
+                    </span>
+                </DialogTitle>
+
+                <DialogDescription className="text-sm text-muted-foreground mt-6 space-y-6">
+                    <p>
+                        NVROX is a state of the art platform designed to deliver
+                        real-time insights and management for temperature and
+                        humidity IoT devices. Leveraging modern web
+                        technologies, it ensures a seamless and intuitive
+                        experience for monitoring and controlling environmental
+                        conditions in connected systems.
+                    </p>
+
+                    <div className="space-y-1">
+                        <p>
+                            <strong>Built with care by</strong> Gilang Fauzi
+                        </p>
+                        <p>
+                            <strong>Reach out at</strong>{" "}
+                            <a
+                                href={`mailto:gilang.fauzi@smt.co.id?subject=${subject}&body=${body}`}
+                                className="text-primary hover:underline"
+                            >
+                                gilang.fauzi@smt.co.id
+                            </a>
+                        </p>
+                    </div>
+                </DialogDescription>
+            </DialogHeader>
+
+            <footer className="mt-4 text-sm text-muted-foreground">
+                © {new Date().getFullYear()} PT. SMT Indonesia | All rights
+                reserved
+                <p>
+                    <strong>Version</strong> 1.0.0
+                </p>
+                <div className="pt-4 text-xs">
+                    Avatar illustrations by Lisa Wischofsky, licensed under CC
+                    BY 4.0
+                </div>
+            </footer>
+        </DialogContent>
     );
 }

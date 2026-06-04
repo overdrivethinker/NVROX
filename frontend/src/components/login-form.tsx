@@ -45,7 +45,8 @@ export function LoginForm({
                         <button
                             type="button"
                             onClick={() => setShowPassword((prev) => !prev)}
-                            className="absolute right-2 top-2 text-muted-foreground">
+                            className="absolute right-2 top-2 text-muted-foreground"
+                        >
                             {showPassword ? (
                                 <EyeOff className="w-5 h-5" />
                             ) : (
@@ -58,9 +59,6 @@ export function LoginForm({
                     Login
                 </Button>
             </div>
-            <footer className="text-center text-sm text-muted-foreground pb-6">
-                <p>© {new Date().getFullYear()} NVROX. All rights reserved.</p>
-            </footer>
         </form>
     );
 }
