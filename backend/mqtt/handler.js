@@ -1,11 +1,14 @@
 require("module-alias/register");
 
 const mqtt = require("mqtt");
-const knex = require("@db/knex");
-const { brokerUrl, options, topic, qos } = require("@mqtt/mqttConfig");
-const { getDeviceId, clearDeviceCache } = require("@redis/deviceCache");
-const { getThresholds, clearThresholdCache } = require("@redis/thresholdCache");
-const { emitToClients } = require("@socket/socketHandler");
+const knex = require("../database/db");
+const { brokerUrl, options, topic, qos } = require("./config");
+const { getDeviceId, clearDeviceCache } = require("../redis/device-cache");
+const {
+    getThresholds,
+    clearThresholdCache,
+} = require("../redis/threshold-cache");
+const { emitToClients } = require("../socket/handler");
 
 const clearAllCache = async () => {
     console.log("[INIT] Clearing Redis cache");

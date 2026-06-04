@@ -2,7 +2,7 @@ require("module-alias/register");
 
 const express = require("express");
 const router = express.Router();
-const knex = require("@db/knex");
+const knex = require("../database/db");
 
 router.get("/", async (req, res) => {
     try {
@@ -20,7 +20,7 @@ router.get("/", async (req, res) => {
                 "r.mac_address",
                 "r.temperature",
                 "r.humidity",
-                "r.recorded_at"
+                "r.recorded_at",
             )
             .orderBy("r.recorded_at", "asc")
             .limit(parsedLimit)
@@ -92,7 +92,7 @@ router.get("/3days-hourly", async (req, res) => {
                 knex.raw("AVG(CAST(r.temperature AS FLOAT)) as avg_temp"),
                 knex.raw("MIN(CAST(r.humidity AS FLOAT)) as min_humid"),
                 knex.raw("MAX(CAST(r.humidity AS FLOAT)) as max_humid"),
-                knex.raw("AVG(CAST(r.humidity AS FLOAT)) as avg_humid")
+                knex.raw("AVG(CAST(r.humidity AS FLOAT)) as avg_humid"),
             )
             .where("r.mac_address", mac_address)
             .whereBetween("r.recorded_at", [start, now])
@@ -105,6 +105,5 @@ router.get("/3days-hourly", async (req, res) => {
         res.status(500).json({ error: "Internal Server Error" });
     }
 });
-
 
 module.exports = router;

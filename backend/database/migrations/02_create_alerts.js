@@ -1,12 +1,10 @@
-/**
- * @param { import("knex").Knex } knex
- * @returns { Promise<void> }
- */
 exports.up = function (knex) {
     return knex.schema.createTable("alerts", function (table) {
         table.increments("id").primary();
-        table.string("mac_address")
-            .references("mac_address").inTable("devices")
+        table
+            .string("mac_address")
+            .references("mac_address")
+            .inTable("devices")
             .onDelete("CASCADE");
         table.enu("parameter", ["Temperature", "Humidity"]);
         table.decimal("value", 5, 2);
@@ -16,10 +14,6 @@ exports.up = function (knex) {
     });
 };
 
-/**
- * @param { import("knex").Knex } knex
- * @returns { Promise<void> }
- */
 exports.down = function (knex) {
     return knex.schema.dropTableIfExists("alerts");
 };

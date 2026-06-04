@@ -1,5 +1,5 @@
 const redis = require("./index");
-const knex = require("@db/knex");
+const knex = require("../database/db");
 
 const getDeviceId = async (mac_address) => {
     const key = `device:${mac_address}`;

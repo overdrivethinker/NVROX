@@ -1,5 +1,5 @@
 const redis = require("./index");
-const knex = require("@db/knex");
+const knex = require("../database/db");
 
 const getThresholds = async (macAddress) => {
     const key = `thresholds:${macAddress}`;

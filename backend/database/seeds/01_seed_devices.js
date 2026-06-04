@@ -1,7 +1,3 @@
-/**
- * @param { import("knex").Knex } knex
- * @returns { Promise<void> }
- */
 function getRandomStatus() {
     const num = Math.floor(Math.random() * 100);
     return num % 2 === 0 ? "Inactive" : "Active";

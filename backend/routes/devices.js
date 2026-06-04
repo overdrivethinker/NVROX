@@ -2,7 +2,7 @@ require("module-alias/register");
 
 const express = require("express");
 const router = express.Router();
-const knex = require("@db/knex");
+const knex = require("../database/db");
 
 const dayjs = require("dayjs");
 const utc = require("dayjs/plugin/utc");
@@ -11,8 +11,11 @@ const timezone = require("dayjs/plugin/timezone");
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
-const { getDeviceId, clearDeviceCache } = require("@redis/deviceCache");
-const { getThresholds, clearThresholdCache } = require("@redis/thresholdCache");
+const { getDeviceId, clearDeviceCache } = require("../redis/device-cache");
+const {
+    getThresholds,
+    clearThresholdCache,
+} = require("../redis/threshold-cache");
 
 const clearAllCache = async () => {
     console.log("[INIT] Clearing Redis cache");

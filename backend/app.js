@@ -1,25 +1,23 @@
-require("module-alias/register");
 require("dotenv").config();
+require("./mqtt/config");
+require("./mqtt/handler");
 
 const express = require("express");
-const http = require("http");
-const cors = require("cors");
-
 const app = express();
+const cors = require("cors");
+const http = require("http");
+
 app.use(cors());
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-const { setupSocket } = require("@socket/socketHandler");
+const { setupSocket } = require("./socket/handler");
 
 const server = http.createServer(app);
 setupSocket(server);
 
-require("@db/knex");
-require("@mqtt/mqttHandler");
-
-const apiRoutes = require("@routes");
-app.use(express.json());
-app.use("/api", apiRoutes);
+const routes = require("./routes");
+app.use("/api", routes);
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {

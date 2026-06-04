@@ -1,7 +1,5 @@
-require("module-alias/register");
-
 const mqtt = require("mqtt");
-const { brokerUrl, options, topic, qos } = require("@mqtt/mqttConfig");
+const { brokerUrl, options, topic, qos } = require("./config");
 
 const TOTAL_DEVICES = 30;
 const clients = [];
