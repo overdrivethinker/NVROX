@@ -1,5 +1,3 @@
-require("module-alias/register");
-
 const mqtt = require("mqtt");
 const knex = require("../database/db");
 const { brokerUrl, options, topic, qos } = require("./config");
@@ -11,7 +9,7 @@ const {
 const { emitToClients } = require("../socket/handler");
 
 const clearAllCache = async () => {
-    console.log("[INIT] Clearing Redis cache");
+    console.log("[REDIS] Clearing cache");
     await clearDeviceCache();
     await clearThresholdCache();
 };
@@ -27,13 +25,13 @@ const clearAllCache = async () => {
     });
 
     client.on("connect", () => {
-        console.log("[CONNECTED] Subscribe to broker");
+        console.log("[MQTT] Connected to broker");
 
         client.subscribe(`${topic}/+`, { qos }, (err) => {
             if (err) {
-                console.error("[ERROR] Subscribe", err.message);
+                console.error("[MQTT] Error subscribing", err.message);
             } else {
-                console.log(`[SUCCESS] Subscribed to topic ${topic}`);
+                console.log(`[MQTT] Subscribed to topic ${topic}`);
             }
         });
     });
@@ -52,9 +50,6 @@ const clearAllCache = async () => {
             const device = await getDeviceId(mac_address);
 
             if (!device) {
-                console.warn(
-                    `[IGNORED] ${mac_address} not registered or inactive`,
-                );
                 return;
             }
             const now = new Date();
@@ -74,8 +69,6 @@ const clearAllCache = async () => {
                 device_name: device.device_name,
                 location: device.location,
             });
-
-            console.log(`[SAVED] ${mac_address} | ${temp}°C | ${humid}%`);
 
             const thresholds = await getThresholds(mac_address);
             const alerts = [];
@@ -100,9 +93,6 @@ const clearAllCache = async () => {
 
             if (alerts.length > 0) {
                 await knex("alerts").insert(alerts);
-                console.warn(
-                    `[ALERT] Triggered for ${mac_address}: ${alerts.length} alert(s)`,
-                );
             }
             const tempAlerts = alerts.filter(
                 (a) => a.parameter === "Temperature",
@@ -117,7 +107,7 @@ const clearAllCache = async () => {
                 humidity: humidAlerts.length,
             });
         } catch (err) {
-            console.error("[ERROR] handling message:", err.message);
+            console.error("[MQTT] Error handling message:", err.message);
         }
     });
 })();

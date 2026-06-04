@@ -4,7 +4,7 @@ require("dotenv").config();
 let io;
 
 function setupSocket(server) {
-    console.log("[SETUP] Initializing Socket.IO");
+    console.log("[SOCKET] Initializing Socket.IO");
     io = new Server(server, {
         cors: {
             origin: process.env.SOCKET_HOST,
@@ -13,10 +13,10 @@ function setupSocket(server) {
     });
 
     io.on("connection", (socket) => {
-        console.log("Client connected: ", socket.id);
+        console.log("[SOCKET] Client connected: ", socket.id);
 
         socket.on("disconnect", () => {
-            console.log("Client disconnected:", socket.id);
+            console.log("[SOCKET] Client disconnected:", socket.id);
         });
     });
 }

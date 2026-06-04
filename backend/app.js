@@ -1,3 +1,4 @@
+require("./utils/logger");
 require("dotenv").config();
 require("./mqtt/config");
 require("./mqtt/handler");
@@ -21,5 +22,5 @@ app.use("/api", routes);
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
-    console.log(`[RUN] Backend running at http://localhost:${PORT}`);
+    console.log(`[SERVER] NVROX running at http://localhost:${PORT}`);
 });

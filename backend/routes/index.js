@@ -4,7 +4,7 @@ const router = express.Router();
 const devicesRoute = require("./devices");
 const sensorDataRoute = require("./sensor-data");
 
-router.use("/devices", devicesRoute);
-router.use("/sensor-data", sensorDataRoute);
+router.use("/nvrox/devices", devicesRoute);
+router.use("/nvrox/sensor-data", sensorDataRoute);
 
 module.exports = router;

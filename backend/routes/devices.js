@@ -1,15 +1,7 @@
-require("module-alias/register");
-
 const express = require("express");
 const router = express.Router();
 const knex = require("../database/db");
-
-const dayjs = require("dayjs");
-const utc = require("dayjs/plugin/utc");
-const timezone = require("dayjs/plugin/timezone");
-
-dayjs.extend(utc);
-dayjs.extend(timezone);
+const { toWIB, formatTimestamp } = require("../utils/helpers");
 
 const { getDeviceId, clearDeviceCache } = require("../redis/device-cache");
 const {
@@ -81,9 +73,7 @@ router.get("/alerts", async (req, res) => {
 
         const fixedRows = rows.map((row) => ({
             ...row,
-            recorded_at: dayjs(row.recorded_at)
-                .tz("Asia/Jakarta")
-                .format("YYYY-MM-DD HH:mm:ssZ"),
+            recorded_at: formatTimestamp(toWIB(row.recorded_at)),
         }));
 
         const totalResult = await knex("alerts").count("* as count").first();
@@ -284,8 +274,8 @@ router.get("/alerts-sum", async (req, res) => {
     }
 
     try {
-        const now = new Date();
-        let start = new Date();
+        const now = toWIB(new Date());
+        let start = toWIB(new Date());
 
         if (range === "today") {
             start.setHours(0, 0, 0, 0);

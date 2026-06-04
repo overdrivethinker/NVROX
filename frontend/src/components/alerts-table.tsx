@@ -19,7 +19,6 @@ import { Tabs, TabsContent } from "@/components/ui/tabs";
 
 import { Droplet, Thermometer, ArrowUp, ArrowDown } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { format, parseISO } from "date-fns";
 
 type DeviceData = {
     device_name: string;
@@ -58,7 +57,7 @@ export default function AlertsDataTable() {
                         page: pagination.page,
                         limit: pagination.limit,
                     },
-                }
+                },
             );
             setData(res.data.data);
             setPagination(res.data.pagination);
@@ -78,14 +77,24 @@ export default function AlertsDataTable() {
             setPagination((prev) => ({ ...prev, page }));
         }
     };
+
     const formatDate = (dateStr: string) => {
-        return format(parseISO(dateStr), "yyyy-MM-dd HH:mm:ss");
+        const date = new Date(dateStr);
+        const day = String(date.getDate()).padStart(2, "0");
+        const month = String(date.getMonth() + 1).padStart(2, "0");
+        const year = date.getFullYear();
+        const hours = String(date.getHours()).padStart(2, "0");
+        const minutes = String(date.getMinutes()).padStart(2, "0");
+        const seconds = String(date.getSeconds()).padStart(2, "0");
+        return `${day}/${month}/${year} ${hours}:${minutes}:${seconds}`;
     };
+
     return (
         <Tabs defaultValue="outline" className="w-full flex-col gap-4">
             <TabsContent
                 value="outline"
-                className="relative flex flex-col gap-4 overflow-auto">
+                className="relative flex flex-col gap-4 overflow-auto"
+            >
                 <div className="overflow-x-auto rounded-lg border">
                     <Table className="min-w-[600px]">
                         <TableHeader className="bg-muted sticky top-0 z-10">
@@ -103,7 +112,8 @@ export default function AlertsDataTable() {
                             {data.length > 0 ? (
                                 data.map((row, index) => (
                                     <TableRow
-                                        key={`${row.device_name}-${row.parameter}-${row.recorded_at}-${index}`}>
+                                        key={`${row.device_name}-${row.parameter}-${row.recorded_at}-${index}`}
+                                    >
                                         <TableCell>{row.device_name}</TableCell>
                                         <TableCell>{row.location}</TableCell>
                                         <TableCell>
@@ -115,7 +125,8 @@ export default function AlertsDataTable() {
                                                     "Temperature"
                                                         ? "border-sky-500 dark:border-blue-500 text-blue-400"
                                                         : "border-emerald-500 dark:border-emerald-400 text-emerald-500"
-                                                }>
+                                                }
+                                            >
                                                 {row.parameter ===
                                                 "Temperature" ? (
                                                     <>
@@ -148,7 +159,8 @@ export default function AlertsDataTable() {
                                                     row.status === "Exceed"
                                                         ? "border-red-300 text-red-500 dark:border-red-900 dark:text-red-400"
                                                         : "border-blue-300 text-blue-500 dark:border-blue-900 dark:text-blue-400"
-                                                }>
+                                                }
+                                            >
                                                 {row.status === "Exceed" ? (
                                                     <>
                                                         <ArrowUp className="w-4 h-4" />
@@ -171,7 +183,8 @@ export default function AlertsDataTable() {
                                 <TableRow key="no-data">
                                     <TableCell
                                         colSpan={7}
-                                        className="text-center font-medium">
+                                        className="text-center font-medium"
+                                    >
                                         {loading
                                             ? "Loading..."
                                             : "No records found."}
@@ -191,14 +204,16 @@ export default function AlertsDataTable() {
                             variant="outline"
                             className="h-8 w-8"
                             onClick={() => goToPage(1)}
-                            disabled={loading || pagination.page === 1}>
+                            disabled={loading || pagination.page === 1}
+                        >
                             <IconChevronsLeft className="h-4 w-4" />
                         </Button>
                         <Button
                             variant="outline"
                             className="h-8 w-8"
                             onClick={() => goToPage(pagination.page - 1)}
-                            disabled={loading || pagination.page === 1}>
+                            disabled={loading || pagination.page === 1}
+                        >
                             <IconChevronLeft className="h-4 w-4" />
                         </Button>
 
@@ -212,7 +227,8 @@ export default function AlertsDataTable() {
                             onClick={() => goToPage(pagination.page + 1)}
                             disabled={
                                 loading || pagination.page === pagination.pages
-                            }>
+                            }
+                        >
                             <IconChevronRight className="h-4 w-4" />
                         </Button>
                         <Button
@@ -221,7 +237,8 @@ export default function AlertsDataTable() {
                             onClick={() => goToPage(pagination.pages)}
                             disabled={
                                 loading || pagination.page === pagination.pages
-                            }>
+                            }
+                        >
                             <IconChevronsRight className="h-4 w-4" />
                         </Button>
                     </div>
