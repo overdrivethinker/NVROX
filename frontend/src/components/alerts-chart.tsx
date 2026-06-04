@@ -87,7 +87,7 @@ export function AlertsChart() {
                         device_name: device.device_name,
                         temperature: 0,
                         humidity: 0,
-                    })
+                    }),
                 );
                 setAlertSum(initialChartData);
             })
@@ -113,7 +113,7 @@ export function AlertsChart() {
             .then((res) => {
                 const chartData: ChartPoint[] = devices.map((device) => {
                     const alertData = res.data.find(
-                        (d: AlertData) => d.device === device.device_name
+                        (d: AlertData) => d.device === device.device_name,
                     );
                     return {
                         device_name: device.device_name,
@@ -173,7 +173,7 @@ export function AlertsChart() {
     }, [timeRange, deviceMap, devices.length]);
 
     return (
-        <Card className="@container/card flex-1 min-h-[600px] overflow-hidden">
+        <Card className="@container/card flex-1 min-h-[600px] overflow-hidden bg-transparent border-0 shadow-none">
             <CardHeader>
                 <CardTitle>Device Alerts</CardTitle>
                 <CardDescription>
@@ -192,7 +192,8 @@ export function AlertsChart() {
                                 setTimeRange(val as TimeRange);
                             }
                         }}
-                        className="hidden @[767px]/card:flex *:data-[slot=toggle-group-item]:!px-4">
+                        className="hidden @[767px]/card:flex *:data-[slot=toggle-group-item]:!px-4"
+                    >
                         <ToggleGroupItem value="today">Today</ToggleGroupItem>
                         <ToggleGroupItem value="yesterday">
                             Yesterday
@@ -207,10 +208,12 @@ export function AlertsChart() {
                             if (validRanges.includes(val as TimeRange)) {
                                 setTimeRange(val as TimeRange);
                             }
-                        }}>
+                        }}
+                    >
                         <SelectTrigger
                             className="flex w-40 @[767px]/card:hidden"
-                            size="sm">
+                            size="sm"
+                        >
                             <SelectValue placeholder="Select range" />
                         </SelectTrigger>
                         <SelectContent className="rounded-xl">
@@ -219,7 +222,8 @@ export function AlertsChart() {
                             </SelectItem>
                             <SelectItem
                                 value="yesterday"
-                                className="rounded-lg">
+                                className="rounded-lg"
+                            >
                                 Yesterday
                             </SelectItem>
                             <SelectItem value="2daysago" className="rounded-lg">
@@ -234,19 +238,21 @@ export function AlertsChart() {
                     <div className="flex justify-center items-center min-h-[200px] w-full">
                         <Badge
                             variant="outline"
-                            className="text-base border-blue-700 text-blue-700 dark:text-blue-400 dark:border-blue-400">
+                            className="text-base border-blue-700 text-blue-700 dark:text-blue-400 dark:border-blue-400"
+                        >
                             <Loader2 className="w-4 h-4 me-1.5 animate-spin" />
                             Loading chart...
                         </Badge>
                     </div>
                 ) : alertSum.length === 0 ||
-                    alertSum.every(
-                        (item) => item.temperature === 0 && item.humidity === 0
-                    ) ? (
+                  alertSum.every(
+                      (item) => item.temperature === 0 && item.humidity === 0,
+                  ) ? (
                     <div className="flex justify-center items-center min-h-[200px] w-full">
                         <Badge
                             variant="outline"
-                            className="text-base border-yellow-500 text-yellow-600 dark:border-yellow-900 dark:text-yellow-300">
+                            className="text-base border-yellow-500 text-yellow-600 dark:border-yellow-900 dark:text-yellow-300"
+                        >
                             <AlertTriangle className="w-4 h-4 me-1.5" />
                             No data available
                         </Badge>
@@ -255,7 +261,8 @@ export function AlertsChart() {
                     <>
                         <ChartContainer
                             config={chartConfig}
-                            className="h-[650px] w-full">
+                            className="h-[480px] w-full"
+                        >
                             <BarChart
                                 key={timeRange}
                                 data={alertSum}
@@ -264,7 +271,8 @@ export function AlertsChart() {
                                     right: 10,
                                     left: -20,
                                     bottom: 30,
-                                }}>
+                                }}
+                            >
                                 <XAxis
                                     dataKey="device_name"
                                     tickLine={true}
@@ -277,7 +285,8 @@ export function AlertsChart() {
                                             y={y + 10}
                                             textAnchor="end"
                                             transform={`rotate(-45, ${x}, ${y})`}
-                                            fontSize={12}>
+                                            fontSize={12}
+                                        >
                                             {payload.value}
                                         </text>
                                     )}

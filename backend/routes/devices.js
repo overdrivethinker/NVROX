@@ -17,7 +17,7 @@ const clearAllCache = async () => {
 
 router.get("/", async (req, res) => {
     try {
-        const { page = 1, limit = 15 } = req.query;
+        const { page = 1, limit = 12 } = req.query;
         const parsedLimit = parseInt(limit);
         const parsedPage = parseInt(page);
         const offset = (parsedPage - 1) * parsedLimit;
@@ -48,13 +48,22 @@ router.get("/", async (req, res) => {
 
 router.get("/alerts", async (req, res) => {
     try {
-        const { page = 1, limit = 15 } = req.query;
+        const { page = 1, limit = 12, mac, from, to } = req.query;
         const parsedLimit = parseInt(limit);
         const parsedPage = parseInt(page);
         const offset = (parsedPage - 1) * parsedLimit;
 
-        const rows = await knex("alerts")
+        // Default: hari ini (WIB)
+        const now = toWIB(new Date());
+        const startOfToday = toWIB(new Date());
+        startOfToday.setHours(0, 0, 0, 0);
+
+        const fromDate = from ? new Date(`${from}T00:00:00`) : startOfToday;
+        const toDate = to ? new Date(`${to}T23:59:59`) : now;
+
+        const query = knex("alerts")
             .select(
+                "alerts.mac_address",
                 "devices.device_name",
                 "devices.location",
                 "alerts.parameter",
@@ -64,20 +73,23 @@ router.get("/alerts", async (req, res) => {
                 "alerts.recorded_at",
             )
             .leftJoin("devices", "alerts.mac_address", "devices.mac_address")
+            .whereBetween("alerts.recorded_at", [fromDate, toDate])
             .orderBy([
                 { column: "alerts.recorded_at", order: "desc" },
                 { column: "alerts.id", order: "desc" },
-            ])
-            .limit(parsedLimit)
-            .offset(offset);
+            ]);
+
+        if (mac) query.where("alerts.mac_address", mac);
+
+        const rows = await query.clone().limit(parsedLimit).offset(offset);
+
+        const totalResult = await query.clone().count("* as count").first();
+        const total = Number(totalResult?.count || 0);
 
         const fixedRows = rows.map((row) => ({
             ...row,
             recorded_at: formatTimestamp(toWIB(row.recorded_at)),
         }));
-
-        const totalResult = await knex("alerts").count("* as count").first();
-        const total = Number(totalResult?.count || 0);
 
         res.json({
             data: fixedRows,
@@ -96,7 +108,7 @@ router.get("/alerts", async (req, res) => {
 
 router.get("/with-thresholds", async (req, res) => {
     try {
-        const { page = 1, limit = 15 } = req.query;
+        const { page = 1, limit = 12 } = req.query;
         const parsedLimit = parseInt(limit);
         const parsedPage = parseInt(page);
         const offset = (parsedPage - 1) * parsedLimit;

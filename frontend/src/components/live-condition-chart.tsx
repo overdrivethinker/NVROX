@@ -149,7 +149,7 @@ export function LiveChart() {
     }, [selectedMac]);
 
     return (
-        <Card className="@container/card flex-1 min-h-[600px] overflow-hidden">
+        <Card className="@container/card flex-1 min-h-[600px] overflow-hidden bg-transparent border-0 shadow-none">
             <CardHeader>
                 <CardTitle>Device Monitoring</CardTitle>
                 <CardDescription>
@@ -170,7 +170,8 @@ export function LiveChart() {
                     <div className="flex justify-center items-center min-h-[200px] w-full">
                         <Badge
                             variant="outline"
-                            className="text-base border-green-300 text-green-500 dark:border-green-900 dark:text-green-400">
+                            className="text-base border-green-300 text-green-500 dark:border-green-900 dark:text-green-400"
+                        >
                             <AudioLines className="w-4 h-4 me-1.5" />
                             Select device first
                         </Badge>
@@ -179,7 +180,8 @@ export function LiveChart() {
                     <div className="flex justify-center items-center min-h-[200px] w-full">
                         <Badge
                             variant="outline"
-                            className="text-base border-blue-700 text-blue-700 dark:text-blue-400 dark:border-blue-400">
+                            className="text-base border-blue-700 text-blue-700 dark:text-blue-400 dark:border-blue-400"
+                        >
                             <Loader2 className="w-4 h-4 me-1.5 animate-spin" />
                             Waiting for live data...
                         </Badge>
@@ -188,7 +190,8 @@ export function LiveChart() {
                     <div className="flex justify-center items-center min-h-[200px] w-full">
                         <Badge
                             variant="outline"
-                            className="text-base border-yellow-500 text-yellow-600 dark:border-yellow-900 dark:text-yellow-300">
+                            className="text-base border-yellow-500 text-yellow-600 dark:border-yellow-900 dark:text-yellow-300"
+                        >
                             <AlertTriangle className="w-4 h-4 me-1.5" />
                             Lost Connection
                         </Badge>
@@ -198,21 +201,20 @@ export function LiveChart() {
                         <div className="w-full lg:w-1/2">
                             <div className="flex justify-center px-3 mb-4">
                                 <Card
-                                    className={`w-full overflow-visible ${latestData &&
+                                    className={`w-full overflow-visible bg-transparent border-1 shadow-none ${
+                                        latestData &&
                                         (latestData.temperature <
                                             limits.tempMin ||
                                             latestData.temperature >
-                                            limits.tempMax)
-                                        ? "bg-red-600 animate-pulse"
-                                        : ""
-                                        }`}>
+                                                limits.tempMax)
+                                            ? "bg-red-600 animate-pulse"
+                                            : ""
+                                    }`}
+                                >
                                     <CardHeader className="text-center">
                                         <CardTitle className="text-lg">
-                                            Temperature
-                                        </CardTitle>
-                                        <CardDescription className="text-sm text-black dark:text-white">
                                             Live Temperature Data
-                                        </CardDescription>
+                                        </CardTitle>
                                     </CardHeader>
                                     <CardContent className="flex justify-center items-center overflow-visible mb-4">
                                         <div className="flex items-center justify-center text-[clamp(2rem,6vw,8rem)] font-bold text-primary leading-none whitespace-nowrap overflow-visible">
@@ -226,22 +228,25 @@ export function LiveChart() {
                             </div>
                             <ChartContainer
                                 config={chartConfig}
-                                className="min-h-[300px] max-h-[500px] w-full">
+                                className="min-h-[300px] max-h-[380px] w-full"
+                            >
                                 <AreaChart
                                     data={chartData}
                                     margin={{
                                         top: 10,
                                         right: 10,
                                         left: -30,
-                                        bottom: 40,
-                                    }}>
+                                        bottom: 20,
+                                    }}
+                                >
                                     <defs>
                                         <linearGradient
                                             id="fillTemp"
                                             x1="0"
                                             y1="0"
                                             x2="0"
-                                            y2="1">
+                                            y2="1"
+                                        >
                                             <stop
                                                 offset="5%"
                                                 stopColor={
@@ -268,9 +273,10 @@ export function LiveChart() {
                                                 y={y + 10}
                                                 textAnchor="end"
                                                 transform={`rotate(-45, ${x}, ${y})`}
-                                                fontSize={12}>
+                                                fontSize={12}
+                                            >
                                                 {new Date(
-                                                    payload.value
+                                                    payload.value,
                                                 ).toLocaleTimeString("en-US", {
                                                     hour: "2-digit",
                                                     minute: "2-digit",
@@ -296,7 +302,7 @@ export function LiveChart() {
                                             <ChartTooltipContent
                                                 labelFormatter={(value) =>
                                                     new Date(
-                                                        value
+                                                        value,
                                                     ).toLocaleDateString(
                                                         "en-US",
                                                         {
@@ -306,7 +312,7 @@ export function LiveChart() {
                                                             minute: "2-digit",
                                                             second: "2-digit",
                                                             hour12: false,
-                                                        }
+                                                        },
                                                     )
                                                 }
                                                 indicator="dot"
@@ -338,29 +344,28 @@ export function LiveChart() {
                         <div className="w-full lg:w-1/2">
                             <div className="flex justify-center px-3 mb-4">
                                 <Card
-                                    className={`w-full overflow-visible ${latestData &&
+                                    className={`w-full overflow-visible bg-transparent border-1 shadow-none ${
+                                        latestData &&
                                         (latestData.humidity <
                                             limits.humidMin ||
                                             latestData.humidity >
-                                            limits.humidMax)
-                                        ? "bg-red-600 animate-pulse"
-                                        : ""
-                                        }`}>
-                                    <CardHeader className="text-center">
+                                                limits.humidMax)
+                                            ? "bg-red-600 animate-pulse"
+                                            : ""
+                                    }`}
+                                >
+                                    <CardHeader className="text-center ">
                                         <CardTitle className="text-lg">
-                                            Humidity
-                                        </CardTitle>
-                                        <CardDescription className="text-sm text-black dark:text-white">
                                             Live Humidity Data
-                                        </CardDescription>
+                                        </CardTitle>
                                     </CardHeader>
                                     <CardContent className="flex justify-center items-center overflow-visible mb-4">
                                         <div className="flex items-center justify-center text-[clamp(2rem,6vw,8rem)] font-bold text-primary leading-none whitespace-nowrap overflow-visible">
                                             <Droplet className="w-[clamp(2rem,6vw,8rem)] h-auto text-primary" />
                                             {latestData?.humidity != null
                                                 ? `${Number(
-                                                    latestData.humidity
-                                                ).toFixed(2)}%`
+                                                      latestData.humidity,
+                                                  ).toFixed(2)}%`
                                                 : "--"}
                                         </div>
                                     </CardContent>
@@ -368,22 +373,25 @@ export function LiveChart() {
                             </div>
                             <ChartContainer
                                 config={chartConfig}
-                                className="min-h-[300px] max-h-[500px] w-full">
+                                className="min-h-[300px] max-h-[380px] w-full"
+                            >
                                 <AreaChart
                                     data={chartData}
                                     margin={{
                                         top: 10,
                                         right: 10,
                                         left: -30,
-                                        bottom: 40,
-                                    }}>
+                                        bottom: 20,
+                                    }}
+                                >
                                     <defs>
                                         <linearGradient
                                             id="fillHumid"
                                             x1="0"
                                             y1="0"
                                             x2="0"
-                                            y2="1">
+                                            y2="1"
+                                        >
                                             <stop
                                                 offset="5%"
                                                 stopColor={
@@ -410,9 +418,10 @@ export function LiveChart() {
                                                 y={y + 10}
                                                 textAnchor="end"
                                                 transform={`rotate(-45, ${x}, ${y})`}
-                                                fontSize={12}>
+                                                fontSize={12}
+                                            >
                                                 {new Date(
-                                                    payload.value
+                                                    payload.value,
                                                 ).toLocaleTimeString("en-US", {
                                                     hour: "2-digit",
                                                     minute: "2-digit",
@@ -438,7 +447,7 @@ export function LiveChart() {
                                             <ChartTooltipContent
                                                 labelFormatter={(value) =>
                                                     new Date(
-                                                        value
+                                                        value,
                                                     ).toLocaleDateString(
                                                         "en-US",
                                                         {
@@ -448,7 +457,7 @@ export function LiveChart() {
                                                             minute: "2-digit",
                                                             second: "2-digit",
                                                             hour12: false,
-                                                        }
+                                                        },
                                                     )
                                                 }
                                                 indicator="dot"

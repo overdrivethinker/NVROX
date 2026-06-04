@@ -48,7 +48,9 @@ export default function SensorCardGrid({
     >({});
 
     const socketRef = useRef<ReturnType<typeof io> | null>(null);
-    const deviceTimeouts = useRef<Record<string, NodeJS.Timeout>>({});
+    const deviceTimeouts = useRef<
+        Record<string, ReturnType<typeof setTimeout>>
+    >({});
     const throttledUpdatesRef = useRef<
         Record<string, ReturnType<typeof throttle>>
     >({});
@@ -115,7 +117,7 @@ export default function SensorCardGrid({
     }, [devices]);
 
     return (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-4 p-6 pt-0">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-4 p-6 pt-0">
             {devices.map((device) => {
                 const sensor = sensors[device.mac_address];
                 const state = deviceStates[device.mac_address] || "no_data";
@@ -123,7 +125,8 @@ export default function SensorCardGrid({
                 return (
                     <div
                         key={device.mac_address}
-                        className="rounded-md overflow-hidden bg-sky-200 dark:bg-blue-800 text-blue-900 dark:text-white transition-all">
+                        className="rounded-md overflow-hidden bg-sky-200 dark:bg-blue-800 text-blue-900 dark:text-white transition-all"
+                    >
                         <div className="px-4 py-2 bg-sky-300 dark:bg-blue-700 font-semibold text-sm flex items-center justify-between">
                             <div>
                                 {device.device_name} <br />
@@ -137,7 +140,7 @@ export default function SensorCardGrid({
                                 ) : state === "lost" ? (
                                     <IconPlugConnected className="text-yellow-600 w-7 h-7" />
                                 ) : (
-                                    <IconCircleCheck className="text-green-600 w-7 h-7" />
+                                    <IconCircleCheck className="dark:text-green-400 text-green-600 w-7 h-7" />
                                 )}
                             </div>
                         </div>
@@ -151,8 +154,9 @@ export default function SensorCardGrid({
                                                 state === "no_data",
                                             "text-yellow-600 dark:text-yellow-400":
                                                 state === "lost",
-                                        }
-                                    )}>
+                                        },
+                                    )}
+                                >
                                     {state === "no_data"
                                         ? "No Data"
                                         : "Lost Connection"}
@@ -165,16 +169,17 @@ export default function SensorCardGrid({
                                             {
                                                 "bg-red-600 text-white animate-pulse":
                                                     sensor.temperature <
-                                                    limit.tempMin ||
+                                                        limit.tempMin ||
                                                     sensor.temperature >
-                                                    limit.tempMax,
+                                                        limit.tempMax,
                                                 "bg-sky-200 dark:bg-blue-900":
                                                     sensor.temperature >=
-                                                    limit.tempMin &&
+                                                        limit.tempMin &&
                                                     sensor.temperature <=
-                                                    limit.tempMax,
-                                            }
-                                        )}>
+                                                        limit.tempMax,
+                                            },
+                                        )}
+                                    >
                                         <span className="text-xs mb-1">
                                             Temperature
                                         </span>
@@ -191,16 +196,17 @@ export default function SensorCardGrid({
                                             {
                                                 "bg-red-600 text-white animate-pulse":
                                                     sensor.humidity <
-                                                    limit.humidMin ||
+                                                        limit.humidMin ||
                                                     sensor.humidity >
-                                                    limit.humidMax,
+                                                        limit.humidMax,
                                                 "bg-emerald-200 dark:bg-emerald-900":
                                                     sensor.humidity >=
-                                                    limit.humidMin &&
+                                                        limit.humidMin &&
                                                     sensor.humidity <=
-                                                    limit.humidMax,
-                                            }
-                                        )}>
+                                                        limit.humidMax,
+                                            },
+                                        )}
+                                    >
                                         <span className="text-xs mb-1">
                                             Humidity
                                         </span>

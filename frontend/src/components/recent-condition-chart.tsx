@@ -128,7 +128,7 @@ export function RecentChart() {
                         mac_address: selectedMac,
                         range: timeRange,
                     },
-                }
+                },
             )
             .then((res) => {
                 const parsed = (res.data.data as SensorHourlyData[]).map(
@@ -137,14 +137,14 @@ export function RecentChart() {
                         tempMin: parseFloat(item.min_temp),
                         tempMax: parseFloat(item.max_temp),
                         tempAvg: parseFloat(
-                            parseFloat(item.avg_temp).toFixed(2)
+                            parseFloat(item.avg_temp).toFixed(2),
                         ),
                         humidMin: parseFloat(item.min_humid),
                         humidMax: parseFloat(item.max_humid),
                         humidAvg: parseFloat(
-                            parseFloat(item.avg_humid).toFixed(2)
+                            parseFloat(item.avg_humid).toFixed(2),
                         ),
-                    })
+                    }),
                 );
                 setChartData(parsed);
             })
@@ -159,7 +159,7 @@ export function RecentChart() {
     }, [selectedMac, timeRange]);
 
     return (
-        <Card className="@container/card flex-1 min-h-[600px] overflow-hidden">
+        <Card className="@container/card flex-1 min-h-[600px] overflow-hidden bg-transparent border-0 shadow-none">
             <CardHeader>
                 <CardTitle>Device Status</CardTitle>
                 <CardDescription>
@@ -183,7 +183,8 @@ export function RecentChart() {
                             }
                         }}
                         variant="outline"
-                        className="hidden @[767px]/card:flex *:data-[slot=toggle-group-item]:!px-4">
+                        className="hidden @[767px]/card:flex *:data-[slot=toggle-group-item]:!px-4"
+                    >
                         <ToggleGroupItem value="today">Today</ToggleGroupItem>
                         <ToggleGroupItem value="yesterday">
                             Yesterday
@@ -198,10 +199,12 @@ export function RecentChart() {
                             if (validRanges.includes(val as TimeRange)) {
                                 setTimeRange(val as TimeRange);
                             }
-                        }}>
+                        }}
+                    >
                         <SelectTrigger
                             className="flex w-40 @[767px]/card:hidden"
-                            size="sm">
+                            size="sm"
+                        >
                             <SelectValue placeholder="Select range" />
                         </SelectTrigger>
                         <SelectContent className="rounded-xl">
@@ -210,7 +213,8 @@ export function RecentChart() {
                             </SelectItem>
                             <SelectItem
                                 value="yesterday"
-                                className="rounded-lg">
+                                className="rounded-lg"
+                            >
                                 Yesterday
                             </SelectItem>
                             <SelectItem value="2daysago" className="rounded-lg">
@@ -225,7 +229,8 @@ export function RecentChart() {
                     <div className="flex justify-center items-center min-h-[200px] w-full">
                         <Badge
                             variant="outline"
-                            className="text-base border-green-300 text-green-500 dark:border-green-900 dark:text-green-400">
+                            className="text-base border-green-300 text-green-500 dark:border-green-900 dark:text-green-400"
+                        >
                             <AudioLines className="w-4 h-4 me-1.5" />
                             Select device first
                         </Badge>
@@ -234,7 +239,8 @@ export function RecentChart() {
                     <div className="flex justify-center items-center min-h-[200px] w-full">
                         <Badge
                             variant="outline"
-                            className="text-base border-blue-700 text-blue-700 dark:text-blue-400 dark:border-blue-400">
+                            className="text-base border-blue-700 text-blue-700 dark:text-blue-400 dark:border-blue-400"
+                        >
                             <Loader2 className="w-4 h-4 me-1.5 animate-spin" />
                             Loading chart...
                         </Badge>
@@ -243,7 +249,8 @@ export function RecentChart() {
                     <div className="flex justify-center items-center min-h-[200px] w-full">
                         <Badge
                             variant="outline"
-                            className="text-base border-yellow-500 text-yellow-600 dark:border-yellow-900 dark:text-yellow-300">
+                            className="text-base border-yellow-500 text-yellow-600 dark:border-yellow-900 dark:text-yellow-300"
+                        >
                             <AlertTriangle className="w-4 h-4 me-1.5" />
                             No data available
                         </Badge>
@@ -253,7 +260,8 @@ export function RecentChart() {
                         {/* Temperature Chart */}
                         <ChartContainer
                             config={chartConfig}
-                            className="h-[335px] w-full">
+                            className="h-[300px] w-full"
+                        >
                             <AreaChart data={chartData}>
                                 <defs>
                                     <linearGradient
@@ -261,7 +269,8 @@ export function RecentChart() {
                                         x1="0"
                                         y1="0"
                                         x2="0"
-                                        y2="1">
+                                        y2="1"
+                                    >
                                         <stop
                                             offset="5%"
                                             stopColor={chartConfig.temp.color}
@@ -284,7 +293,7 @@ export function RecentChart() {
                                                 hour: "2-digit",
                                                 minute: "2-digit",
                                                 hour12: false,
-                                            }
+                                            },
                                         )
                                     }
                                     tick={{ dy: 15 }}
@@ -317,7 +326,7 @@ export function RecentChart() {
                                         <ChartTooltipContent
                                             labelFormatter={(value) =>
                                                 new Date(
-                                                    value
+                                                    value,
                                                 ).toLocaleDateString("en-US", {
                                                     month: "short",
                                                     day: "numeric",
@@ -368,7 +377,8 @@ export function RecentChart() {
                         </ChartContainer>
                         <ChartContainer
                             config={chartConfig}
-                            className="h-[335px] w-full mt-10">
+                            className="h-[300px] w-full mt-10"
+                        >
                             <AreaChart data={chartData}>
                                 <defs>
                                     <linearGradient
@@ -376,7 +386,8 @@ export function RecentChart() {
                                         x1="0"
                                         y1="0"
                                         x2="0"
-                                        y2="1">
+                                        y2="1"
+                                    >
                                         <stop
                                             offset="5%"
                                             stopColor={chartConfig.humid.color}
@@ -399,7 +410,7 @@ export function RecentChart() {
                                                 hour: "2-digit",
                                                 minute: "2-digit",
                                                 hour12: false,
-                                            }
+                                            },
                                         )
                                     }
                                     tick={{ dy: 15 }}
@@ -432,7 +443,7 @@ export function RecentChart() {
                                         <ChartTooltipContent
                                             labelFormatter={(value) =>
                                                 new Date(
-                                                    value
+                                                    value,
                                                 ).toLocaleDateString("en-US", {
                                                     month: "short",
                                                     day: "numeric",

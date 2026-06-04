@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { AppSidebar } from "@/components/app-sidebar";
 import {
     Breadcrumb,
@@ -14,33 +13,8 @@ import {
     SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { ModeToggle } from "@/components/mode-toggle";
-import SensorDataTable from "@/components/sensor-table";
-import AlertsDataTable from "@/components/alerts-table";
-import {
-    Popover,
-    PopoverTrigger,
-    PopoverContent,
-} from "@/components/ui/popover";
-import { CalendarIcon, Search, Download } from "lucide-react";
-import { DateRangePopover } from "@/components/calendar";
-import { type DateRange } from "react-day-picker";
-import { DeviceSelector } from "@/components/device-selector";
-import { Button } from "@/components/ui/button";
-import { format } from "date-fns";
-
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-    Card,
-    CardDescription,
-    CardHeader,
-    CardTitle,
-    CardContent,
-    CardAction
-} from "@/components/ui/card";
-
-export default function Historical() {
-    const [dateRange, setDateRange] = useState<DateRange | undefined>();
-    const [selectedMac, setSelectedMac] = useState("");
+import HistoricalTable from "@/components/historical-table";
+export default function HistoricalLogs() {
     return (
         <SidebarProvider>
             <AppSidebar />
@@ -68,118 +42,10 @@ export default function Historical() {
                     </div>
                     <ModeToggle />
                 </header>
-
-                <div className="flex flex-1 justify-center p-6 pt-0">
-                    <Card className="@container/card flex-1 min-h-[600px] overflow-hidden">
-                        <CardHeader>
-                            <CardTitle>Device Logs & Alerts</CardTitle>
-                            <CardDescription>
-                                Track device alerts and historical logs
-                            </CardDescription>
-                            <CardAction className="flex flex-col sm:flex-row sm:items-center">
-                                <div className="flex flex-wrap gap-2 items-end">
-                                    <div className="flex flex-col min-w-[150px]">
-                                        <DeviceSelector
-                                            value={selectedMac}
-                                            onChange={setSelectedMac}
-                                        />
-                                    </div>
-                                    <div className="flex flex-col min-w-[100px]">
-                                        <Popover>
-                                            <PopoverTrigger asChild>
-                                                <Button
-                                                    variant="outline"
-                                                    size="sm"
-                                                    className="h-9 justify-start text-left font-normal"
-                                                    id="view-selector">
-                                                    {dateRange?.from ? (
-                                                        dateRange.to ? (
-                                                            `${format(
-                                                                dateRange.from,
-                                                                "yyyy/MM/dd"
-                                                            )} to ${format(
-                                                                dateRange.to,
-                                                                "yyyy/MM/dd"
-                                                            )}`
-                                                        ) : (
-                                                            format(
-                                                                dateRange.from,
-                                                                "P"
-                                                            )
-                                                        )
-                                                    ) : (
-                                                        <span className="text-muted-foreground">
-                                                            Pick a date
-                                                            range
-                                                        </span>
-                                                    )}
-                                                    <CalendarIcon className="h-4 w-4 opacity-50" />
-                                                </Button>
-                                            </PopoverTrigger>
-                                            <PopoverContent
-                                                className="w-auto p-2"
-                                                align="end">
-                                                <DateRangePopover
-                                                    dateRange={dateRange}
-                                                    onDateChange={
-                                                        setDateRange
-                                                    }
-                                                />
-                                                <div className="flex justify-start">
-                                                    <Button
-                                                        variant="ghost"
-                                                        size="sm"
-                                                        onClick={() =>
-                                                            setDateRange(
-                                                                undefined
-                                                            )
-                                                        }
-                                                        className="text-sm text-muted-foreground hover:text-foreground">
-                                                        Reset
-                                                    </Button>
-                                                </div>
-                                            </PopoverContent>
-                                        </Popover>
-                                    </div>
-
-                                    <Button
-                                        variant="outline"
-                                        size="sm"
-                                        className="h-9">
-                                        <Search className="h-4 w-4" />{" "}
-                                        Search
-                                    </Button>
-                                    <Button
-                                        variant="outline"
-                                        size="sm"
-                                        className="h-9">
-                                        <Download className="h-4 w-4" />{" "}
-                                        Export
-                                    </Button>
-                                </div>
-                            </CardAction>
-                        </CardHeader>
-                        <CardContent>
-                            <Tabs defaultValue="logs">
-                                <TabsList className="grid w-full grid-cols-2 p-0 mb-2">
-                                    <TabsTrigger value="logs">
-                                        Historical Logs
-                                    </TabsTrigger>
-                                    <TabsTrigger value="alerts">
-                                        Device Alerts
-                                    </TabsTrigger>
-                                </TabsList>
-                                <TabsContent value="logs">
-                                    <SensorDataTable />
-                                </TabsContent>
-                                <TabsContent value="alerts">
-                                    <AlertsDataTable />
-                                </TabsContent>
-                            </Tabs>
-                        </CardContent>
-                    </Card>
+                <div className="flex flex-1 flex-col p-6 pt-0">
+                    <HistoricalTable />
                 </div>
             </SidebarInset>
-        </SidebarProvider >
+        </SidebarProvider>
     );
 }

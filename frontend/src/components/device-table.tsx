@@ -84,7 +84,7 @@ export default function DeviceDataTable() {
 
     const [pagination, setPagination] = useState<PaginationInfo>({
         page: 1,
-        limit: 15,
+        limit: 12,
         total: 0,
         pages: 1,
     });
@@ -100,7 +100,7 @@ export default function DeviceDataTable() {
                         page: pagination.page,
                         limit: pagination.limit,
                     },
-                }
+                },
             );
             setData(res.data.data);
             setPagination(res.data.pagination);
@@ -126,11 +126,11 @@ export default function DeviceDataTable() {
     const handleDelete = async (mac: string) => {
         try {
             await axios.delete(
-                `${import.meta.env.VITE_API_BASE_URL}/devices/${mac}`
+                `${import.meta.env.VITE_API_BASE_URL}/devices/${mac}`,
             );
             await fetchData();
             toast.success(
-                `${selectedDevice.name} successfully removed from the system`
+                `${selectedDevice.name} successfully removed from the system`,
             );
         } catch (err) {
             console.error("Delete error:", err);
@@ -157,12 +157,12 @@ export default function DeviceDataTable() {
             console.log("Payload to send:", payload);
             console.log(
                 "API URL:",
-                `${import.meta.env.VITE_API_BASE_URL}/devices`
+                `${import.meta.env.VITE_API_BASE_URL}/devices`,
             );
 
             const response = await axios.post(
                 `${import.meta.env.VITE_API_BASE_URL}/devices`,
-                payload
+                payload,
             );
 
             console.log("API Response:", response.data);
@@ -203,12 +203,12 @@ export default function DeviceDataTable() {
                 (device) =>
                     device.device_name.toLowerCase() ===
                         selectedDevice.name.toLowerCase() &&
-                    device.mac_address !== selectedDevice.mac
+                    device.mac_address !== selectedDevice.mac,
             );
 
             if (existingDevice) {
                 toast.error(
-                    "A device with this name already exists. Please choose a different name."
+                    "A device with this name already exists. Please choose a different name.",
                 );
                 return;
             }
@@ -224,7 +224,7 @@ export default function DeviceDataTable() {
                 `${import.meta.env.VITE_API_BASE_URL}/devices/${
                     selectedDevice.mac
                 }`,
-                payload
+                payload,
             );
 
             await fetchData();
@@ -247,7 +247,7 @@ export default function DeviceDataTable() {
                         message.toLowerCase().includes("name"))
                 ) {
                     toast.error(
-                        "A device with this name already exists. Please choose a different name."
+                        "A device with this name already exists. Please choose a different name.",
                     );
                 } else if (status === 404) {
                     toast.error("Device not found");
@@ -261,7 +261,7 @@ export default function DeviceDataTable() {
     };
 
     return (
-        <Card className="@container/card flex-1 min-h-[600px] overflow-hidden">
+        <Card className="@container/card flex-1 min-h-[600px] overflow-hidden bg-transparent border-0 shadow-none">
             <CardHeader>
                 <CardTitle>Device Setup</CardTitle>
                 <CardDescription>
@@ -276,7 +276,8 @@ export default function DeviceDataTable() {
                         variant="outline"
                         size="sm"
                         className="h-9"
-                        onClick={() => setAddDialogOpen(true)}>
+                        onClick={() => setAddDialogOpen(true)}
+                    >
                         <Plus className="h-4 w-4" /> Add Device
                     </Button>
                     <AddDeviceDialog
@@ -291,7 +292,8 @@ export default function DeviceDataTable() {
             <Tabs defaultValue="outline" className="w-full flex-col gap-4">
                 <TabsContent
                     value="outline"
-                    className="relative flex flex-col gap-4 overflow-auto px-4 lg:px-6">
+                    className="relative flex flex-col gap-4 overflow-auto px-4 lg:px-6"
+                >
                     <div className="overflow-x-auto rounded-lg border">
                         <Table className="min-w-[600px]">
                             <TableHeader className="bg-muted sticky top-0 z-10">
@@ -328,7 +330,8 @@ export default function DeviceDataTable() {
                                                         row.status === "Active"
                                                             ? "border-green-300 text-green-500 dark:border-green-900 dark:text-green-400"
                                                             : "border-red-300 text-red-500 dark:border-red-900 dark:text-red-400"
-                                                    }>
+                                                    }
+                                                >
                                                     {row.status === "Active" ? (
                                                         <>
                                                             <CheckCircle className="w-4 h-4" />
@@ -369,21 +372,24 @@ export default function DeviceDataTable() {
                                             <TableCell className="p-0 pr-2 text-right w-[40px]">
                                                 <DropdownMenu>
                                                     <DropdownMenuTrigger
-                                                        asChild>
+                                                        asChild
+                                                    >
                                                         <Button
                                                             variant="ghost"
                                                             className="data-[state=open]:bg-muted text-muted-foreground flex size-3"
-                                                            size="icon">
+                                                            size="icon"
+                                                        >
                                                             <IconDotsVertical />
                                                         </Button>
                                                     </DropdownMenuTrigger>
                                                     <DropdownMenuContent
                                                         align="end"
-                                                        className="w-32">
+                                                        className="w-32"
+                                                    >
                                                         <DropdownMenuItem
                                                             onClick={() => {
                                                                 setEditDialog(
-                                                                    true
+                                                                    true,
                                                                 );
                                                                 setSelectedDevice(
                                                                     {
@@ -413,16 +419,17 @@ export default function DeviceDataTable() {
                                                                                             0,
                                                                                     },
                                                                             },
-                                                                    }
+                                                                    },
                                                                 );
-                                                            }}>
+                                                            }}
+                                                        >
                                                             Edit
                                                         </DropdownMenuItem>
                                                         <DropdownMenuSeparator />
                                                         <DropdownMenuItem
                                                             onClick={() => {
                                                                 setOpenDialog(
-                                                                    true
+                                                                    true,
                                                                 );
                                                                 setSelectedDevice(
                                                                     {
@@ -452,10 +459,11 @@ export default function DeviceDataTable() {
                                                                                             0,
                                                                                     },
                                                                             },
-                                                                    }
+                                                                    },
                                                                 );
                                                             }}
-                                                            variant="destructive">
+                                                            variant="destructive"
+                                                        >
                                                             Delete
                                                         </DropdownMenuItem>
                                                     </DropdownMenuContent>
@@ -467,7 +475,8 @@ export default function DeviceDataTable() {
                                     <TableRow>
                                         <TableCell
                                             colSpan={8}
-                                            className="text-center font-medium">
+                                            className="text-center font-medium"
+                                        >
                                             {loading
                                                 ? "Loading..."
                                                 : "No records found."}
@@ -500,7 +509,8 @@ export default function DeviceDataTable() {
                                 variant="outline"
                                 className="h-8 w-8"
                                 onClick={() => goToPage(1)}
-                                disabled={loading || pagination.page === 1}>
+                                disabled={loading || pagination.page === 1}
+                            >
                                 <IconChevronsLeft className="h-4 w-4" />
                             </Button>
 
@@ -508,7 +518,8 @@ export default function DeviceDataTable() {
                                 variant="outline"
                                 className="h-8 w-8"
                                 onClick={() => goToPage(pagination.page - 1)}
-                                disabled={loading || pagination.page === 1}>
+                                disabled={loading || pagination.page === 1}
+                            >
                                 <IconChevronLeft className="h-4 w-4" />
                             </Button>
 
@@ -523,7 +534,8 @@ export default function DeviceDataTable() {
                                 disabled={
                                     loading ||
                                     pagination.page === pagination.pages
-                                }>
+                                }
+                            >
                                 <IconChevronRight className="h-4 w-4" />
                             </Button>
 
@@ -534,7 +546,8 @@ export default function DeviceDataTable() {
                                 disabled={
                                     loading ||
                                     pagination.page === pagination.pages
-                                }>
+                                }
+                            >
                                 <IconChevronsRight className="h-4 w-4" />
                             </Button>
                         </div>
