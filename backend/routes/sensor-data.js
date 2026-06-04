@@ -1,15 +1,13 @@
 const express = require("express");
 const router = express.Router();
 const knex = require("../database/db");
+const { toWIB, formatTimestamp } = require("../utils/helpers");
 
-router.get("/", async (req, res) => {
+router.get("/export", async (req, res) => {
     try {
-        const { page = 1, limit = 15 } = req.query;
-        const parsedLimit = parseInt(limit);
-        const parsedPage = parseInt(page);
-        const offset = (parsedPage - 1) * parsedLimit;
+        const { start_date, end_date } = req.query;
 
-        const rows = await knex("sensor_readings as r")
+        let query = knex("sensor_readings as r")
             .join("devices as d", "r.mac_address", "=", "d.mac_address")
             .select(
                 "r.id",
@@ -20,26 +18,31 @@ router.get("/", async (req, res) => {
                 "r.humidity",
                 "r.recorded_at",
             )
-            .orderBy("r.recorded_at", "asc")
-            .limit(parsedLimit)
-            .offset(offset);
+            .orderBy("r.recorded_at", "desc");
 
-        const totalResult = await knex("sensor_readings")
-            .count("* as count")
-            .first();
-        const total = totalResult?.count || 0;
+        if (start_date && end_date) {
+            query = query.whereBetween("r.recorded_at", [
+                `${start_date} 00:00:00`,
+                `${end_date} 23:59:59`,
+            ]);
+        } else if (start_date) {
+            query = query.where(
+                "r.recorded_at",
+                ">=",
+                `${start_date} 00:00:00`,
+            );
+        } else if (end_date) {
+            query = query.where("r.recorded_at", "<=", `${end_date} 23:59:59`);
+        }
+
+        const rows = await query;
 
         res.json({
             data: rows,
-            pagination: {
-                page: parsedPage,
-                limit: parsedLimit,
-                total,
-                pages: Math.ceil(total / parsedLimit),
-            },
+            total: rows.length,
         });
     } catch (err) {
-        console.error("GET /sensor-data/ error:", err.message);
+        console.error("GET /sensor-data/export error:", err);
         res.status(500).json({ error: "Internal Server Error" });
     }
 });
