@@ -6,7 +6,7 @@ import {
     DialogHeader,
     DialogTitle,
 } from "@/components/ui/dialog";
-import { IconBoxAlignRight } from "@tabler/icons-react";
+import { IconBackground } from "@tabler/icons-react";
 
 export function AboutDialog() {
     const subject = encodeURIComponent("NVROX Feedback");
@@ -17,7 +17,7 @@ export function AboutDialog() {
         <DialogContent className="max-w-lg p-6 rounded-lg">
             <DialogHeader>
                 <DialogTitle className="font-semibold flex items-center gap-2">
-                    <IconBoxAlignRight className="!size-6" />
+                    <IconBackground className="!size-6" />
                     <span className="text-md font-bold">NVROX</span>
                     <span className="text-xs text-muted-foreground">
                         /ˈɛn.vaɪ.rɒks/

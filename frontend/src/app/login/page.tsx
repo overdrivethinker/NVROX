@@ -1,6 +1,6 @@
 import { LoginForm } from "@/components/login-form";
 import { ModeToggle } from "@/components/mode-toggle";
-import { IconBoxAlignRight } from "@tabler/icons-react";
+import { IconBackground } from "@tabler/icons-react";
 import { AboutButton } from "@/components/about-button";
 import background from "@/assets/background.jpg";
 import { Separator } from "@/components/ui/separator";
@@ -33,7 +33,7 @@ export default function LoginPage() {
             <div className="relative flex flex-col gap-4 p-6 md:p-10">
                 <div className="flex items-center justify-between">
                     <a href="#" className="flex items-center gap-2 font-medium">
-                        <IconBoxAlignRight className="size-6" />
+                        <IconBackground className="size-6" />
                         <span className="text-base font-bold">NVROX</span>
                         <span className="text-xs text-muted-foreground">
                             /ˈɛn.vaɪ.rɒks/
