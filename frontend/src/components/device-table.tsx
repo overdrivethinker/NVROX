@@ -33,7 +33,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 import { toast } from "sonner";
-import { CheckCircle, XCircle, ArrowUp, ArrowDown } from "lucide-react";
+import { CheckCircle, XCircle, Droplet, Thermometer } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { DeleteDeviceDialog } from "@/app/configuration/dialog/delete-device-dialog";
 import { EditDeviceDialog } from "@/app/configuration/dialog/edit-device-dialog";
@@ -266,7 +266,7 @@ export default function DeviceDataTable() {
                 <CardTitle>Device Setup</CardTitle>
                 <CardDescription>
                     <span className="hidden @[540px]/card:block">
-                        List of all connected devices
+                        List of all registered devices
                     </span>
                     <span className="@[540px]/card:hidden">Device list</span>
                 </CardDescription>
@@ -347,25 +347,25 @@ export default function DeviceDataTable() {
                                             </TableCell>
                                             <TableCell>
                                                 <div className="flex items-center gap-1">
-                                                    <ArrowDown className="w-4 h-4 text-blue-500" />
+                                                    <Thermometer className="w-4 h-4 text-blue-500" />
                                                     <span>{row.tempMin}°C</span>
                                                 </div>
                                             </TableCell>
                                             <TableCell>
                                                 <div className="flex items-center gap-1">
-                                                    <ArrowUp className="w-4 h-4 text-red-500" />
+                                                    <Thermometer className="w-4 h-4 text-red-500" />
                                                     <span>{row.tempMax}°C</span>
                                                 </div>
                                             </TableCell>
                                             <TableCell>
                                                 <div className="flex items-center gap-1">
-                                                    <ArrowDown className="w-4 h-4 text-blue-500" />
+                                                    <Droplet className="w-4 h-4 text-blue-500" />
                                                     <span>{row.humidMin}%</span>
                                                 </div>
                                             </TableCell>
                                             <TableCell>
                                                 <div className="flex items-center gap-1">
-                                                    <ArrowUp className="w-4 h-4 text-red-500" />
+                                                    <Droplet className="w-4 h-4 text-red-500" />
                                                     <span>{row.humidMax}%</span>
                                                 </div>
                                             </TableCell>

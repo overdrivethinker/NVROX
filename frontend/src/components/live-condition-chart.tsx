@@ -25,9 +25,17 @@ import {
 } from "@/components/ui/chart";
 import type { ChartConfig } from "@/components/ui/chart";
 import { Badge } from "@/components/ui/badge";
-import { AlertTriangle, Loader2, Droplet, Thermometer } from "lucide-react";
+import {
+    AlertTriangle,
+    Loader2,
+    Droplet,
+    Thermometer,
+    Activity,
+    CheckCircle,
+} from "lucide-react";
 import io from "socket.io-client";
 import axios from "axios";
+import { DeviceSelector } from "./device-selector";
 
 type ChartPoint = {
     datetime: string;
@@ -47,8 +55,6 @@ type Device = {
     mac_address: string;
     location: string;
 };
-
-import { DeviceSelector } from "./device-selector";
 
 export function LiveChart() {
     const { theme } = useTheme();
@@ -84,16 +90,39 @@ export function LiveChart() {
     const [isLoading, setIsLoading] = useState(false);
     const [latestData, setLatestData] = useState<SensorData | null>(null);
     const [isDisconnected, setIsDisconnected] = useState(false);
-
     const [noDevice, setNoDevice] = useState(false);
 
     const handleDevicesLoaded = (devices: Device[]) => {
         if (devices.length === 0) {
             setNoDevice(true);
         } else if (!selectedMac) {
-            setSelectedMac(devices[0].mac_address); // auto-select pertama
+            setSelectedMac(devices[0].mac_address);
         }
     };
+
+    const isTempAlert =
+        latestData !== null &&
+        (latestData.temperature < limits.tempMin ||
+            latestData.temperature > limits.tempMax);
+
+    const isHumidAlert =
+        latestData !== null &&
+        (latestData.humidity < limits.humidMin ||
+            latestData.humidity > limits.humidMax);
+
+    const tempMargin = latestData
+        ? Math.min(
+              Math.abs(latestData.temperature - limits.tempMax),
+              Math.abs(latestData.temperature - limits.tempMin),
+          ).toFixed(2)
+        : "--";
+
+    const humidMargin = latestData
+        ? Math.min(
+              Math.abs(latestData.humidity - limits.humidMax),
+              Math.abs(latestData.humidity - limits.humidMin),
+          ).toFixed(2)
+        : "--";
 
     useEffect(() => {
         if (!selectedMac) return;
@@ -101,18 +130,13 @@ export function LiveChart() {
         setIsLoading(true);
         setChartData([]);
         setIsDisconnected(false);
+
         axios
             .get(`${import.meta.env.VITE_API_BASE_URL}/devices/threshold`, {
-                params: {
-                    mac: selectedMac,
-                },
+                params: { mac: selectedMac },
             })
-            .then((res) => {
-                setLimits(res.data);
-            })
-            .catch((err) => {
-                console.error("Failed to fetch limits", err);
-            });
+            .then((res) => setLimits(res.data))
+            .catch((err) => console.error("Failed to fetch limits", err));
 
         const socket = io(import.meta.env.VITE_SOCKET_URL, {
             query: { mac: selectedMac },
@@ -158,6 +182,51 @@ export function LiveChart() {
             clearTimeout(noDataTimeout);
         };
     }, [selectedMac]);
+
+    // Reusable status dot
+    const StatusDot = ({ alert }: { alert: boolean }) => (
+        <div className="relative flex items-center justify-center w-4 h-4">
+            <span
+                className={`absolute inline-flex h-full w-full rounded-full opacity-50 animate-ping ${
+                    alert ? "bg-red-400" : "bg-green-400"
+                }`}
+            />
+            <span
+                className={`relative inline-flex w-2.5 h-2.5 rounded-full ${
+                    alert ? "bg-red-500" : "bg-green-500"
+                }`}
+            />
+        </div>
+    );
+
+    // Reusable status badge
+    const StatusBadge = ({
+        alert,
+        value,
+        min,
+    }: {
+        alert: boolean;
+        value: number;
+        min: number;
+        max: number;
+    }) =>
+        alert ? (
+            <Badge
+                variant="outline"
+                className="text-xs border-red-400 text-red-500 dark:border-red-700 dark:text-red-400 gap-1"
+            >
+                <AlertTriangle className="w-3 h-3" />
+                {value < min ? "Under limit" : "Over limit"}
+            </Badge>
+        ) : (
+            <Badge
+                variant="outline"
+                className="text-xs border-green-500 text-green-600 dark:border-green-400 dark:text-green-400 gap-1"
+            >
+                <CheckCircle className="w-3 h-3" />
+                Normal
+            </Badge>
+        );
 
     return (
         <Card className="@container/card flex-1 min-h-[600px] overflow-hidden bg-transparent border-0 shadow-none">
@@ -210,33 +279,69 @@ export function LiveChart() {
                     </div>
                 ) : (
                     <div className="flex flex-col lg:flex-row gap-4 w-full">
+                        {/* Temperature */}
                         <div className="w-full lg:w-1/2">
-                            <div className="flex justify-center px-3 mb-4">
-                                <Card
-                                    className={`w-full overflow-visible bg-transparent border-1 shadow-none ${
-                                        latestData &&
-                                        (latestData.temperature <
-                                            limits.tempMin ||
-                                            latestData.temperature >
-                                                limits.tempMax)
-                                            ? "bg-red-600 animate-pulse"
-                                            : ""
-                                    }`}
-                                >
-                                    <CardHeader className="text-center">
-                                        <CardTitle className="text-lg">
-                                            Live Temperature Data
-                                        </CardTitle>
-                                    </CardHeader>
-                                    <CardContent className="flex justify-center items-center overflow-visible mb-4">
-                                        <div className="flex items-center justify-center text-[clamp(2rem,6vw,8rem)] font-bold text-primary leading-none whitespace-nowrap overflow-visible">
-                                            <Thermometer className="w-[clamp(2rem,6vw,8rem)] h-auto text-primary" />
-                                            {latestData?.temperature != null
-                                                ? `${Number(latestData.temperature).toFixed(2)}°C`
-                                                : "--"}
-                                        </div>
-                                    </CardContent>
-                                </Card>
+                            <div className="rounded-lg border border-border overflow-hidden mb-4">
+                                <div className="flex items-center justify-between px-4 py-3 border-b border-border">
+                                    <div className="flex items-center gap-2">
+                                        <StatusDot alert={isTempAlert} />
+                                        <span className="text-sm font-medium">
+                                            Temperature
+                                        </span>
+                                    </div>
+                                    <StatusBadge
+                                        alert={isTempAlert}
+                                        value={latestData?.temperature ?? 0}
+                                        min={limits.tempMin}
+                                        max={limits.tempMax}
+                                    />
+                                </div>
+                                <div className="relative flex items-center justify-center px-4 py-4">
+                                    {isTempAlert && (
+                                        <span className="absolute inset-0 bg-red-600 animate-pulse pointer-events-none" />
+                                    )}
+                                    <div className="relative text-[clamp(2rem,6vw,5rem)] font-medium leading-none text-primary">
+                                        {latestData?.temperature != null
+                                            ? `${Number(latestData.temperature).toFixed(2)}°C`
+                                            : "--"}
+                                    </div>
+                                </div>
+                                <div className="grid grid-cols-3 border-t border-border">
+                                    <div className="px-4 py-2 flex flex-col">
+                                        <span className="text-[15px] text-muted-foreground flex items-center gap-1">
+                                            <Thermometer className="w-3 h-3 text-blue-500" />
+                                            Min limit
+                                        </span>
+                                        <span className="text-sm font-medium text-blue-500">
+                                            {Number(limits.tempMin).toFixed(2)}
+                                            °C
+                                        </span>
+                                    </div>
+                                    <div className="px-4 py-2 flex flex-col border-x border-border">
+                                        <span className="text-[15px] text-muted-foreground flex items-center gap-1">
+                                            <Thermometer className="w-3 h-3 text-red-500" />
+                                            Max limit
+                                        </span>
+                                        <span className="text-sm font-medium text-red-500">
+                                            {Number(limits.tempMax).toFixed(2)}
+                                            °C
+                                        </span>
+                                    </div>
+                                    <div className="px-4 py-2 flex flex-col">
+                                        <span className="text-[15px] text-muted-foreground flex items-center gap-1">
+                                            <Activity className="w-3 h-3" />
+                                            Margin
+                                        </span>
+                                        <span
+                                            className={`text-sm font-medium ${isTempAlert ? "text-red-500" : "text-primary"}`}
+                                        >
+                                            {isTempAlert
+                                                ? `-${tempMargin}`
+                                                : `${tempMargin}`}
+                                            °C
+                                        </span>
+                                    </div>
+                                </div>
                             </div>
                             <ChartContainer
                                 config={chartConfig}
@@ -353,35 +458,70 @@ export function LiveChart() {
                                 </AreaChart>
                             </ChartContainer>
                         </div>
+
+                        {/* Humidity */}
                         <div className="w-full lg:w-1/2">
-                            <div className="flex justify-center px-3 mb-4">
-                                <Card
-                                    className={`w-full overflow-visible bg-transparent border-1 shadow-none ${
-                                        latestData &&
-                                        (latestData.humidity <
-                                            limits.humidMin ||
-                                            latestData.humidity >
-                                                limits.humidMax)
-                                            ? "bg-red-600 animate-pulse"
-                                            : ""
-                                    }`}
-                                >
-                                    <CardHeader className="text-center ">
-                                        <CardTitle className="text-lg">
-                                            Live Humidity Data
-                                        </CardTitle>
-                                    </CardHeader>
-                                    <CardContent className="flex justify-center items-center overflow-visible mb-4">
-                                        <div className="flex items-center justify-center text-[clamp(2rem,6vw,8rem)] font-bold text-primary leading-none whitespace-nowrap overflow-visible">
-                                            <Droplet className="w-[clamp(2rem,6vw,8rem)] h-auto text-primary" />
-                                            {latestData?.humidity != null
-                                                ? `${Number(
-                                                      latestData.humidity,
-                                                  ).toFixed(2)}%`
-                                                : "--"}
-                                        </div>
-                                    </CardContent>
-                                </Card>
+                            <div className="rounded-lg border border-border overflow-hidden mb-4">
+                                <div className="flex items-center justify-between px-4 py-3 border-b border-border">
+                                    <div className="flex items-center gap-2">
+                                        <StatusDot alert={isHumidAlert} />
+                                        <span className="text-sm font-medium">
+                                            Humidity
+                                        </span>
+                                    </div>
+                                    <StatusBadge
+                                        alert={isHumidAlert}
+                                        value={latestData?.humidity ?? 0}
+                                        min={limits.humidMin}
+                                        max={limits.humidMax}
+                                    />
+                                </div>
+                                <div className="relative flex items-center justify-center px-4 py-4">
+                                    {isHumidAlert && (
+                                        <span className="absolute inset-0 bg-red-600 animate-pulse pointer-events-none" />
+                                    )}
+                                    <div className="relative text-[clamp(2rem,6vw,5rem)] font-medium leading-none text-primary">
+                                        {latestData?.humidity != null
+                                            ? `${Number(latestData.humidity).toFixed(2)}%`
+                                            : "--"}
+                                    </div>
+                                </div>
+                                <div className="grid grid-cols-3 border-t border-border">
+                                    <div className="px-4 py-2 flex flex-col">
+                                        <span className="text-[15px] text-muted-foreground flex items-center gap-1">
+                                            <Droplet className="w-3 h-3 text-blue-500" />
+                                            Min limit
+                                        </span>
+                                        <span className="text-sm font-medium text-blue-500">
+                                            {Number(limits.humidMin).toFixed(2)}
+                                            %
+                                        </span>
+                                    </div>
+                                    <div className="px-4 py-2 flex flex-col border-x border-border">
+                                        <span className="text-[15px] text-muted-foreground flex items-center gap-1">
+                                            <Droplet className="w-3 h-3 text-red-500" />
+                                            Max limit
+                                        </span>
+                                        <span className="text-sm font-medium text-red-500">
+                                            {Number(limits.humidMax).toFixed(2)}
+                                            %
+                                        </span>
+                                    </div>
+                                    <div className="px-4 py-2 flex flex-col">
+                                        <span className="text-[15px] text-muted-foreground flex items-center gap-1">
+                                            <Activity className="w-3 h-3" />
+                                            Margin
+                                        </span>
+                                        <span
+                                            className={`text-sm font-medium ${isHumidAlert ? "text-red-500" : "text-primary"}`}
+                                        >
+                                            {isHumidAlert
+                                                ? `-${humidMargin}`
+                                                : `${humidMargin}`}
+                                            %
+                                        </span>
+                                    </div>
+                                </div>
                             </div>
                             <ChartContainer
                                 config={chartConfig}
