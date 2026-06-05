@@ -9,7 +9,7 @@ exports.up = function (knex) {
         table.enu("parameter", ["Temperature", "Humidity"]);
         table.decimal("value", 5, 2);
         table.decimal("threshold", 5, 2);
-        table.enu("status", ["Exceed", "Deceed"]);
+        table.enu("status", ["Over Limit", "Under Limit"]);
         table.timestamp("recorded_at").defaultTo(knex.fn.now());
     });
 };

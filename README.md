@@ -9,10 +9,10 @@
 
 ## ⚙️ Prerequisites
 
--   **Node.js (v18+)**
--   **EMQX Broker (MQTT)**
--   **Redis**
--   **MariaDB** or **MySQL**
+- **Node.js (v18+)**
+- **EMQX Broker (MQTT)**
+- **Redis**
+- **MariaDB** or **MySQL**
 
 ---
 
@@ -20,22 +20,22 @@
 
 ### 🔌 IoT & Communication
 
--   **ESP32** microcontrollers
--   **MQTT protocol** via **EMQX** broker
+- **ESP32** microcontrollers
+- **MQTT protocol** via **EMQX** broker
 
 ### 🛠️ Backend
 
--   **Node.js** + **Express.js**
--   **Knex.js** (SQL query builder)
--   **MariaDB** (relational database)
--   **Socket.IO** (WebSocket for real-time data)
--   **Redis** (caching & fast data access)
+- **Node.js** + **Express.js**
+- **Knex.js** (SQL query builder)
+- **MariaDB** (relational database)
+- **Socket.IO** (WebSocket for real-time data)
+- **Redis** (caching & fast data access)
 
 ### 💻 Frontend
 
--   **React** (Vite + TypeScript)
--   **TailwindCSS** + **ShadCN UI**
--   **Socket.IO Client** for real-time updates
+- **React** (Vite + TypeScript)
+- **TailwindCSS** + **ShadCN UI**
+- **Socket.IO Client** for real-time updates
 
 ---
 
@@ -93,8 +93,8 @@ MQTT_QOS=1                         # QoS level: 0, 1, or 2
 Run the following commands to apply migrations and seed initial data:
 
 ```bash
-npx knex migrate:latest --knexfile ./database/knexConfig.js
-npx knex seed:run --knexfile ./database/knexConfig.js
+npx knex migrate:rollback --all --knexfile ./database/knexConfig.jse ./database/knex-config.js
+npx knex seed:run --knexfile ./database/knex-config.js
 ```
 
 ---
@@ -121,13 +121,13 @@ Open your browser and go to `http://localhost:5173` to access the monitoring das
 
 ## ✨ Features
 
--   📶 Real-time temperature & humidity monitoring
--   🔧 MQTT-based device communication (EMQX)
--   📊 Web-based dashboard with live updates
--   🧠 Configurable thresholds & alert logic
--   🗃️ Historical data storage (MariaDB)
--   🔌 Fast WebSocket communication with Socket.IO
--   📱 Ready for industrial & scalable deployment
+- 📶 Real-time temperature & humidity monitoring
+- 🔧 MQTT-based device communication (EMQX)
+- 📊 Web-based dashboard with live updates
+- 🧠 Configurable thresholds & alert logic
+- 🗃️ Historical data storage (MariaDB)
+- 🔌 Fast WebSocket communication with Socket.IO
+- 📱 Ready for industrial & scalable deployment
 
 ---
 
