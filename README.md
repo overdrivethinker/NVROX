@@ -93,7 +93,7 @@ MQTT_QOS=1                         # QoS level: 0, 1, or 2
 Run the following commands to apply migrations and seed initial data:
 
 ```bash
-npx knex migrate:rollback --all --knexfile ./database/knexConfig.jse ./database/knex-config.js
+npx knex migrate:latest --knexfile ./database/knex-config.js
 npx knex seed:run --knexfile ./database/knex-config.js
 ```
 
