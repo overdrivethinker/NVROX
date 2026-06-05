@@ -186,7 +186,7 @@ export function AlertsChart() {
                 <CardTitle>Device Alerts</CardTitle>
                 <CardDescription>
                     <span className="hidden @[540px]/card:block">
-                        Alerts count for the last 3 days
+                        Alert frequency over the last 3 days
                     </span>
                     <span className="@[540px]/card:hidden">Last 3 days</span>
                 </CardDescription>

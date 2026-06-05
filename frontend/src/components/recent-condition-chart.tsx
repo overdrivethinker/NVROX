@@ -178,7 +178,7 @@ export function RecentChart() {
                 <CardTitle>Recent Trends</CardTitle>
                 <CardDescription>
                     <span className="hidden @[540px]/card:block">
-                        Temperature and humidity trends over 3 days
+                        Temperature and humidity trends over the last 3 days
                     </span>
                     <span className="@[540px]/card:hidden">Last 3 days</span>
                 </CardDescription>

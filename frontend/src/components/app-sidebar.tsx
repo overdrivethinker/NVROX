@@ -4,7 +4,7 @@ import * as React from "react";
 import { useLocation, Link } from "react-router-dom";
 
 import { IconBackground } from "@tabler/icons-react";
-import { Radio, Gauge, Settings2 } from "lucide-react";
+import { Radio, SquareActivity, Settings2 } from "lucide-react";
 
 import { NavMain } from "@/components/nav-main";
 import { NavUser } from "@/components/nav-user";
@@ -23,10 +23,10 @@ const navData = [
     {
         title: "Dashboard",
         url: "#",
-        icon: Gauge,
+        icon: SquareActivity,
         items: [
             { title: "Overview", url: "/overview" },
-            { title: "Alerts", url: "/alerts" },
+            { title: "Threshold Alerts", url: "/alerts" },
         ],
     },
     {
@@ -80,7 +80,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                     <SidebarMenuItem>
                         <SidebarMenuButton
                             asChild
-                            className="data-[slot=sidebar-menu-button]:!p-1.5">
+                            className="data-[slot=sidebar-menu-button]:!p-1.5"
+                        >
                             <Link to={"/overview"}>
                                 <IconBackground className="!size-5" />
                                 <span className="text-base font-bold">

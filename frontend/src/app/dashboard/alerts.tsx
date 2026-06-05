@@ -33,7 +33,9 @@ export default function Alerts() {
                                 </BreadcrumbItem>
                                 <BreadcrumbSeparator className="hidden md:block" />
                                 <BreadcrumbItem>
-                                    <BreadcrumbPage>Alerts</BreadcrumbPage>
+                                    <BreadcrumbPage>
+                                        Threshold Alerts
+                                    </BreadcrumbPage>
                                 </BreadcrumbItem>
                             </BreadcrumbList>
                         </Breadcrumb>

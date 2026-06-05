@@ -213,17 +213,17 @@ export function LiveChart() {
         alert ? (
             <Badge
                 variant="outline"
-                className="text-xs border-red-400 text-red-500 dark:border-red-700 dark:text-red-400 gap-1"
+                className="border-red-400 text-red-500 dark:border-red-700 dark:text-red-400 gap-1"
             >
-                <AlertTriangle className="w-3 h-3" />
+                <AlertTriangle className="w-4 h-4" />
                 {value < min ? "Under limit" : "Over limit"}
             </Badge>
         ) : (
             <Badge
                 variant="outline"
-                className="text-xs border-green-500 text-green-600 dark:border-green-400 dark:text-green-400 gap-1"
+                className="border-green-500 text-green-600 dark:border-green-400 dark:text-green-400 gap-1"
             >
-                <CheckCircle className="w-3 h-3" />
+                <CheckCircle className="w-4 h-4" />
                 Normal
             </Badge>
         );
@@ -246,7 +246,7 @@ export function LiveChart() {
                     />
                 </CardAction>
             </CardHeader>
-            <CardContent className="flex flex-1 justify-center items-center overflow-x-auto overflow-y-auto px-2 sm:px-4 pt-2 sm:pt-3 mb-2">
+            <CardContent className="flex flex-1 justify-center items-center overflow-x-auto overflow-y-auto px-2 sm:px-4 mb-2">
                 {noDevice ? (
                     <div className="flex justify-center items-center min-h-[200px] w-full">
                         <Badge
@@ -451,7 +451,7 @@ export function LiveChart() {
                                     />
                                     <ReferenceLine
                                         y={limits.tempMin}
-                                        stroke="red"
+                                        stroke="#0062ff"
                                         strokeDasharray="20 10"
                                         strokeWidth={1}
                                     />
@@ -631,7 +631,7 @@ export function LiveChart() {
                                     />
                                     <ReferenceLine
                                         y={limits.humidMin}
-                                        stroke="red"
+                                        stroke="#0062ff"
                                         strokeDasharray="20 10"
                                         strokeWidth={1}
                                     />

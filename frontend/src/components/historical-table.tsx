@@ -45,6 +45,8 @@ import {
     Loader2,
     ArrowUpRight,
     ArrowDownRight,
+    Droplet,
+    Thermometer,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { API_BASE_URL } from "@/config/api";
@@ -589,10 +591,16 @@ export default function HistoricalTable() {
                                                         className={
                                                             row.parameter ===
                                                             "Humidity"
-                                                                ? "border-blue-300 text-blue-500 dark:border-blue-900 dark:text-blue-400"
-                                                                : "border-orange-300 text-orange-500 dark:border-orange-900 dark:text-orange-400"
+                                                                ? "border-green-300 text-green-500 dark:border-green-900 dark:text-green-400 gap-1"
+                                                                : "border-blue-300 text-blue-500 dark:border-blue-900 dark:text-blue-400 gap-1"
                                                         }
                                                     >
+                                                        {row.parameter ===
+                                                        "Humidity" ? (
+                                                            <Droplet className="w-4 h-4" />
+                                                        ) : (
+                                                            <Thermometer className="w-4 h-4" />
+                                                        )}
                                                         {row.parameter ===
                                                         "Humidity"
                                                             ? "Humidity"
