@@ -34,9 +34,30 @@ const clearAllCache = async () => {
                 console.log(`[MQTT] Subscribed to topic ${topic}`);
             }
         });
+        client.subscribe(`nvrox/heartbeat/+`, { qos }, (err) => {
+            if (err)
+                console.error(
+                    "[MQTT] Error subscribing heartbeat",
+                    err.message,
+                );
+            else console.log("[MQTT] Subscribed to heartbeat topic");
+        });
     });
 
     client.on("message", async (receivedTopic, message) => {
+        if (receivedTopic.startsWith("nvrox/heartbeat")) {
+            try {
+                const { mac_address } = JSON.parse(message.toString());
+                const device = await getDeviceId(mac_address);
+                if (!device) return;
+
+                emitToClients("heartbeat", { mac_address });
+            } catch (err) {
+                console.error("[MQTT] Error handling heartbeat:", err.message);
+            }
+            return;
+        }
+
         if (!receivedTopic.startsWith("nvrox/temp-hum")) {
             return;
         }
@@ -85,7 +106,10 @@ const clearAllCache = async () => {
                             value < t.lower_limit
                                 ? t.lower_limit
                                 : t.upper_limit,
-                        status: value < t.lower_limit ? "Deceed" : "Exceed",
+                        status:
+                            value < t.lower_limit
+                                ? "Under Limit"
+                                : "Over Limit",
                         recorded_at: knex.fn.now(),
                     });
                 }

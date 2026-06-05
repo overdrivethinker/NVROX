@@ -24,15 +24,8 @@ import {
     ChartTooltipContent,
 } from "@/components/ui/chart";
 import type { ChartConfig } from "@/components/ui/chart";
-import { DeviceSelector } from "./device-selector";
 import { Badge } from "@/components/ui/badge";
-import {
-    AlertTriangle,
-    Loader2,
-    AudioLines,
-    Droplet,
-    Thermometer,
-} from "lucide-react";
+import { AlertTriangle, Loader2, Droplet, Thermometer } from "lucide-react";
 import io from "socket.io-client";
 import axios from "axios";
 
@@ -48,6 +41,14 @@ type SensorData = {
     humidity: number;
     recorded_at: string;
 };
+
+type Device = {
+    device_name: string;
+    mac_address: string;
+    location: string;
+};
+
+import { DeviceSelector } from "./device-selector";
 
 export function LiveChart() {
     const { theme } = useTheme();
@@ -81,9 +82,18 @@ export function LiveChart() {
     const [selectedMac, setSelectedMac] = useState<string>("");
     const [chartData, setChartData] = useState<ChartPoint[]>([]);
     const [isLoading, setIsLoading] = useState(false);
-    const [delayedLoading, setDelayedLoading] = useState(false);
     const [latestData, setLatestData] = useState<SensorData | null>(null);
     const [isDisconnected, setIsDisconnected] = useState(false);
+
+    const [noDevice, setNoDevice] = useState(false);
+
+    const handleDevicesLoaded = (devices: Device[]) => {
+        if (devices.length === 0) {
+            setNoDevice(true);
+        } else if (!selectedMac) {
+            setSelectedMac(devices[0].mac_address); // auto-select pertama
+        }
+    };
 
     useEffect(() => {
         if (!selectedMac) return;
@@ -108,14 +118,24 @@ export function LiveChart() {
             query: { mac: selectedMac },
         });
 
-        const loadingTimeout = setTimeout(() => setDelayedLoading(true), 1000);
+        let noDataTimeout: ReturnType<typeof setTimeout>;
 
-        let noDataTimeout = setTimeout(() => {
-            setIsLoading(false);
-            setDelayedLoading(false);
-            setIsDisconnected(true);
-            setChartData([]);
-        }, 3000);
+        const resetTimeout = () => {
+            clearTimeout(noDataTimeout);
+            noDataTimeout = setTimeout(() => {
+                setIsDisconnected(true);
+                setIsLoading(false);
+                setChartData([]);
+            }, 7_000);
+        };
+
+        resetTimeout();
+
+        socket.on("heartbeat", (data: { mac_address: string }) => {
+            if (data.mac_address !== selectedMac) return;
+            setIsDisconnected(false);
+            resetTimeout();
+        });
 
         socket.on("sensor_data", (data: SensorData) => {
             if (data.mac_address !== selectedMac) return;
@@ -129,21 +149,12 @@ export function LiveChart() {
             setLatestData(data);
             setChartData((prev) => [...prev.slice(-20), point]);
             setIsLoading(false);
-            setDelayedLoading(false);
             setIsDisconnected(false);
-
-            clearTimeout(loadingTimeout);
-            clearTimeout(noDataTimeout);
-
-            noDataTimeout = setTimeout(() => {
-                setIsDisconnected(true);
-                setChartData([]);
-            }, 3000);
+            resetTimeout();
         });
 
         return () => {
             socket.disconnect();
-            clearTimeout(loadingTimeout);
             clearTimeout(noDataTimeout);
         };
     }, [selectedMac]);
@@ -154,7 +165,7 @@ export function LiveChart() {
                 <CardTitle>Device Monitoring</CardTitle>
                 <CardDescription>
                     <span className="hidden @[540px]/card:block">
-                        Real-time data
+                        Real-time environmental monitoring
                     </span>
                     <span className="@[540px]/card:hidden">Live chart</span>
                 </CardDescription>
@@ -162,21 +173,22 @@ export function LiveChart() {
                     <DeviceSelector
                         value={selectedMac}
                         onChange={setSelectedMac}
+                        onDevicesLoaded={handleDevicesLoaded}
                     />
                 </CardAction>
             </CardHeader>
             <CardContent className="flex flex-1 justify-center items-center overflow-x-auto overflow-y-auto px-2 sm:px-4 pt-2 sm:pt-3 mb-2">
-                {!selectedMac ? (
+                {noDevice ? (
                     <div className="flex justify-center items-center min-h-[200px] w-full">
                         <Badge
                             variant="outline"
-                            className="text-base border-green-300 text-green-500 dark:border-green-900 dark:text-green-400"
+                            className="text-base border-red-400 text-red-500 dark:border-red-700 dark:text-red-400"
                         >
-                            <AudioLines className="w-4 h-4 me-1.5" />
-                            Select device first
+                            <AlertTriangle className="w-4 h-4 me-1.5" />
+                            No devices registered
                         </Badge>
                     </div>
-                ) : isLoading || delayedLoading ? (
+                ) : !selectedMac || isLoading ? (
                     <div className="flex justify-center items-center min-h-[200px] w-full">
                         <Badge
                             variant="outline"
