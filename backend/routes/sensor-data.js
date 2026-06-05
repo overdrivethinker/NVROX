@@ -47,6 +47,56 @@ router.get("/export", async (req, res) => {
     }
 });
 
+router.get("/alerts/export", async (req, res) => {
+    try {
+        const { start_date, end_date, mac } = req.query;
+
+        let query = knex("alerts as a")
+            .join("devices as d", "a.mac_address", "=", "d.mac_address")
+            .select(
+                "a.id",
+                "d.device_name",
+                "d.location",
+                "a.mac_address",
+                "a.parameter",
+                "a.value",
+                "a.threshold",
+                "a.status",
+                "a.recorded_at",
+            )
+            .orderBy("a.recorded_at", "desc");
+
+        if (start_date && end_date) {
+            query = query.whereBetween("a.recorded_at", [
+                `${start_date} 00:00:00`,
+                `${end_date} 23:59:59`,
+            ]);
+        } else if (start_date) {
+            query = query.where(
+                "a.recorded_at",
+                ">=",
+                `${start_date} 00:00:00`,
+            );
+        } else if (end_date) {
+            query = query.where("a.recorded_at", "<=", `${end_date} 23:59:59`);
+        }
+
+        if (mac) {
+            query = query.where("a.mac_address", mac);
+        }
+
+        const rows = await query;
+
+        res.json({
+            data: rows,
+            total: rows.length,
+        });
+    } catch (err) {
+        console.error("GET /sensor-data/alerts/export error:", err);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+});
+
 router.get("/3days-hourly", async (req, res) => {
     const { mac_address, range } = req.query;
 

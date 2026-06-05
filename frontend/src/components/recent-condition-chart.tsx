@@ -36,7 +36,7 @@ import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { DeviceSelector } from "./device-selector";
 import axios from "axios";
 import { Badge } from "@/components/ui/badge";
-import { AlertTriangle, Loader2, AudioLines } from "lucide-react";
+import { AlertTriangle, Loader2 } from "lucide-react";
 
 type ChartPoint = {
     datetime: string;
@@ -56,6 +56,12 @@ type SensorHourlyData = {
     min_humid: string;
     max_humid: string;
     avg_humid: string;
+};
+
+type Device = {
+    device_name: string;
+    mac_address: string;
+    location: string;
 };
 
 export function RecentChart() {
@@ -97,7 +103,15 @@ export function RecentChart() {
     const [chartData, setChartData] = useState<ChartPoint[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [delayedLoading, setDelayedLoading] = useState(false);
+    const [noDevice, setNoDevice] = useState(false);
 
+    const handleDevicesLoaded = (devices: Device[]) => {
+        if (devices.length === 0) {
+            setNoDevice(true);
+        } else if (!selectedMac) {
+            setSelectedMac(devices[0].mac_address);
+        }
+    };
     useEffect(() => {
         if (!selectedMac) return;
 
@@ -161,10 +175,10 @@ export function RecentChart() {
     return (
         <Card className="@container/card flex-1 min-h-[600px] overflow-hidden bg-transparent border-0 shadow-none">
             <CardHeader>
-                <CardTitle>Device Status</CardTitle>
+                <CardTitle>Recent Trends</CardTitle>
                 <CardDescription>
                     <span className="hidden @[540px]/card:block">
-                        Monitoring for the last 3 days
+                        Temperature and humidity trends over 3 days
                     </span>
                     <span className="@[540px]/card:hidden">Last 3 days</span>
                 </CardDescription>
@@ -173,6 +187,7 @@ export function RecentChart() {
                     <DeviceSelector
                         value={selectedMac}
                         onChange={setSelectedMac}
+                        onDevicesLoaded={handleDevicesLoaded}
                     />
                     <ToggleGroup
                         type="single"
@@ -225,17 +240,17 @@ export function RecentChart() {
                 </CardAction>
             </CardHeader>
             <CardContent className="flex flex-col flex-1 justify-center items-center overflow-x-auto overflow-y-auto px-2 sm:px-4 pt-2 sm:pt-3 mb-2">
-                {!selectedMac ? (
+                {noDevice ? (
                     <div className="flex justify-center items-center min-h-[200px] w-full">
                         <Badge
                             variant="outline"
-                            className="text-base border-green-300 text-green-500 dark:border-green-900 dark:text-green-400"
+                            className="text-base border-red-400 text-red-500 dark:border-red-700 dark:text-red-400"
                         >
-                            <AudioLines className="w-4 h-4 me-1.5" />
-                            Select device first
+                            <AlertTriangle className="w-4 h-4 me-1.5" />
+                            No devices registered
                         </Badge>
                     </div>
-                ) : isLoading || delayedLoading ? (
+                ) : !selectedMac || isLoading || delayedLoading ? (
                     <div className="flex justify-center items-center min-h-[200px] w-full">
                         <Badge
                             variant="outline"

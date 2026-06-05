@@ -1,4 +1,4 @@
-const redis = require("./index");
+const redis = require("./config");
 const knex = require("../database/db");
 
 const getDeviceId = async (mac_address) => {

@@ -51,7 +51,7 @@ export function EditDeviceDialog({
     const updateThreshold = (
         type: keyof Thresholds,
         field: "min" | "max",
-        value: string
+        value: string,
     ) => {
         const numValue = parseFloat(value) || 0;
         setDevice({
@@ -86,7 +86,8 @@ export function EditDeviceDialog({
                     onSubmit={(e) => {
                         e.preventDefault();
                         onSubmit();
-                    }}>
+                    }}
+                >
                     <Tabs defaultValue="general" className="w-full">
                         <TabsList className="grid w-full grid-cols-2">
                             <TabsTrigger value="general">General</TabsTrigger>
@@ -106,7 +107,8 @@ export function EditDeviceDialog({
                                     />
                                     <Badge
                                         variant="secondary"
-                                        className="absolute -top-2 -right-0 text-xs">
+                                        className="absolute -top-2 -right-0 text-xs"
+                                    >
                                         Read Only
                                     </Badge>
                                 </div>
@@ -146,7 +148,8 @@ export function EditDeviceDialog({
                                     value={device.status}
                                     onValueChange={(value) =>
                                         setDevice({ ...device, status: value })
-                                    }>
+                                    }
+                                >
                                     <SelectTrigger className="w-full">
                                         <SelectValue />
                                     </SelectTrigger>
@@ -169,44 +172,60 @@ export function EditDeviceDialog({
                         </TabsContent>
                         <TabsContent
                             value="thresholds"
-                            className="space-y-4 mt-2">
+                            className="space-y-4 mt-2"
+                        >
                             <div>
                                 <Label className="text-sm font-medium">
                                     Temperature (°C)
                                 </Label>
                                 <div className="grid grid-cols-2 gap-2 mt-2">
-                                    <Input
-                                        type="number"
-                                        step="0.01"
-                                        placeholder="Min"
-                                        value={
-                                            device.thresholds?.temperature
-                                                ?.min ?? ""
-                                        }
-                                        onChange={(e) =>
-                                            updateThreshold(
-                                                "temperature",
-                                                "min",
-                                                e.target.value
-                                            )
-                                        }
-                                    />
-                                    <Input
-                                        type="number"
-                                        step="0.01"
-                                        placeholder="Max"
-                                        value={
-                                            device.thresholds?.temperature
-                                                ?.max ?? ""
-                                        }
-                                        onChange={(e) =>
-                                            updateThreshold(
-                                                "temperature",
-                                                "max",
-                                                e.target.value
-                                            )
-                                        }
-                                    />
+                                    {/* Lower / Min */}
+                                    <div className="flex rounded-md border border-input overflow-hidden focus-within:ring-1 focus-within:ring-ring">
+                                        <span className="flex items-center px-2.5 bg-blue-500 text-white text-[16px] font-semibold shrink-0">
+                                            LO
+                                        </span>
+                                        <input
+                                            type="number"
+                                            step="0.01"
+                                            placeholder="Min"
+                                            value={
+                                                device.thresholds?.temperature
+                                                    ?.min ?? ""
+                                            }
+                                            onChange={(e) =>
+                                                updateThreshold(
+                                                    "temperature",
+                                                    "min",
+                                                    e.target.value,
+                                                )
+                                            }
+                                            className="w-full px-2 py-1.5 text-sm bg-background outline-none"
+                                        />
+                                    </div>
+
+                                    {/* Upper / Max */}
+                                    <div className="flex rounded-md border border-input overflow-hidden focus-within:ring-1 focus-within:ring-ring">
+                                        <span className="flex items-center px-2.5 bg-red-500 text-white text-[16px] font-semibold shrink-0">
+                                            UP
+                                        </span>
+                                        <input
+                                            type="number"
+                                            step="0.01"
+                                            placeholder="Max"
+                                            value={
+                                                device.thresholds?.temperature
+                                                    ?.max ?? ""
+                                            }
+                                            onChange={(e) =>
+                                                updateThreshold(
+                                                    "temperature",
+                                                    "max",
+                                                    e.target.value,
+                                                )
+                                            }
+                                            className="w-full px-2 py-1.5 text-sm bg-background outline-none"
+                                        />
+                                    </div>
                                 </div>
                             </div>
 
@@ -216,42 +235,53 @@ export function EditDeviceDialog({
                                     Humidity (%)
                                 </Label>
                                 <div className="grid grid-cols-2 gap-2 mt-2">
-                                    <Input
-                                        type="number"
-                                        step="0.01"
-                                        placeholder="Min"
-                                        min={0}
-                                        max={100}
-                                        value={
-                                            device.thresholds?.humidity?.min ??
-                                            ""
-                                        }
-                                        onChange={(e) =>
-                                            updateThreshold(
-                                                "humidity",
-                                                "min",
-                                                e.target.value
-                                            )
-                                        }
-                                    />
-                                    <Input
-                                        type="number"
-                                        step="0.01"
-                                        placeholder="Max"
-                                        min={0}
-                                        max={100}
-                                        value={
-                                            device.thresholds?.humidity?.max ??
-                                            ""
-                                        }
-                                        onChange={(e) =>
-                                            updateThreshold(
-                                                "humidity",
-                                                "max",
-                                                e.target.value
-                                            )
-                                        }
-                                    />
+                                    {/* Lower / Min */}
+                                    <div className="flex rounded-md border border-input overflow-hidden focus-within:ring-1 focus-within:ring-ring">
+                                        <span className="flex items-center px-2.5 bg-blue-500 text-white text-[16px] font-semibold shrink-0">
+                                            LO
+                                        </span>
+                                        <input
+                                            type="number"
+                                            step="0.01"
+                                            placeholder="Min"
+                                            value={
+                                                device.thresholds?.humidity
+                                                    ?.min ?? ""
+                                            }
+                                            onChange={(e) =>
+                                                updateThreshold(
+                                                    "humidity",
+                                                    "min",
+                                                    e.target.value,
+                                                )
+                                            }
+                                            className="w-full px-2 py-1.5 text-sm bg-background outline-none"
+                                        />
+                                    </div>
+
+                                    {/* Upper / Max */}
+                                    <div className="flex rounded-md border border-input overflow-hidden focus-within:ring-1 focus-within:ring-ring">
+                                        <span className="flex items-center px-2.5 bg-red-500 text-white text-[16px] font-semibold shrink-0">
+                                            UP
+                                        </span>
+                                        <input
+                                            type="number"
+                                            step="0.01"
+                                            placeholder="Max"
+                                            value={
+                                                device.thresholds?.humidity
+                                                    ?.max ?? ""
+                                            }
+                                            onChange={(e) =>
+                                                updateThreshold(
+                                                    "humidity",
+                                                    "max",
+                                                    e.target.value,
+                                                )
+                                            }
+                                            className="w-full px-2 py-1.5 text-sm bg-background outline-none"
+                                        />
+                                    </div>
                                 </div>
                             </div>
                         </TabsContent>
