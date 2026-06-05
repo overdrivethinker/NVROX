@@ -77,7 +77,7 @@ export function NavMain({
                                         <span>{item.title}</span>
 
                                         {hasActiveChild && !isOpen && (
-                                            <span className="w-2 h-2 ml-2 mt-1 rounded-full bg-primary shrink-0" />
+                                            <span className="w-2 h-2 ml-2 rounded-full bg-primary shrink-0" />
                                         )}
 
                                         <ChevronRight
@@ -109,7 +109,7 @@ export function NavMain({
                                                         <Link to={subItem.url}>
                                                             <span
                                                                 className={cn(
-                                                                    "w-0.5 h-3.5 mt-0.5 rounded-full shrink-0",
+                                                                    "w-0.5 h-3.5 rounded-full shrink-0",
                                                                     isActive
                                                                         ? "bg-primary"
                                                                         : "opacity-0",

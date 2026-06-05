@@ -39,6 +39,12 @@ import { DeleteDeviceDialog } from "@/app/configuration/dialog/delete-device-dia
 import { EditDeviceDialog } from "@/app/configuration/dialog/edit-device-dialog";
 import { Plus } from "lucide-react";
 import { AddDeviceDialog } from "@/app/configuration/dialog/add-device-dialog";
+import { useAuth } from "@/config/auth";
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 type DeviceData = {
     device_name: string;
@@ -260,6 +266,8 @@ export default function DeviceDataTable() {
         }
     };
 
+    const { isAdmin } = useAuth();
+
     return (
         <Card className="@container/card flex-1 min-h-[600px] overflow-hidden bg-transparent border-0 shadow-none">
             <CardHeader>
@@ -272,14 +280,28 @@ export default function DeviceDataTable() {
                 </CardDescription>
 
                 <CardAction className="flex flex-col sm:flex-row sm:items-center">
-                    <Button
-                        variant="outline"
-                        size="sm"
-                        className="h-9"
-                        onClick={() => setAddDialogOpen(true)}
-                    >
-                        <Plus className="h-4 w-4" /> Add Device
-                    </Button>
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <span className="inline-block">
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    className="h-9"
+                                    disabled={!isAdmin}
+                                    onClick={() => {
+                                        setAddDialogOpen(true);
+                                    }}
+                                >
+                                    <Plus className="h-4 w-4" /> Add User
+                                </Button>
+                            </span>
+                        </TooltipTrigger>
+                        {!isAdmin && (
+                            <TooltipContent side="left">
+                                <p>Only admin can add new user</p>
+                            </TooltipContent>
+                        )}
+                    </Tooltip>
                     <AddDeviceDialog
                         open={addDialogOpen}
                         onOpenChange={setAddDialogOpen}
