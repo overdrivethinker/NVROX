@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect, useMemo } from "react";
-import { Bar, BarChart, XAxis, YAxis } from "recharts";
+import { Bar, BarChart, XAxis, YAxis, LabelList } from "recharts";
 import {
     Card,
     CardContent,
@@ -28,7 +28,7 @@ export const description = "A multiple bar chart";
 import axios from "axios";
 import io from "socket.io-client";
 import { Badge } from "@/components/ui/badge";
-import { AlertTriangle, Loader2 } from "lucide-react";
+import { CheckCircle, Loader2 } from "lucide-react";
 
 type Device = {
     device_name: string;
@@ -54,11 +54,11 @@ type ChartPoint = {
 const chartConfig = {
     temp: {
         label: "Temperature",
-        color: "#fca5a5",
+        color: "#f97316", // orange — lebih kontras dari merah muda
     },
     humid: {
         label: "Humidity",
-        color: "#ef4444",
+        color: "#3b82f6", // biru
     },
 } satisfies ChartConfig;
 
@@ -71,6 +71,13 @@ export function AlertsChart() {
     const [devices, setDevices] = useState<Device[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [delayedLoading, setDelayedLoading] = useState(false);
+    const [hasLoaded, setHasLoaded] = useState(false);
+
+    const sortedAlertSum = useMemo(() => {
+        return [...alertSum].sort(
+            (a, b) => b.temperature + b.humidity - (a.temperature + a.humidity),
+        );
+    }, [alertSum]);
 
     useEffect(() => {
         setIsLoading(true);
@@ -134,6 +141,7 @@ export function AlertsChart() {
             })
             .finally(() => {
                 setIsLoading(false);
+                setHasLoaded(true);
             });
     }, [timeRange, devices]);
 
@@ -244,6 +252,10 @@ export function AlertsChart() {
                             Loading chart...
                         </Badge>
                     </div>
+                ) : !hasLoaded ? (
+                    <div className="flex justify-center items-center min-h-[200px] w-full">
+                        <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
+                    </div>
                 ) : alertSum.length === 0 ||
                   alertSum.every(
                       (item) => item.temperature === 0 && item.humidity === 0,
@@ -251,23 +263,22 @@ export function AlertsChart() {
                     <div className="flex justify-center items-center min-h-[200px] w-full">
                         <Badge
                             variant="outline"
-                            className="text-base border-yellow-500 text-yellow-600 dark:border-yellow-900 dark:text-yellow-300"
+                            className="text-base border-green-500 text-green-600 dark:border-green-400 dark:text-green-400"
                         >
-                            <AlertTriangle className="w-4 h-4 me-1.5" />
-                            No data available
+                            <CheckCircle className="w-4 h-4 me-1.5" /> All
+                            devices operating normally
                         </Badge>
                     </div>
                 ) : (
                     <>
                         <ChartContainer
                             config={chartConfig}
-                            className="h-[610px] w-full"
+                            className="h-[630px] w-full"
                         >
                             <BarChart
-                                key={timeRange}
-                                data={alertSum}
+                                data={sortedAlertSum}
                                 margin={{
-                                    top: 0,
+                                    top: 25,
                                     right: 10,
                                     left: -20,
                                     bottom: 30,
@@ -310,16 +321,36 @@ export function AlertsChart() {
                                 <Bar
                                     dataKey="temperature"
                                     fill={chartConfig.temp.color}
-                                    radius={4}
-                                />
+                                    radius={2}
+                                    isAnimationActive={false}
+                                >
+                                    <LabelList
+                                        dataKey="temperature"
+                                        position="top"
+                                        fontSize={11}
+                                        formatter={(val: number) =>
+                                            val > 0 ? val : ""
+                                        }
+                                    />
+                                </Bar>
                                 <Bar
                                     dataKey="humidity"
                                     fill={chartConfig.humid.color}
-                                    radius={4}
-                                />
+                                    radius={2}
+                                    isAnimationActive={false}
+                                >
+                                    <LabelList
+                                        dataKey="humidity"
+                                        position="top"
+                                        fontSize={11}
+                                        formatter={(val: number) =>
+                                            val > 0 ? val : ""
+                                        }
+                                    />
+                                </Bar>
                             </BarChart>
                         </ChartContainer>
-                        <CardFooter className="flex justify-center text-sm gap-4 mt-10">
+                        <CardFooter className="flex justify-center text-sm gap-4 mt-5">
                             <div className="flex items-center gap-2">
                                 <span
                                     className="h-3 w-3 rounded-full"
