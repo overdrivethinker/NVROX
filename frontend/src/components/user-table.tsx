@@ -31,9 +31,10 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Badge } from "@/components/ui/badge";
 
 import { toast } from "sonner";
-import { Plus } from "lucide-react";
+import { Plus, CheckCircle, XCircle } from "lucide-react";
 import { AddUserDialog } from "../app/configuration/user/add-user-dialog";
 import { EditUserDialog } from "../app/configuration/user/edit-user-dialog";
 import { DeleteUserDialog } from "../app/configuration/user/delete-user-dialog";
@@ -360,7 +361,29 @@ export default function UserAccessTable() {
                                             </TableCell>
                                             <TableCell>{row.email}</TableCell>
                                             <TableCell>{row.role}</TableCell>
-                                            <TableCell>{row.status}</TableCell>
+                                            <TableCell>
+                                                {" "}
+                                                <Badge
+                                                    variant="outline"
+                                                    className={
+                                                        row.status === "Active"
+                                                            ? "border-green-300 text-green-500 dark:border-green-900 dark:text-green-400"
+                                                            : "border-red-300 text-red-500 dark:border-red-900 dark:text-red-400"
+                                                    }
+                                                >
+                                                    {row.status === "Active" ? (
+                                                        <>
+                                                            <CheckCircle className="w-4 h-4" />
+                                                            Active
+                                                        </>
+                                                    ) : (
+                                                        <>
+                                                            <XCircle className="w-4 h-4" />
+                                                            Inactive
+                                                        </>
+                                                    )}
+                                                </Badge>
+                                            </TableCell>
                                             <TableCell className="text-sm text-muted-foreground">
                                                 {formatDate(row.last_login)}
                                             </TableCell>
