@@ -42,7 +42,7 @@ export default function HistoricalLogs() {
                     </div>
                     <ModeToggle />
                 </header>
-                <div className="flex flex-1 flex-col p-6 pt-0">
+                <div className="flex flex-1 flex-col p-2 pt-0">
                     <HistoricalTable />
                 </div>
             </SidebarInset>

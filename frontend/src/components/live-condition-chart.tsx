@@ -246,9 +246,9 @@ export function LiveChart() {
                     />
                 </CardAction>
             </CardHeader>
-            <CardContent className="flex flex-1 justify-center items-center overflow-x-auto overflow-y-auto px-2 sm:px-4 mb-2">
+            <CardContent className="flex flex-1 justify-center overflow-x-auto overflow-y-auto px-4 sm:px-6 mb-0">
                 {noDevice ? (
-                    <div className="flex justify-center items-center min-h-[200px] w-full">
+                    <div className="flex justify-center items-center w-full">
                         <Badge
                             variant="outline"
                             className="text-base border-red-400 text-red-500 dark:border-red-700 dark:text-red-400"
@@ -258,7 +258,7 @@ export function LiveChart() {
                         </Badge>
                     </div>
                 ) : !selectedMac || isLoading ? (
-                    <div className="flex justify-center items-center min-h-[200px] w-full">
+                    <div className="flex justify-center items-center w-full">
                         <Badge
                             variant="outline"
                             className="text-base border-blue-700 text-blue-700 dark:text-blue-400 dark:border-blue-400"
@@ -268,7 +268,7 @@ export function LiveChart() {
                         </Badge>
                     </div>
                 ) : isDisconnected ? (
-                    <div className="flex justify-center items-center min-h-[200px] w-full">
+                    <div className="flex justify-center items-center w-full">
                         <Badge
                             variant="outline"
                             className="text-base border-yellow-500 text-yellow-600 dark:border-yellow-900 dark:text-yellow-300"
@@ -307,7 +307,7 @@ export function LiveChart() {
                                     </div>
                                 </div>
                                 <div className="grid grid-cols-3 border-t border-border">
-                                    <div className="px-4 py-2 flex flex-col">
+                                    <div className="px-4 py-2 flex items-center flex-col">
                                         <span className="text-[15px] text-muted-foreground flex items-center gap-1">
                                             <Thermometer className="w-3 h-3 text-blue-500" />
                                             Min limit
@@ -317,7 +317,7 @@ export function LiveChart() {
                                             °C
                                         </span>
                                     </div>
-                                    <div className="px-4 py-2 flex flex-col border-x border-border">
+                                    <div className="px-4 py-2 flex flex-col border-x  items-center border-border">
                                         <span className="text-[15px] text-muted-foreground flex items-center gap-1">
                                             <Thermometer className="w-3 h-3 text-red-500" />
                                             Max limit
@@ -327,7 +327,7 @@ export function LiveChart() {
                                             °C
                                         </span>
                                     </div>
-                                    <div className="px-4 py-2 flex flex-col">
+                                    <div className="px-4 py-2 flex items-center flex-col">
                                         <span className="text-[15px] text-muted-foreground flex items-center gap-1">
                                             <Activity className="w-3 h-3" />
                                             Margin
@@ -345,7 +345,7 @@ export function LiveChart() {
                             </div>
                             <ChartContainer
                                 config={chartConfig}
-                                className="min-h-[300px] max-h-[380px] w-full"
+                                className="min-h-[300px] max-h-[430px] w-full"
                             >
                                 <AreaChart
                                     data={chartData}
@@ -402,10 +402,11 @@ export function LiveChart() {
                                                 })}
                                             </text>
                                         )}
+                                        fontSize={15}
                                     />
                                     <YAxis
                                         stroke={chartConfig.temp.color}
-                                        fontSize={12}
+                                        fontSize={15}
                                         tickLine={false}
                                         axisLine={false}
                                         domain={[
@@ -442,18 +443,35 @@ export function LiveChart() {
                                         stroke={chartConfig.temp.color}
                                         fill="url(#fillTemp)"
                                         dot={false}
+                                        strokeWidth={2}
                                     />
                                     <ReferenceLine
                                         y={limits.tempMax}
                                         stroke="red"
-                                        strokeDasharray="20 10"
-                                        strokeWidth={1}
+                                        strokeDasharray="5 15"
+                                        strokeWidth={2}
+                                        label={{
+                                            value: "MAX",
+                                            position: "right",
+                                            fill: "#ff0000",
+                                            fontSize: 12,
+                                            fontWeight: 600,
+                                            offset: -30,
+                                        }}
                                     />
                                     <ReferenceLine
                                         y={limits.tempMin}
-                                        stroke="#0062ff"
-                                        strokeDasharray="20 10"
-                                        strokeWidth={1}
+                                        stroke="blue"
+                                        strokeDasharray="5 15"
+                                        strokeWidth={2}
+                                        label={{
+                                            value: "MIN",
+                                            position: "right",
+                                            fill: "#0000ff",
+                                            fontSize: 12,
+                                            fontWeight: 600,
+                                            offset: -30,
+                                        }}
                                     />
                                 </AreaChart>
                             </ChartContainer>
@@ -487,7 +505,7 @@ export function LiveChart() {
                                     </div>
                                 </div>
                                 <div className="grid grid-cols-3 border-t border-border">
-                                    <div className="px-4 py-2 flex flex-col">
+                                    <div className="px-4 py-2 flex items-center flex-col">
                                         <span className="text-[15px] text-muted-foreground flex items-center gap-1">
                                             <Droplet className="w-3 h-3 text-blue-500" />
                                             Min limit
@@ -497,7 +515,7 @@ export function LiveChart() {
                                             %
                                         </span>
                                     </div>
-                                    <div className="px-4 py-2 flex flex-col border-x border-border">
+                                    <div className="px-4 py-2 flex items-center flex-col border-x border-border">
                                         <span className="text-[15px] text-muted-foreground flex items-center gap-1">
                                             <Droplet className="w-3 h-3 text-red-500" />
                                             Max limit
@@ -507,7 +525,7 @@ export function LiveChart() {
                                             %
                                         </span>
                                     </div>
-                                    <div className="px-4 py-2 flex flex-col">
+                                    <div className="px-4 py-2 items-center flex flex-col">
                                         <span className="text-[15px] text-muted-foreground flex items-center gap-1">
                                             <Activity className="w-3 h-3" />
                                             Margin
@@ -525,7 +543,7 @@ export function LiveChart() {
                             </div>
                             <ChartContainer
                                 config={chartConfig}
-                                className="min-h-[300px] max-h-[380px] w-full"
+                                className="min-h-[300px] max-h-[430px] w-full"
                             >
                                 <AreaChart
                                     data={chartData}
@@ -582,10 +600,11 @@ export function LiveChart() {
                                                 })}
                                             </text>
                                         )}
+                                        fontSize={15}
                                     />
                                     <YAxis
                                         stroke={chartConfig.humid.color}
-                                        fontSize={12}
+                                        fontSize={15}
                                         tickLine={false}
                                         axisLine={false}
                                         domain={[
@@ -622,18 +641,35 @@ export function LiveChart() {
                                         stroke={chartConfig.humid.color}
                                         fill="url(#fillHumid)"
                                         dot={false}
+                                        strokeWidth={2}
                                     />
                                     <ReferenceLine
                                         y={limits.humidMax}
                                         stroke="red"
-                                        strokeDasharray="20 10"
-                                        strokeWidth={1}
+                                        strokeDasharray="5 15"
+                                        strokeWidth={2}
+                                        label={{
+                                            value: "MAX",
+                                            position: "right",
+                                            fill: "#ff0000",
+                                            fontSize: 12,
+                                            fontWeight: 600,
+                                            offset: -30,
+                                        }}
                                     />
                                     <ReferenceLine
                                         y={limits.humidMin}
-                                        stroke="#0062ff"
-                                        strokeDasharray="20 10"
-                                        strokeWidth={1}
+                                        stroke="blue"
+                                        strokeDasharray="5 15"
+                                        strokeWidth={2}
+                                        label={{
+                                            value: "MIN",
+                                            position: "right",
+                                            fill: "#0000ff",
+                                            fontSize: 12,
+                                            fontWeight: 600,
+                                            offset: -30,
+                                        }}
                                     />
                                 </AreaChart>
                             </ChartContainer>

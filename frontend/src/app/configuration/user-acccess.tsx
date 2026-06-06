@@ -41,7 +41,7 @@ export default function UserAccess() {
                     </div>
                     <ModeToggle />
                 </header>
-                <div className="flex flex-1 justify-center p-6 pt-0">
+                <div className="flex flex-1 justify-center p-2 pt-0">
                     <UserAccessTable />
                 </div>
             </SidebarInset>

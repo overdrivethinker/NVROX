@@ -13,8 +13,8 @@ import {
     SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { ModeToggle } from "@/components/mode-toggle";
-import { LiveChart } from "@/components/live-condition-chart";
-export default function LiveMonitoring() {
+import { RecentChart } from "@/components/device-summary-chart";
+export default function Summary() {
     return (
         <SidebarProvider>
             <AppSidebar />
@@ -29,21 +29,19 @@ export default function LiveMonitoring() {
                         <Breadcrumb>
                             <BreadcrumbList>
                                 <BreadcrumbItem className="hidden md:block">
-                                    Environment
+                                    Dashboard
                                 </BreadcrumbItem>
                                 <BreadcrumbSeparator className="hidden md:block" />
                                 <BreadcrumbItem>
-                                    <BreadcrumbPage>
-                                        Live Monitoring
-                                    </BreadcrumbPage>
+                                    <BreadcrumbPage>Summary</BreadcrumbPage>
                                 </BreadcrumbItem>
                             </BreadcrumbList>
                         </Breadcrumb>
                     </div>
                     <ModeToggle />
                 </header>
-                <div className="flex flex-1 flex-col p-2 pt-0">
-                    <LiveChart />
+                <div className="flex flex flex-1 justify-center p-2 pt-0">
+                    <RecentChart />
                 </div>
             </SidebarInset>
         </SidebarProvider>

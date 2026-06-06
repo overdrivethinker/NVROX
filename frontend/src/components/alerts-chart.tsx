@@ -54,11 +54,11 @@ type ChartPoint = {
 const chartConfig = {
     temp: {
         label: "Temperature",
-        color: "#f97316", // orange — lebih kontras dari merah muda
+        color: "#ff0000",
     },
     humid: {
         label: "Humidity",
-        color: "#3b82f6", // biru
+        color: "#ff5454",
     },
 } satisfies ChartConfig;
 
@@ -241,9 +241,9 @@ export function AlertsChart() {
                     </Select>
                 </CardAction>
             </CardHeader>
-            <CardContent className="flex flex-col flex-1 justify-center items-center overflow-x-auto overflow-y-auto sm:px-4 pt-2 sm:pt-2">
+            <CardContent className="flex flex-col flex-1 overflow-x-auto mb-2">
                 {isLoading || delayedLoading ? (
-                    <div className="flex justify-center items-center min-h-[200px] w-full">
+                    <div className="flex justify-center items-center min-h-full w-full">
                         <Badge
                             variant="outline"
                             className="text-base border-blue-700 text-blue-700 dark:text-blue-400 dark:border-blue-400"
@@ -253,14 +253,14 @@ export function AlertsChart() {
                         </Badge>
                     </div>
                 ) : !hasLoaded ? (
-                    <div className="flex justify-center items-center min-h-[200px] w-full">
+                    <div className="flex justify-center items-center min-h-full w-full">
                         <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
                     </div>
                 ) : alertSum.length === 0 ||
                   alertSum.every(
                       (item) => item.temperature === 0 && item.humidity === 0,
                   ) ? (
-                    <div className="flex justify-center items-center min-h-[200px] w-full">
+                    <div className="flex justify-center items-center min-h-full w-full">
                         <Badge
                             variant="outline"
                             className="text-base border-green-500 text-green-600 dark:border-green-400 dark:text-green-400"

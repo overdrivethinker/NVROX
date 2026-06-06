@@ -8,6 +8,7 @@ import RecentCondition from "./app/environment/recent-condition";
 import DeviceSetup from "@/app/configuration/device-setup";
 import UserAccess from "./app/configuration/user-acccess";
 import LoginPage from "./app/login/page";
+import Summary from "./app/dashboard/summary";
 import { Toaster } from "@/components/ui/sonner";
 
 import type { ReactElement } from "react";
@@ -68,6 +69,14 @@ function App() {
                     element={
                         <ProtectedRoute>
                             <Alerts />
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="summary"
+                    element={
+                        <ProtectedRoute>
+                            <Summary />
                         </ProtectedRoute>
                     }
                 />

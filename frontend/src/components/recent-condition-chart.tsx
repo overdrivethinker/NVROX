@@ -3,12 +3,12 @@
 import { useEffect, useState } from "react";
 import { useTheme } from "@/hooks/use-theme";
 import {
-    Area,
-    AreaChart,
     CartesianGrid,
     XAxis,
     YAxis,
     ReferenceLine,
+    Line,
+    LineChart,
 } from "recharts";
 
 import {
@@ -277,7 +277,7 @@ export function RecentChart() {
                             config={chartConfig}
                             className="h-[300px] w-full"
                         >
-                            <AreaChart data={chartData}>
+                            <LineChart data={chartData}>
                                 <defs>
                                     <linearGradient
                                         id="fillTemp"
@@ -312,10 +312,11 @@ export function RecentChart() {
                                         )
                                     }
                                     tick={{ dy: 15 }}
+                                    fontSize={15}
                                 />
                                 <YAxis
                                     stroke={chartConfig.temp.color}
-                                    fontSize={12}
+                                    fontSize={15}
                                     tickLine={false}
                                     axisLine={false}
                                     domain={[
@@ -330,7 +331,7 @@ export function RecentChart() {
                                         style: {
                                             textAnchor: "middle",
                                             fill: chartConfig.temp.color,
-                                            fontSize: 14,
+                                            fontSize: 15,
                                         },
                                     }}
                                 />
@@ -355,46 +356,65 @@ export function RecentChart() {
                                         />
                                     }
                                 />
-                                <Area
+                                <Line
                                     type="monotone"
                                     dataKey="tempMax"
                                     stroke={chartConfig.temp.color}
                                     fill="url(#fillTemp)"
                                     dot={false}
+                                    strokeWidth={2}
                                 />
-                                <Area
+                                <Line
                                     type="monotone"
                                     dataKey="tempAvg"
                                     stroke={chartConfig.avg.color}
                                     fill="url(#fillTemp)"
                                     dot={false}
+                                    strokeWidth={2}
                                 />
-                                <Area
+                                <Line
                                     type="monotone"
                                     dataKey="tempMin"
                                     stroke={chartConfig.temp.color}
                                     fillOpacity={0}
                                     dot={false}
+                                    strokeWidth={2}
                                 />
                                 <ReferenceLine
                                     y={limits.tempMax}
                                     stroke="red"
-                                    strokeDasharray="20 10"
-                                    strokeWidth={1}
+                                    strokeDasharray="5 15"
+                                    strokeWidth={2}
+                                    label={{
+                                        value: "MAX",
+                                        position: "right",
+                                        fill: "#ff0000",
+                                        fontSize: 12,
+                                        fontWeight: 600,
+                                        offset: -30,
+                                    }}
                                 />
                                 <ReferenceLine
                                     y={limits.tempMin}
-                                    stroke="red"
-                                    strokeDasharray="20 10"
-                                    strokeWidth={1}
+                                    stroke="blue"
+                                    strokeDasharray="5 15"
+                                    strokeWidth={2}
+                                    label={{
+                                        value: "MIN",
+                                        position: "right",
+                                        fill: "#0000ff",
+                                        fontSize: 12,
+                                        fontWeight: 600,
+                                        offset: -30,
+                                    }}
                                 />
-                            </AreaChart>
+                            </LineChart>
                         </ChartContainer>
                         <ChartContainer
                             config={chartConfig}
                             className="h-[300px] w-full mt-10"
                         >
-                            <AreaChart data={chartData}>
+                            <LineChart data={chartData}>
                                 <defs>
                                     <linearGradient
                                         id="fillHumid"
@@ -429,10 +449,11 @@ export function RecentChart() {
                                         )
                                     }
                                     tick={{ dy: 15 }}
+                                    fontSize={15}
                                 />
                                 <YAxis
                                     stroke={chartConfig.humid.color}
-                                    fontSize={12}
+                                    fontSize={15}
                                     tickLine={false}
                                     axisLine={false}
                                     domain={[
@@ -447,7 +468,7 @@ export function RecentChart() {
                                         style: {
                                             textAnchor: "middle",
                                             fill: chartConfig.humid.color,
-                                            fontSize: 14,
+                                            fontSize: 15,
                                         },
                                     }}
                                 />
@@ -472,40 +493,59 @@ export function RecentChart() {
                                         />
                                     }
                                 />
-                                <Area
+                                <Line
                                     type="monotone"
                                     dataKey="humidMax"
                                     stroke={chartConfig.humid.color}
                                     fill="url(#fillHumid)"
                                     dot={false}
+                                    strokeWidth={2}
                                 />
-                                <Area
+                                <Line
                                     type="monotone"
                                     dataKey="humidAvg"
                                     stroke={chartConfig.avg.color}
                                     fill="url(#fillHumid)"
                                     dot={false}
+                                    strokeWidth={2}
                                 />
-                                <Area
+                                <Line
                                     type="monotone"
                                     dataKey="humidMin"
                                     stroke={chartConfig.humid.color}
                                     fillOpacity={0}
                                     dot={false}
+                                    strokeWidth={2}
                                 />
                                 <ReferenceLine
                                     y={limits.humidMax}
                                     stroke="red"
-                                    strokeDasharray="20 10"
-                                    strokeWidth={1}
+                                    strokeDasharray="5 15"
+                                    strokeWidth={2}
+                                    label={{
+                                        value: "MAX",
+                                        position: "right",
+                                        fill: "#ff0000",
+                                        fontSize: 12,
+                                        fontWeight: 600,
+                                        offset: -30,
+                                    }}
                                 />
                                 <ReferenceLine
                                     y={limits.humidMin}
-                                    stroke="red"
-                                    strokeDasharray="20 10"
-                                    strokeWidth={1}
+                                    stroke="blue"
+                                    strokeDasharray="5 15"
+                                    strokeWidth={2}
+                                    label={{
+                                        value: "MIN",
+                                        position: "right",
+                                        fill: "#0000ff",
+                                        fontSize: 12,
+                                        fontWeight: 600,
+                                        offset: -30,
+                                    }}
                                 />
-                            </AreaChart>
+                            </LineChart>
                         </ChartContainer>
                     </>
                 )}
