@@ -292,13 +292,13 @@ export default function DeviceDataTable() {
                                         setAddDialogOpen(true);
                                     }}
                                 >
-                                    <Plus className="h-4 w-4" /> Add User
+                                    <Plus className="h-4 w-4" /> Add Device
                                 </Button>
                             </span>
                         </TooltipTrigger>
                         {!isAdmin && (
                             <TooltipContent side="left">
-                                <p>Only admin can add new user</p>
+                                <p>Only admin can add new device</p>
                             </TooltipContent>
                         )}
                     </Tooltip>
@@ -408,86 +408,139 @@ export default function DeviceDataTable() {
                                                         align="end"
                                                         className="w-32"
                                                     >
-                                                        <DropdownMenuItem
-                                                            onClick={() => {
-                                                                setEditDialog(
-                                                                    true,
-                                                                );
-                                                                setSelectedDevice(
-                                                                    {
-                                                                        mac: row.mac_address,
-                                                                        name: row.device_name,
-                                                                        location:
-                                                                            row.location,
-                                                                        status: row.status,
-                                                                        thresholds:
-                                                                            {
-                                                                                temperature:
-                                                                                    {
-                                                                                        min:
-                                                                                            row.tempMin ||
-                                                                                            0,
-                                                                                        max:
-                                                                                            row.tempMax ||
-                                                                                            0,
-                                                                                    },
-                                                                                humidity:
-                                                                                    {
-                                                                                        min:
-                                                                                            row.humidMin ||
-                                                                                            0,
-                                                                                        max:
-                                                                                            row.humidMax ||
-                                                                                            0,
-                                                                                    },
-                                                                            },
-                                                                    },
-                                                                );
-                                                            }}
-                                                        >
-                                                            Edit
-                                                        </DropdownMenuItem>
+                                                        <Tooltip>
+                                                            <TooltipTrigger
+                                                                asChild
+                                                            >
+                                                                <div>
+                                                                    <DropdownMenuItem
+                                                                        disabled={
+                                                                            !isAdmin
+                                                                        }
+                                                                        className={
+                                                                            !isAdmin
+                                                                                ? "opacity-50 cursor-not-allowed"
+                                                                                : ""
+                                                                        }
+                                                                        onClick={() => {
+                                                                            setEditDialog(
+                                                                                true,
+                                                                            );
+                                                                            setSelectedDevice(
+                                                                                {
+                                                                                    mac: row.mac_address,
+                                                                                    name: row.device_name,
+                                                                                    location:
+                                                                                        row.location,
+                                                                                    status: row.status,
+                                                                                    thresholds:
+                                                                                        {
+                                                                                            temperature:
+                                                                                                {
+                                                                                                    min:
+                                                                                                        row.tempMin ||
+                                                                                                        0,
+                                                                                                    max:
+                                                                                                        row.tempMax ||
+                                                                                                        0,
+                                                                                                },
+                                                                                            humidity:
+                                                                                                {
+                                                                                                    min:
+                                                                                                        row.humidMin ||
+                                                                                                        0,
+                                                                                                    max:
+                                                                                                        row.humidMax ||
+                                                                                                        0,
+                                                                                                },
+                                                                                        },
+                                                                                },
+                                                                            );
+                                                                        }}
+                                                                    >
+                                                                        Edit
+                                                                    </DropdownMenuItem>
+                                                                </div>
+                                                            </TooltipTrigger>
+                                                            {!isAdmin && (
+                                                                <TooltipContent side="left">
+                                                                    <p>
+                                                                        Only
+                                                                        admin
+                                                                        can edit
+                                                                        device
+                                                                    </p>
+                                                                </TooltipContent>
+                                                            )}
+                                                        </Tooltip>
                                                         <DropdownMenuSeparator />
-                                                        <DropdownMenuItem
-                                                            onClick={() => {
-                                                                setOpenDialog(
-                                                                    true,
-                                                                );
-                                                                setSelectedDevice(
-                                                                    {
-                                                                        mac: row.mac_address,
-                                                                        name: row.device_name,
-                                                                        location:
-                                                                            row.location,
-                                                                        status: row.status,
-                                                                        thresholds:
-                                                                            {
-                                                                                temperature:
-                                                                                    {
-                                                                                        min:
-                                                                                            row.tempMin ||
-                                                                                            0,
-                                                                                        max:
-                                                                                            row.tempMax ||
-                                                                                            0,
-                                                                                    },
-                                                                                humidity:
-                                                                                    {
-                                                                                        min:
-                                                                                            row.humidMin ||
-                                                                                            0,
-                                                                                        max:
-                                                                                            row.humidMax ||
-                                                                                            0,
-                                                                                    },
-                                                                            },
-                                                                    },
-                                                                );
-                                                            }}
-                                                            variant="destructive"
-                                                        >
-                                                            Delete
-                                                        </DropdownMenuItem>
+                                                        <Tooltip>
+                                                            <TooltipTrigger
+                                                                asChild
+                                                            >
+                                                                <div>
+                                                                    <DropdownMenuItem
+                                                                        disabled={
+                                                                            !isAdmin
+                                                                        }
+                                                                        className={
+                                                                            !isAdmin
+                                                                                ? "opacity-50 cursor-not-allowed"
+                                                                                : ""
+                                                                        }
+                                                                        onClick={() => {
+                                                                            setOpenDialog(
+                                                                                true,
+                                                                            );
+                                                                            setSelectedDevice(
+                                                                                {
+                                                                                    mac: row.mac_address,
+                                                                                    name: row.device_name,
+                                                                                    location:
+                                                                                        row.location,
+                                                                                    status: row.status,
+                                                                                    thresholds:
+                                                                                        {
+                                                                                            temperature:
+                                                                                                {
+                                                                                                    min:
+                                                                                                        row.tempMin ||
+                                                                                                        0,
+                                                                                                    max:
+                                                                                                        row.tempMax ||
+                                                                                                        0,
+                                                                                                },
+                                                                                            humidity:
+                                                                                                {
+                                                                                                    min:
+                                                                                                        row.humidMin ||
+                                                                                                        0,
+                                                                                                    max:
+                                                                                                        row.humidMax ||
+                                                                                                        0,
+                                                                                                },
+                                                                                        },
+                                                                                },
+                                                                            );
+                                                                        }}
+                                                                        variant="destructive"
+                                                                    >
+                                                                        Delete
+                                                                    </DropdownMenuItem>
+                                                                </div>
+                                                            </TooltipTrigger>
+                                                            {!isAdmin && (
+                                                                <TooltipContent side="left">
+                                                                    <p>
+                                                                        Only
+                                                                        admin
+                                                                        can
+                                                                        delete
+                                                                        device
+                                                                    </p>
+                                                                </TooltipContent>
+                                                            )}
+                                                        </Tooltip>
                                                     </DropdownMenuContent>
                                                 </DropdownMenu>
                                             </TableCell>
