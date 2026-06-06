@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 import axios, { isAxiosError } from "axios";
 import { toast } from "sonner";
 import { API_BASE_URL } from "@/config/api";
+import { Separator } from "@/components/ui/separator";
 
 export function LoginForm({
     className,
@@ -97,6 +98,30 @@ export function LoginForm({
                     )}
                     <Button type="submit" disabled={loading} className="w-full">
                         {loading ? "Logging in..." : "Login"}
+                    </Button>
+                    <div className="relative py-4">
+                        <Separator />
+                        <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-background px-2 text-xs text-muted-foreground">
+                            OR
+                        </span>
+                    </div>
+
+                    <Button
+                        type="button"
+                        variant="outline"
+                        className="w-full"
+                        onClick={() => {
+                            sessionStorage.setItem(
+                                "user",
+                                JSON.stringify({
+                                    username: "Guest",
+                                    role: "User",
+                                }),
+                            );
+                            navigate("/overview");
+                        }}
+                    >
+                        Continue as Guest
                     </Button>
                 </Field>
             </FieldGroup>
