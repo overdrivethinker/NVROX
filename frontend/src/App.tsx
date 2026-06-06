@@ -10,20 +10,108 @@ import UserAccess from "./app/configuration/user-acccess";
 import LoginPage from "./app/login/page";
 import { Toaster } from "@/components/ui/sonner";
 
+import type { ReactElement } from "react";
+
+function ProtectedRoute({
+    children,
+}: {
+    children: ReactElement;
+}): ReactElement {
+    const user = sessionStorage.getItem("user");
+    if (!user) {
+        return <Navigate to="/login" replace />;
+    }
+    return children;
+}
+
+function PublicRoute({ children }: { children: ReactElement }): ReactElement {
+    const user = sessionStorage.getItem("user");
+    if (user) {
+        return <Navigate to="/overview" replace />;
+    }
+    return children;
+}
+
+function RootRedirect(): ReactElement {
+    const user = sessionStorage.getItem("user");
+    return user ? (
+        <Navigate to="/overview" replace />
+    ) : (
+        <Navigate to="/login" replace />
+    );
+}
+
 function App() {
     return (
         <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
             <Toaster position="top-center" />
             <Routes>
-                <Route path="/" element={<Navigate to="login" replace />} />
-                <Route path="login" element={<LoginPage />} />
-                <Route path="overview" element={<Overview />} />
-                <Route path="alerts" element={<Alerts />} />
-                <Route path="live-monitoring" element={<LiveMonitoring />} />
-                <Route path="historical-logs" element={<Historical />} />
-                <Route path="recent-condition" element={<RecentCondition />} />
-                <Route path="device-setup" element={<DeviceSetup />} />
-                <Route path="user-access" element={<UserAccess />} />
+                <Route path="/" element={<RootRedirect />} />
+                <Route
+                    path="login"
+                    element={
+                        <PublicRoute>
+                            <LoginPage />
+                        </PublicRoute>
+                    }
+                />
+                <Route
+                    path="overview"
+                    element={
+                        <ProtectedRoute>
+                            <Overview />
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="alerts"
+                    element={
+                        <ProtectedRoute>
+                            <Alerts />
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="live-monitoring"
+                    element={
+                        <ProtectedRoute>
+                            <LiveMonitoring />
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="historical-logs"
+                    element={
+                        <ProtectedRoute>
+                            <Historical />
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="recent-condition"
+                    element={
+                        <ProtectedRoute>
+                            <RecentCondition />
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="device-setup"
+                    element={
+                        <ProtectedRoute>
+                            <DeviceSetup />
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="user-access"
+                    element={
+                        <ProtectedRoute>
+                            <UserAccess />
+                        </ProtectedRoute>
+                    }
+                />
+                <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
         </ThemeProvider>
     );
