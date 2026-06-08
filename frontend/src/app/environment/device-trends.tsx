@@ -13,8 +13,9 @@ import {
     SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { ModeToggle } from "@/components/mode-toggle";
-import { RecentChart } from "@/components/recent-condition-chart";
-export default function RecentCondition() {
+import { EnvironmentTrends } from "@/components/environment-trends";
+
+export default function DeviceTrends() {
     return (
         <SidebarProvider>
             <AppSidebar />
@@ -34,7 +35,7 @@ export default function RecentCondition() {
                                 <BreadcrumbSeparator className="hidden md:block" />
                                 <BreadcrumbItem>
                                     <BreadcrumbPage>
-                                        Recent Condition
+                                        Device Trends
                                     </BreadcrumbPage>
                                 </BreadcrumbItem>
                             </BreadcrumbList>
@@ -43,7 +44,7 @@ export default function RecentCondition() {
                     <ModeToggle />
                 </header>
                 <div className="flex flex-1 flex-col p-2 pt-0">
-                    <RecentChart />
+                    <EnvironmentTrends />
                 </div>
             </SidebarInset>
         </SidebarProvider>

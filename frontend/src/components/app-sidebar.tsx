@@ -36,7 +36,7 @@ const navData = [
         icon: Radio,
         items: [
             { title: "Live Monitoring", url: "/live-monitoring" },
-            { title: "Recent Condition", url: "/recent-condition" },
+            { title: "Device Trends", url: "/device-trends" },
             { title: "Historical Logs", url: "/historical-logs" },
         ],
     },

@@ -13,7 +13,7 @@ import {
     SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { ModeToggle } from "@/components/mode-toggle";
-import { AlertsChart } from "@/components/alerts-chart";
+import { AlertsChart } from "@/components/dashboard-alert-chart";
 export default function Alerts() {
     return (
         <SidebarProvider>

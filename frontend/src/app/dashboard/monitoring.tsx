@@ -13,9 +13,9 @@ import {
     SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { ModeToggle } from "@/components/mode-toggle";
-import SensorCardGrid from "@/components/cards";
 import { useEffect, useState } from "react";
 import axios from "axios";
+import DashboardMonitoring from "@/components/dashboard-monitoring";
 
 type Device = {
     mac_address: string;
@@ -79,7 +79,7 @@ export default function DeviceMonitoring() {
                     <ModeToggle />
                 </header>
                 <div className="flex flex-1 justify-center flex-col">
-                    <SensorCardGrid
+                    <DashboardMonitoring
                         devices={deviceListFromDB}
                         limitsMap={limitsMap}
                     />

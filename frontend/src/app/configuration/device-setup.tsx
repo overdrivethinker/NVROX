@@ -13,7 +13,7 @@ import {
     SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { ModeToggle } from "@/components/mode-toggle";
-import DeviceDataTable from "@/components/device-table";
+import DeviceDataTable from "@/components/config-device-table";
 
 export default function DeviceSetup() {
     return (

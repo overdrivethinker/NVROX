@@ -13,7 +13,7 @@ import {
     SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { ModeToggle } from "@/components/mode-toggle";
-import { LiveChart } from "@/components/live-condition-chart";
+import { LiveChart } from "@/components/environtment-live-condition-chart";
 export default function LiveMonitoring() {
     return (
         <SidebarProvider>

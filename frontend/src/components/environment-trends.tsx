@@ -43,7 +43,6 @@ import {
     Thermometer,
     Database,
 } from "lucide-react";
-
 type ChartPoint = {
     datetime: string;
     tempMin: number;
@@ -72,7 +71,7 @@ type Device = {
     location: string;
 };
 
-export function DeviceOverview() {
+export function EnvironmentTrends() {
     const { theme } = useTheme();
     const isDark = theme === "dark";
     const chartConfig = {
@@ -268,12 +267,12 @@ export function DeviceOverview() {
     return (
         <Card className="@container/card flex-1 min-h-[600px] overflow-hidden bg-transparent border-0 shadow-none">
             <CardHeader>
-                <CardTitle>Device Overview</CardTitle>
+                <CardTitle>Environmental Trends</CardTitle>
                 <CardDescription>
                     <span className="hidden @[540px]/card:block">
-                        Device performance and environmental trends
+                        Temperature and humidity trends by device
                     </span>
-                    <span className="@[540px]/card:hidden">Summary</span>
+                    <span className="@[540px]/card:hidden">Device trends</span>
                 </CardDescription>
 
                 <CardAction className="flex flex-col sm:flex-row gap-2 sm:items-center">
@@ -470,7 +469,7 @@ export function DeviceOverview() {
                         <div className="grid grid-cols-1 xl:grid-cols-2 w-full">
                             {/* Temperature Chart */}
                             <div>
-                                <div className="text-xs text-blue-400 mb-6">
+                                <div className="text-xs text-muted-foreground mb-6">
                                     Temperature (°C)
                                 </div>
                                 <ChartContainer
@@ -635,7 +634,7 @@ export function DeviceOverview() {
                                 </ChartContainer>
                             </div>
                             <div>
-                                <div className="ml-8 text-xs text-green-300 mb-6">
+                                <div className="ml-8 text-xs text-muted-foreground mb-6">
                                     Humidity (%)
                                 </div>
                                 <ChartContainer

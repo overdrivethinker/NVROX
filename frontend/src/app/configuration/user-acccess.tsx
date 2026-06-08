@@ -13,7 +13,7 @@ import {
     SidebarProvider,
     SidebarTrigger,
 } from "@/components/ui/sidebar";
-import UserAccessTable from "@/components/user-table";
+import UserAccessTable from "@/components/config-user-table";
 
 export default function UserAccess() {
     return (

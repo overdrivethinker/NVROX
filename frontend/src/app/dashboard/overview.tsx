@@ -13,7 +13,8 @@ import {
     SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { ModeToggle } from "@/components/mode-toggle";
-import { DeviceOverview } from "@/components/device-overview";
+import { DashboardOverview } from "@/components/dashboard-overview";
+
 export default function Overview() {
     return (
         <SidebarProvider>
@@ -41,7 +42,7 @@ export default function Overview() {
                     <ModeToggle />
                 </header>
                 <div className="flex flex flex-1 justify-center p-2 pt-0">
-                    <DeviceOverview />
+                    <DashboardOverview />
                 </div>
             </SidebarInset>
         </SidebarProvider>

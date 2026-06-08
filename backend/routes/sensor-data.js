@@ -345,4 +345,51 @@ router.get("/summary", async (req, res) => {
     }
 });
 
+router.get("/heatmap", async (req, res) => {
+    try {
+        const { range = "daily", start_date, end_date } = req.query;
+
+        let groupFormat;
+        switch (range) {
+            case "weekly":
+                groupFormat = knex.raw("TO_CHAR(r.recorded_at, 'YYYY-MM-DD')");
+                break;
+            case "monthly":
+                groupFormat = knex.raw("TO_CHAR(r.recorded_at, 'YYYY-MM')");
+                break;
+            case "yearly":
+                groupFormat = knex.raw("TO_CHAR(r.recorded_at, 'YYYY')");
+                break;
+            default:
+                groupFormat = knex.raw(
+                    "TO_CHAR(r.recorded_at, 'YYYY-MM-DD HH24:00')",
+                );
+                break;
+        }
+
+        const start = start_date || new Date().toISOString().split("T")[0];
+        const end = end_date || new Date().toISOString().split("T")[0];
+
+        const rows = await knex("sensor_readings as r")
+            .join("devices as d", "r.mac_address", "=", "d.mac_address")
+            .select(
+                "d.device_name",
+                knex.raw(`${groupFormat.toQuery()} as time_label`),
+                knex.raw("AVG(r.temperature) as avg_temp"),
+                knex.raw("AVG(r.humidity) as avg_humid"),
+            )
+            .whereRaw(`r.recorded_at BETWEEN ? AND ?`, [
+                `${start} 00:00:00`,
+                `${end} 23:59:59`,
+            ])
+            .groupBy("d.device_name", knex.raw(groupFormat.toQuery()))
+            .orderBy([{ column: "d.device_name" }, { column: "time_label" }]);
+
+        res.json({ data: rows });
+    } catch (err) {
+        console.error("GET /sensor-data/heatmap error:", err);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+});
+
 module.exports = router;

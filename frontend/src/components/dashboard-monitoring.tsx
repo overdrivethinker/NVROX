@@ -35,7 +35,7 @@ type Limits = {
 
 const MAX_INACTIVE_MS = 8_000;
 
-export default function SensorCardGrid({
+export default function DashboardMonitoring({
     devices,
     limitsMap,
 }: {
