@@ -13,46 +13,8 @@ import {
     SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { ModeToggle } from "@/components/mode-toggle";
-import SensorCardGrid from "@/components/cards";
-import { useEffect, useState } from "react";
-import axios from "axios";
-
-type Device = {
-    mac_address: string;
-    device_name: string;
-    location: string;
-};
-
-type Limits = {
-    mac_address: string;
-    tempMin: number;
-    tempMax: number;
-    humidMin: number;
-    humidMax: number;
-};
-
+import { DeviceOverview } from "@/components/device-overview";
 export default function Overview() {
-    const [deviceListFromDB, setDeviceListFromDB] = useState<Device[]>([]);
-    const [limitsMap, setLimitsMap] = useState<Record<string, Limits>>({});
-
-    useEffect(() => {
-        axios
-            .get(import.meta.env.VITE_API_BASE_URL + "/devices/list")
-            .then((res) => setDeviceListFromDB(res.data))
-            .catch((err) => console.error("Failed to fetch devices", err));
-
-        axios
-            .get(import.meta.env.VITE_API_BASE_URL + "/devices/threshold/all")
-            .then((res) => {
-                const map: Record<string, Limits> = {};
-                res.data.forEach((item: Limits) => {
-                    map[item.mac_address] = item;
-                });
-                setLimitsMap(map);
-            })
-            .catch((err) => console.error("Failed to fetch limits", err));
-    }, []);
-
     return (
         <SidebarProvider>
             <AppSidebar />
@@ -78,11 +40,8 @@ export default function Overview() {
                     </div>
                     <ModeToggle />
                 </header>
-                <div className="flex flex-1 justify-center flex-col">
-                    <SensorCardGrid
-                        devices={deviceListFromDB}
-                        limitsMap={limitsMap}
-                    />
+                <div className="flex flex flex-1 justify-center p-2 pt-0">
+                    <DeviceOverview />
                 </div>
             </SidebarInset>
         </SidebarProvider>

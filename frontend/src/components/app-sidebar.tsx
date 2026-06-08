@@ -26,8 +26,8 @@ const navData = [
         icon: SquareActivity,
         items: [
             { title: "Overview", url: "/overview" },
+            { title: "Monitoring", url: "/monitoring" },
             { title: "Threshold Alerts", url: "/alerts" },
-            { title: "Summary", url: "/summary" },
         ],
     },
     {

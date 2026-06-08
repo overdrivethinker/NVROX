@@ -41,8 +41,7 @@ import {
     Droplet,
     Loader2,
     Thermometer,
-    ShieldCheck,
-    Info,
+    Database,
 } from "lucide-react";
 
 type ChartPoint = {
@@ -73,7 +72,7 @@ type Device = {
     location: string;
 };
 
-export function RecentChart() {
+export function DeviceOverview() {
     const { theme } = useTheme();
     const isDark = theme === "dark";
     const chartConfig = {
@@ -262,14 +261,14 @@ export function RecentChart() {
             minHumid,
             maxHumid,
             thresholdExceeded,
-            status: thresholdExceeded ? "Warning" : "Normal",
+            totalSamples,
         };
     }, [chartData, limits]);
 
     return (
         <Card className="@container/card flex-1 min-h-[600px] overflow-hidden bg-transparent border-0 shadow-none">
             <CardHeader>
-                <CardTitle>Device Summary</CardTitle>
+                <CardTitle>Device Overview</CardTitle>
                 <CardDescription>
                     <span className="hidden @[540px]/card:block">
                         Device performance and environmental trends
@@ -334,15 +333,12 @@ export function RecentChart() {
             </CardHeader>
             <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4 px-6">
                 <Card className="bg-transparent border-1 shadow-none">
-                    <CardContent>
-                        <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                            <Thermometer className="w-3 h-3 text-muted-foreground" />
-                            Average Temperature
-                        </div>
-                        <div className="text-2xl font-bold">
+                    <CardHeader>
+                        <CardDescription>Average Temperature</CardDescription>
+                        <CardTitle className="text-2xl font-bold">
                             {summary.avgTemp.toFixed(2)}°C
-                        </div>
-                        <div className="text-xs text-muted-foreground">
+                        </CardTitle>
+                        <div className="text-sm text-muted-foreground">
                             Min{" "}
                             <span className="font-medium text-blue-500">
                                 {summary.minTemp.toFixed(2)}°
@@ -352,19 +348,21 @@ export function RecentChart() {
                                 {summary.maxTemp.toFixed(2)}°
                             </span>
                         </div>
-                    </CardContent>
+                        <CardAction>
+                            <Thermometer />
+                        </CardAction>
+                    </CardHeader>
                 </Card>
 
-                <Card className="bg-transparent border-1 shadow-none">
-                    <CardContent>
-                        <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                            <Droplet className="w-3 h-3 text-muted-foreground" />
-                            <span>Average Humidity</span>
-                        </div>
-                        <div className="text-2xl font-bold">
+                <Card className="bg-transparent border shadow-none">
+                    <CardHeader>
+                        <CardDescription>Average Humidity</CardDescription>
+
+                        <CardTitle className="text-2xl font-bold">
                             {summary.avgHumid.toFixed(2)}%
-                        </div>
-                        <div className="text-xs text-muted-foreground">
+                        </CardTitle>
+
+                        <div className="text-sm text-muted-foreground">
                             Min{" "}
                             <span className="font-medium text-blue-500">
                                 {summary.minHumid.toFixed(2)}%
@@ -374,58 +372,66 @@ export function RecentChart() {
                                 {summary.maxHumid.toFixed(2)}%
                             </span>
                         </div>
-                    </CardContent>
+
+                        <CardAction>
+                            <Droplet />
+                        </CardAction>
+                    </CardHeader>
                 </Card>
 
-                <Card className="bg-transparent border-1 shadow-none">
-                    <CardContent>
-                        <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                            <AlertTriangle className="w-3 h-3 text-muted-foreground" />
-                            Threshold Alarms
-                        </div>
-                        <div
-                            className={`text-2xl font-bold ${alarmCount.temp + alarmCount.humid > 0 ? "text-amber-500" : "text-green-500"}`}
+                <Card className="bg-transparent border shadow-none">
+                    <CardHeader>
+                        <CardDescription>Threshold Alarms</CardDescription>
+
+                        <CardTitle
+                            className={`text-2xl font-bold ${
+                                alarmCount.temp + alarmCount.humid > 0
+                                    ? "text-amber-500"
+                                    : "text-green-500"
+                            }`}
                         >
                             {alarmCount.temp + alarmCount.humid}
-                        </div>
-                        <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                            <div className="flex items-center gap-1">
-                                <Thermometer className="h-3 w-3" />
-                                <span>{alarmCount.temp} temperature</span>
-                            </div>
-                            {"|"}
-                            <div className="flex items-center gap-1">
-                                <Droplet className="h-3 w-3" />
-                                <span>{alarmCount.humid} humidity</span>
-                            </div>
-                        </div>
-                    </CardContent>
-                </Card>
+                        </CardTitle>
 
-                <Card className="bg-transparent border-1 shadow-none">
-                    <CardContent>
-                        <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                            <Info className="w-3 h-3 text-muted-foreground" />
-                            <span>Status </span>
+                        <div className="flex items-center gap-3 text-sm text-muted-foreground">
+                            <div className="flex items-center gap-1">
+                                <Thermometer className="h-3 w-3 text-blue-400" />
+                                <span className="text-blue-500 font-medium">
+                                    {alarmCount.temp}
+                                </span>
+                            </div>
+
+                            <span>|</span>
+
+                            <div className="flex items-center gap-1">
+                                <Droplet className="h-3 w-3 text-green-500" />
+                                <span className="text-green-300 font-medium">
+                                    {alarmCount.humid}
+                                </span>
+                            </div>
                         </div>
-                        <div
-                            className={`flex items-center gap-1.5 text-2xl font-bold ${alarmCount.temp + alarmCount.humid > 0 ? "text-amber-500" : "text-green-500"}`}
-                        >
-                            {alarmCount.temp + alarmCount.humid > 0 ? (
-                                <AlertTriangle className="w-6 h-6" />
-                            ) : (
-                                <ShieldCheck className="w-6 h-6" />
+
+                        <CardAction>
+                            <AlertTriangle />
+                        </CardAction>
+                    </CardHeader>
+                </Card>
+                <Card className="bg-transparent border shadow-none">
+                    <CardHeader>
+                        <CardDescription>Sample Count</CardDescription>
+                        <CardTitle className="text-2xl font-bold">
+                            {chartData.reduce(
+                                (sum, item) => sum + item.sampleCount,
+                                0,
                             )}
-                            {alarmCount.temp + alarmCount.humid > 0
-                                ? "Warning"
-                                : "Normal"}
+                        </CardTitle>
+                        <div className="text-sm text-muted-foreground">
+                            Total data points recorded
                         </div>
-                        <div className="text-xs text-muted-foreground">
-                            {alarmCount.temp + alarmCount.humid > 0
-                                ? `${alarmCount.temp + alarmCount.humid} alarms triggered`
-                                : "No alarms triggered"}
-                        </div>
-                    </CardContent>
+                        <CardAction>
+                            <Database />
+                        </CardAction>
+                    </CardHeader>
                 </Card>
             </div>
             <CardContent className="flex flex-col flex-1 overflow-x-auto mb-2">
