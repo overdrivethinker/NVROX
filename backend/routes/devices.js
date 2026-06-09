@@ -286,50 +286,70 @@ router.get("/alerts-sum", async (req, res) => {
     }
 
     try {
-        const now = toWIB(new Date());
-        let start = toWIB(new Date());
+        const end = toWIB(new Date());
+        const start = toWIB(new Date());
 
-        if (range === "today") {
-            start.setHours(0, 0, 0, 0);
-        } else if (range === "yesterday") {
-            start.setDate(now.getDate() - 1);
-            start.setHours(0, 0, 0, 0);
-            now.setDate(now.getDate() - 1);
-            now.setHours(23, 59, 59, 999);
-        } else if (range === "2daysago") {
-            start.setDate(now.getDate() - 2);
-            start.setHours(0, 0, 0, 0);
-            now.setDate(now.getDate() - 2);
-            now.setHours(23, 59, 59, 999);
-        } else {
-            return res.status(400).json({ error: "Invalid range" });
+        switch (range) {
+            case "hourly":
+                start.setHours(end.getHours() - 1);
+                break;
+
+            case "daily":
+                start.setDate(end.getDate() - 30);
+                break;
+
+            case "weekly":
+                start.setDate(end.getDate() - 12 * 7);
+                break;
+
+            case "monthly":
+                start.setMonth(end.getMonth() - 12);
+                break;
+
+            case "yearly":
+                start.setFullYear(end.getFullYear() - 5);
+                break;
+
+            default:
+                return res.status(400).json({
+                    error: "Invalid range",
+                });
         }
 
         const rows = await knex("alerts as a")
             .join("devices as d", "a.mac_address", "=", "d.mac_address")
             .select("a.mac_address", "d.device_name", "a.parameter")
             .count("* as count")
-            .whereBetween("a.recorded_at", [start, now])
+            .whereBetween("a.recorded_at", [start, end])
             .groupBy("a.mac_address", "d.device_name", "a.parameter");
 
         const map = {};
+
         for (const row of rows) {
             const device = row.device_name || row.mac_address;
+
             if (!map[device]) {
-                map[device] = { device, temp: 0, humid: 0 };
+                map[device] = {
+                    device,
+                    temp: 0,
+                    humid: 0,
+                };
             }
+
             if (row.parameter === "Temperature") {
-                map[device].temp = parseInt(row.count);
+                map[device].temp = Number(row.count);
             } else if (row.parameter === "Humidity") {
-                map[device].humid = parseInt(row.count);
+                map[device].humid = Number(row.count);
             }
         }
 
-        const chartData = Object.values(map);
-        res.json(chartData);
+        res.json(Object.values(map));
     } catch (err) {
-        console.error("GET /alerts-summary error:", err.message);
-        res.status(500).json({ error: "Internal Server Error" });
+        console.error("GET /alerts-sum error:", err.message);
+
+        res.status(500).json({
+            error: "Internal Server Error",
+        });
     }
 });
 

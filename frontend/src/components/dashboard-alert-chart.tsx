@@ -5,7 +5,6 @@ import {
     Card,
     CardContent,
     CardDescription,
-    CardFooter,
     CardHeader,
     CardTitle,
     CardAction,
@@ -14,6 +13,8 @@ import {
     ChartContainer,
     ChartTooltip,
     ChartTooltipContent,
+    ChartLegend,
+    ChartLegendContent,
 } from "@/components/ui/chart";
 import {
     Select,
@@ -24,23 +25,13 @@ import {
 } from "@/components/ui/select";
 import type { ChartConfig } from "@/components/ui/chart";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-export const description = "A multiple bar chart";
 import axios from "axios";
-import io from "socket.io-client";
 import { Badge } from "@/components/ui/badge";
 import { CheckCircle, Loader2 } from "lucide-react";
 
-type Device = {
-    device_name: string;
-    mac_address: string;
-    location: string;
-    status: string;
-    created_at: string;
-    updated_at: string;
-};
-
 type AlertData = {
     device: string;
+    mac_address: string;
     temp: number;
     humid: number;
 };
@@ -52,25 +43,17 @@ type ChartPoint = {
 };
 
 const chartConfig = {
-    temp: {
-        label: "Temperature",
-        color: "#ff0000",
-    },
-    humid: {
-        label: "Humidity",
-        color: "#ff5454",
-    },
+    temperature: { label: "Temperature", color: "#ff0000" },
+    humidity: { label: "Humidity", color: "#ff5454" },
 } satisfies ChartConfig;
 
+const validRanges = ["daily", "weekly", "monthly", "yearly"] as const;
+type TimeRange = (typeof validRanges)[number];
+
 export function AlertsChart() {
-    const validRanges = ["today", "yesterday", "2daysago"] as const;
-    type TimeRange = (typeof validRanges)[number];
-    const [timeRange, setTimeRange] =
-        useState<(typeof validRanges)[number]>("today");
+    const [timeRange, setTimeRange] = useState<TimeRange>("daily");
     const [alertSum, setAlertSum] = useState<ChartPoint[]>([]);
-    const [devices, setDevices] = useState<Device[]>([]);
     const [isLoading, setIsLoading] = useState(false);
-    const [delayedLoading, setDelayedLoading] = useState(false);
     const [hasLoaded, setHasLoaded] = useState(false);
 
     const sortedAlertSum = useMemo(() => {
@@ -81,114 +64,44 @@ export function AlertsChart() {
 
     useEffect(() => {
         setIsLoading(true);
-        setDelayedLoading(true);
-        const delayTimeout = setTimeout(() => {
-            setDelayedLoading(false);
-        }, 1000);
         axios
-            .get(import.meta.env.VITE_API_BASE_URL + "/devices/list")
+            .get(
+                `${import.meta.env.VITE_API_BASE_URL}/sensor-data/alerts-sum`,
+                {
+                    params: { range: timeRange },
+                },
+            )
             .then((res) => {
-                setDevices(res.data);
-                const initialChartData: ChartPoint[] = res.data.map(
-                    (device: Device) => ({
-                        device_name: device.device_name,
-                        temperature: 0,
-                        humidity: 0,
+                const data: ChartPoint[] = (res.data as AlertData[]).map(
+                    (d) => ({
+                        device_name: d.device,
+                        temperature: d.temp || 0,
+                        humidity: d.humid || 0,
                     }),
                 );
-                setAlertSum(initialChartData);
-            })
-            .catch((err) => console.error("Error fetching devices", err));
-        return () => clearTimeout(delayTimeout);
-    }, []);
-
-    const deviceMap = useMemo(() => {
-        const map: Record<string, string> = {};
-        devices.forEach((device) => {
-            map[device.mac_address] = device.device_name;
-        });
-        return map;
-    }, [devices]);
-
-    useEffect(() => {
-        if (devices.length === 0) return;
-        setIsLoading(true);
-        axios
-            .get(`${import.meta.env.VITE_API_BASE_URL}/devices/alerts-sum`, {
-                params: { range: timeRange },
-            })
-            .then((res) => {
-                const chartData: ChartPoint[] = devices.map((device) => {
-                    const alertData = res.data.find(
-                        (d: AlertData) => d.device === device.device_name,
-                    );
-                    return {
-                        device_name: device.device_name,
-                        temperature: alertData?.temp || 0,
-                        humidity: alertData?.humid || 0,
-                    };
-                });
-                setAlertSum(chartData);
+                setAlertSum(data);
             })
             .catch((err) => {
                 console.error("Failed to fetch alerts summary", err);
-                const resetData: ChartPoint[] = devices.map((device) => ({
-                    device_name: device.device_name,
-                    temperature: 0,
-                    humidity: 0,
-                }));
-                setAlertSum(resetData);
+                setAlertSum([]);
             })
             .finally(() => {
                 setIsLoading(false);
                 setHasLoaded(true);
             });
-    }, [timeRange, devices]);
-
-    useEffect(() => {
-        if (timeRange !== "today" || devices.length === 0) return;
-
-        const socket = io(import.meta.env.VITE_SOCKET_URL);
-
-        function handleRealtimeUpdate(data: {
-            mac_address: string;
-            temperature: number;
-            humidity: number;
-        }) {
-            const device_name = deviceMap[data.mac_address];
-            if (!device_name) return;
-
-            setAlertSum((prev) => {
-                return prev.map((item) => {
-                    if (item.device_name === device_name) {
-                        return {
-                            ...item,
-                            temperature: item.temperature + data.temperature,
-                            humidity: item.humidity + data.humidity,
-                        };
-                    }
-                    return item;
-                });
-            });
-        }
-
-        socket.on("new_alerts", handleRealtimeUpdate);
-
-        return () => {
-            socket.off("new_alerts", handleRealtimeUpdate);
-            socket.disconnect();
-        };
-    }, [timeRange, deviceMap, devices.length]);
+    }, [timeRange]);
 
     return (
-        <Card className="@container/card flex-1 min-h-[600px] overflow-hidden bg-transparent border-0 shadow-none">
+        <Card className="@container/card flex-1 h-full overflow-hidden bg-transparent border-0 shadow-none">
             <CardHeader>
                 <CardTitle>Device Alerts</CardTitle>
                 <CardDescription>
                     <span className="hidden @[540px]/card:block">
-                        Alert frequency over the last 3 days
+                        Alert frequency per device
                     </span>
-                    <span className="@[540px]/card:hidden">Last 3 days</span>
+                    <span className="@[540px]/card:hidden">
+                        Alert frequency
+                    </span>
                 </CardDescription>
                 <CardAction className="flex flex-col sm:flex-row gap-4 sm:items-center">
                     <ToggleGroup
@@ -202,13 +115,12 @@ export function AlertsChart() {
                         }}
                         className="hidden @[767px]/card:flex *:data-[slot=toggle-group-item]:!px-4"
                     >
-                        <ToggleGroupItem value="today">Today</ToggleGroupItem>
-                        <ToggleGroupItem value="yesterday">
-                            Yesterday
+                        <ToggleGroupItem value="daily">Today</ToggleGroupItem>
+                        <ToggleGroupItem value="weekly">Weekly</ToggleGroupItem>
+                        <ToggleGroupItem value="monthly">
+                            Monthly
                         </ToggleGroupItem>
-                        <ToggleGroupItem value="2daysago">
-                            2 Days Ago
-                        </ToggleGroupItem>
+                        <ToggleGroupItem value="yearly">Yearly</ToggleGroupItem>
                     </ToggleGroup>
                     <Select
                         value={timeRange}
@@ -228,21 +140,21 @@ export function AlertsChart() {
                             <SelectItem value="today" className="rounded-lg">
                                 Today
                             </SelectItem>
-                            <SelectItem
-                                value="yesterday"
-                                className="rounded-lg"
-                            >
-                                Yesterday
+                            <SelectItem value="weekly" className="rounded-lg">
+                                Weekly
                             </SelectItem>
-                            <SelectItem value="2daysago" className="rounded-lg">
-                                2 Days Ago
+                            <SelectItem value="monthly" className="rounded-lg">
+                                Monthly
+                            </SelectItem>
+                            <SelectItem value="yearly" className="rounded-lg">
+                                Yearly
                             </SelectItem>
                         </SelectContent>
                     </Select>
                 </CardAction>
             </CardHeader>
             <CardContent className="flex flex-col flex-1 overflow-x-auto mb-2">
-                {isLoading || delayedLoading ? (
+                {isLoading ? (
                     <div className="flex justify-center items-center min-h-full w-full">
                         <Badge
                             variant="outline"
@@ -265,15 +177,21 @@ export function AlertsChart() {
                             variant="outline"
                             className="text-base border-green-500 text-green-600 dark:border-green-400 dark:text-green-400"
                         >
-                            <CheckCircle className="w-4 h-4 me-1.5" /> All
-                            devices operating normally
+                            <CheckCircle className="w-4 h-4 me-1.5" />
+                            All devices operating normally
                         </Badge>
                     </div>
                 ) : (
                     <>
                         <ChartContainer
                             config={chartConfig}
-                            className="h-[630px] w-full"
+                            className="w-full"
+                            style={{
+                                height: Math.max(
+                                    600,
+                                    sortedAlertSum.length * 25,
+                                ),
+                            }}
                         >
                             <BarChart
                                 data={sortedAlertSum}
@@ -303,7 +221,7 @@ export function AlertsChart() {
                                     )}
                                 />
                                 <YAxis
-                                    stroke={chartConfig.temp.color}
+                                    stroke={chartConfig.temperature.color}
                                     fontSize={12}
                                     tickLine={true}
                                     axisLine={false}
@@ -318,9 +236,17 @@ export function AlertsChart() {
                                         <ChartTooltipContent indicator="dot" />
                                     }
                                 />
+                                <ChartLegend
+                                    className="-mt-5 mb-6"
+                                    verticalAlign="top"
+                                    align="center"
+                                    height={0}
+                                    iconType="circle"
+                                    content={<ChartLegendContent />}
+                                />
                                 <Bar
                                     dataKey="temperature"
-                                    fill={chartConfig.temp.color}
+                                    fill={chartConfig.temperature.color}
                                     radius={2}
                                     isAnimationActive={false}
                                 >
@@ -335,7 +261,7 @@ export function AlertsChart() {
                                 </Bar>
                                 <Bar
                                     dataKey="humidity"
-                                    fill={chartConfig.humid.color}
+                                    fill={chartConfig.humidity.color}
                                     radius={2}
                                     isAnimationActive={false}
                                 >
@@ -350,31 +276,6 @@ export function AlertsChart() {
                                 </Bar>
                             </BarChart>
                         </ChartContainer>
-                        <CardFooter className="flex justify-center text-sm gap-4 mt-5">
-                            <div className="flex items-center gap-2">
-                                <span
-                                    className="h-3 w-3 rounded-full"
-                                    style={{
-                                        backgroundColor: chartConfig.temp.color,
-                                    }}
-                                />
-                                <span className="text-muted-foreground">
-                                    Temperature Alerts
-                                </span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                                <span
-                                    className="h-3 w-3 rounded-full"
-                                    style={{
-                                        backgroundColor:
-                                            chartConfig.humid.color,
-                                    }}
-                                />
-                                <span className="text-muted-foreground">
-                                    Humidity Alerts
-                                </span>
-                            </div>
-                        </CardFooter>
                     </>
                 )}
             </CardContent>

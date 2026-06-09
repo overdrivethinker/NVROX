@@ -26,11 +26,11 @@ for (let i = 0; i < TOTAL_DEVICES; i++) {
             t += 1;
 
             // Buat data acak + fluktuasi gelombang
-            const baseTemp = 25 + (i % 5); // dasar suhu tiap device bisa beda
+            const baseTemp = 20 + (i % 5); // dasar suhu tiap device bisa beda
             const tempNoise = Math.sin(t / 10 + i) * 2 + Math.random() * 1;
             const temp = (baseTemp + tempNoise).toFixed(2);
 
-            const baseHumid = 50 + (i % 10);
+            const baseHumid = 40 + (i % 10);
             const humidNoise = Math.cos(t / 15 + i) * 3 + Math.random() * 2;
             const humid = (baseHumid + humidNoise).toFixed(2);
 

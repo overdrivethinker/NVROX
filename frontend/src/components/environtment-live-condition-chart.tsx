@@ -352,8 +352,8 @@ export function LiveChart() {
                                     margin={{
                                         top: 10,
                                         right: 10,
-                                        left: -30,
-                                        bottom: 20,
+                                        left: -10,
+                                        bottom: 40,
                                     }}
                                 >
                                     <defs>
@@ -390,7 +390,7 @@ export function LiveChart() {
                                                 y={y + 10}
                                                 textAnchor="end"
                                                 transform={`rotate(-45, ${x}, ${y})`}
-                                                fontSize={12}
+                                                fontSize={15}
                                             >
                                                 {new Date(
                                                     payload.value,
@@ -550,8 +550,8 @@ export function LiveChart() {
                                     margin={{
                                         top: 10,
                                         right: 10,
-                                        left: -30,
-                                        bottom: 20,
+                                        left: -10,
+                                        bottom: 40,
                                     }}
                                 >
                                     <defs>
@@ -588,7 +588,7 @@ export function LiveChart() {
                                                 y={y + 10}
                                                 textAnchor="end"
                                                 transform={`rotate(-45, ${x}, ${y})`}
-                                                fontSize={12}
+                                                fontSize={15}
                                             >
                                                 {new Date(
                                                     payload.value,

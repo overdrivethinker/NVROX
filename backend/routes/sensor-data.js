@@ -347,28 +347,46 @@ router.get("/summary", async (req, res) => {
 
 router.get("/heatmap", async (req, res) => {
     try {
-        const { range = "daily", start_date, end_date } = req.query;
+        const { range = "hourly" } = req.query;
 
         let groupFormat;
+        let dateFilter;
+
         switch (range) {
-            case "weekly":
-                groupFormat = knex.raw("TO_CHAR(r.recorded_at, 'YYYY-MM-DD')");
-                break;
-            case "monthly":
-                groupFormat = knex.raw("TO_CHAR(r.recorded_at, 'YYYY-MM')");
-                break;
-            case "yearly":
-                groupFormat = knex.raw("TO_CHAR(r.recorded_at, 'YYYY')");
-                break;
-            default:
-                groupFormat = knex.raw(
-                    "TO_CHAR(r.recorded_at, 'YYYY-MM-DD HH24:00')",
+            case "daily":
+                groupFormat = knex.raw("TO_CHAR(r.recorded_at, 'YY-MM-DD')");
+                dateFilter = knex.raw(
+                    "r.recorded_at >= NOW() - INTERVAL '30 days'",
                 );
                 break;
-        }
+            case "weekly":
+                groupFormat = knex.raw(
+                    "CONCAT(TO_CHAR(r.recorded_at, 'YY'), '-W', TO_CHAR(r.recorded_at, 'IW'))",
+                );
+                dateFilter = knex.raw(
+                    "r.recorded_at >= NOW() - INTERVAL '12 weeks'",
+                );
+                break;
+            case "monthly":
+                groupFormat = knex.raw(
+                    "CONCAT(TO_CHAR(r.recorded_at, 'YY'), '-', TO_CHAR(r.recorded_at, 'MM'))",
+                );
+                dateFilter = knex.raw(
+                    "r.recorded_at >= NOW() - INTERVAL '12 months'",
+                );
+                break;
 
-        const start = start_date || new Date().toISOString().split("T")[0];
-        const end = end_date || new Date().toISOString().split("T")[0];
+            case "yearly":
+                groupFormat = knex.raw("TO_CHAR(r.recorded_at, 'YY')");
+                dateFilter = knex.raw(
+                    "r.recorded_at >= NOW() - INTERVAL '5 years'",
+                );
+                break;
+            default: // hourly
+                groupFormat = knex.raw("TO_CHAR(r.recorded_at, 'HH24:00')");
+                dateFilter = knex.raw("r.recorded_at >= CURRENT_DATE");
+                break;
+        }
 
         const rows = await knex("sensor_readings as r")
             .join("devices as d", "r.mac_address", "=", "d.mac_address")
@@ -378,10 +396,7 @@ router.get("/heatmap", async (req, res) => {
                 knex.raw("AVG(r.temperature) as avg_temp"),
                 knex.raw("AVG(r.humidity) as avg_humid"),
             )
-            .whereRaw(`r.recorded_at BETWEEN ? AND ?`, [
-                `${start} 00:00:00`,
-                `${end} 23:59:59`,
-            ])
+            .whereRaw(dateFilter.toQuery())
             .groupBy("d.device_name", knex.raw(groupFormat.toQuery()))
             .orderBy([{ column: "d.device_name" }, { column: "time_label" }]);
 
