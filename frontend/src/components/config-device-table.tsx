@@ -45,6 +45,7 @@ import {
     TooltipContent,
     TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { API_BASE_URL } from "@/config/api";
 
 type DeviceData = {
     device_name: string;
@@ -100,7 +101,7 @@ export default function DeviceDataTable() {
         setLoading(true);
         try {
             const res = await axios.get(
-                import.meta.env.VITE_API_BASE_URL + "/devices/with-thresholds",
+                `${API_BASE_URL}/devices/with-thresholds`,
                 {
                     params: {
                         page: pagination.page,
@@ -131,9 +132,7 @@ export default function DeviceDataTable() {
     const [editDialog, setEditDialog] = useState(false);
     const handleDelete = async (mac: string) => {
         try {
-            await axios.delete(
-                `${import.meta.env.VITE_API_BASE_URL}/devices/${mac}`,
-            );
+            await axios.delete(`${API_BASE_URL}/devices/${mac}`);
             await fetchData();
             toast.success(
                 `${selectedDevice.name} successfully removed from the system`,
@@ -161,13 +160,10 @@ export default function DeviceDataTable() {
             };
 
             console.log("Payload to send:", payload);
-            console.log(
-                "API URL:",
-                `${import.meta.env.VITE_API_BASE_URL}/devices`,
-            );
+            console.log("API URL:", `${API_BASE_URL}/devices`);
 
             const response = await axios.post(
-                `${import.meta.env.VITE_API_BASE_URL}/devices`,
+                `${API_BASE_URL}/devices`,
                 payload,
             );
 
@@ -227,9 +223,7 @@ export default function DeviceDataTable() {
             };
 
             await axios.put(
-                `${import.meta.env.VITE_API_BASE_URL}/devices/${
-                    selectedDevice.mac
-                }`,
+                `${API_BASE_URL}/devices/${selectedDevice.mac}`,
                 payload,
             );
 

@@ -43,6 +43,8 @@ import {
     Thermometer,
     Database,
 } from "lucide-react";
+import { API_BASE_URL } from "@/config/api";
+
 type ChartPoint = {
     datetime: string;
     tempMin: number;
@@ -126,7 +128,7 @@ export function EnvironmentTrends() {
         setIsLoading(true);
         setDelayedLoading(true);
         axios
-            .get(`${import.meta.env.VITE_API_BASE_URL}/devices/threshold`, {
+            .get(`${API_BASE_URL}/devices/threshold`, {
                 params: {
                     mac: selectedMac,
                 },
@@ -139,12 +141,9 @@ export function EnvironmentTrends() {
             });
 
         axios
-            .get(
-                `${import.meta.env.VITE_API_BASE_URL}/sensor-data/alerts-sum`,
-                {
-                    params: { range: timeRange },
-                },
-            )
+            .get(`${API_BASE_URL}/sensor-data/alerts-sum`, {
+                params: { range: timeRange },
+            })
             .then((res) => {
                 const found = (
                     res.data as {
@@ -167,7 +166,7 @@ export function EnvironmentTrends() {
         }, 1000);
 
         axios
-            .get(import.meta.env.VITE_API_BASE_URL + "/sensor-data/summary", {
+            .get(`${API_BASE_URL}/sensor-data/summary`, {
                 params: {
                     mac_address: selectedMac,
                     range: timeRange,

@@ -37,6 +37,7 @@ import { DeviceSelector } from "./device-selector";
 import axios from "axios";
 import { Badge } from "@/components/ui/badge";
 import { AlertTriangle, Loader2 } from "lucide-react";
+import { API_BASE_URL } from "@/config/api";
 
 type ChartPoint = {
     datetime: string;
@@ -118,7 +119,7 @@ export function RecentChart() {
         setIsLoading(true);
         setDelayedLoading(true);
         axios
-            .get(`${import.meta.env.VITE_API_BASE_URL}/devices/threshold`, {
+            .get(`${API_BASE_URL}/devices/threshold`, {
                 params: {
                     mac: selectedMac,
                 },
@@ -135,15 +136,12 @@ export function RecentChart() {
         }, 1000);
 
         axios
-            .get(
-                import.meta.env.VITE_API_BASE_URL + "/sensor-data/3days-hourly",
-                {
-                    params: {
-                        mac_address: selectedMac,
-                        range: timeRange,
-                    },
+            .get(`${API_BASE_URL}/sensor-data/3days-hourly`, {
+                params: {
+                    mac_address: selectedMac,
+                    range: timeRange,
                 },
-            )
+            })
             .then((res) => {
                 const parsed = (res.data.data as SensorHourlyData[]).map(
                     (item) => ({

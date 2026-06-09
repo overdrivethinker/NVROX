@@ -19,6 +19,7 @@ import type { CallbackDataParams } from "echarts/types/dist/shared";
 import { Badge } from "@/components/ui/badge";
 import { AlertTriangle, Loader2, Download } from "lucide-react";
 import { Button } from "./ui/button";
+import { API_BASE_URL } from "@/config/api";
 
 type HeatmapRow = {
     device_name: string;
@@ -64,12 +65,9 @@ export function DashboardOverview() {
             if (isInitial) setIsInitialLoad(true);
             isFetchingRef.current = true;
             axios
-                .get(
-                    `${import.meta.env.VITE_API_BASE_URL}/sensor-data/heatmap`,
-                    {
-                        params: { range: timeRange },
-                    },
-                )
+                .get(`${API_BASE_URL}/sensor-data/heatmap`, {
+                    params: { range: timeRange },
+                })
                 .then((res) => {
                     const result = res.data.data;
                     setData(result);

@@ -28,6 +28,7 @@ import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import axios from "axios";
 import { Badge } from "@/components/ui/badge";
 import { CheckCircle, Loader2 } from "lucide-react";
+import { API_BASE_URL } from "@/config/api";
 
 type AlertData = {
     device: string;
@@ -65,12 +66,9 @@ export function AlertsChart() {
     useEffect(() => {
         setIsLoading(true);
         axios
-            .get(
-                `${import.meta.env.VITE_API_BASE_URL}/sensor-data/alerts-sum`,
-                {
-                    params: { range: timeRange },
-                },
-            )
+            .get(`${API_BASE_URL}/sensor-data/alerts-sum`, {
+                params: { range: timeRange },
+            })
             .then((res) => {
                 const data: ChartPoint[] = (res.data as AlertData[]).map(
                     (d) => ({

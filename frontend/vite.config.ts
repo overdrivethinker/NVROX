@@ -5,14 +5,14 @@ import { defineConfig } from "vite";
 import Inspect from "vite-plugin-inspect";
 
 // https://vite.dev/config/
-export default defineConfig(({ mode }) => ({
+export default defineConfig({
     plugins: [react(), tailwindcss(), Inspect()],
     resolve: {
         alias: {
             "@": path.resolve(__dirname, "./src"),
         },
     },
-    base: mode === "production" ? "/nvrox/" : "/",
+    base: "/nvrox/",
     server: {
         proxy: {
             "/socket.io": {
@@ -21,4 +21,4 @@ export default defineConfig(({ mode }) => ({
             },
         },
     },
-}));
+});

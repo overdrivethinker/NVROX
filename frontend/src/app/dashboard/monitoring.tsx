@@ -16,6 +16,7 @@ import { ModeToggle } from "@/components/mode-toggle";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import DashboardMonitoring from "@/components/dashboard-monitoring";
+import { API_BASE_URL } from "@/config/api";
 
 type Device = {
     mac_address: string;
@@ -37,12 +38,12 @@ export default function DeviceMonitoring() {
 
     useEffect(() => {
         axios
-            .get(import.meta.env.VITE_API_BASE_URL + "/devices/list")
+            .get(`${API_BASE_URL}/devices/list`)
             .then((res) => setDeviceListFromDB(res.data))
             .catch((err) => console.error("Failed to fetch devices", err));
 
         axios
-            .get(import.meta.env.VITE_API_BASE_URL + "/devices/threshold/all")
+            .get(`${API_BASE_URL}/devices/threshold/all`)
             .then((res) => {
                 const map: Record<string, Limits> = {};
                 res.data.forEach((item: Limits) => {

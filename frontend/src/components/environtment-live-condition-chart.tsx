@@ -36,6 +36,7 @@ import {
 import io from "socket.io-client";
 import axios from "axios";
 import { DeviceSelector } from "./device-selector";
+import { API_BASE_URL, SOCKET_BASE_URL } from "@/config/api";
 
 type ChartPoint = {
     datetime: string;
@@ -132,13 +133,13 @@ export function LiveChart() {
         setIsDisconnected(false);
 
         axios
-            .get(`${import.meta.env.VITE_API_BASE_URL}/devices/threshold`, {
+            .get(`${API_BASE_URL}/devices/threshold`, {
                 params: { mac: selectedMac },
             })
             .then((res) => setLimits(res.data))
             .catch((err) => console.error("Failed to fetch limits", err));
 
-        const socket = io(import.meta.env.VITE_SOCKET_URL, {
+        const socket = io(SOCKET_BASE_URL, {
             query: { mac: selectedMac },
         });
 

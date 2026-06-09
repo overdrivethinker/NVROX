@@ -7,6 +7,7 @@ import {
     SelectContent,
     SelectItem,
 } from "@/components/ui/select";
+import { API_BASE_URL } from "@/config/api";
 
 export type Device = {
     device_name: string;
@@ -29,7 +30,7 @@ export function DeviceSelector({
 
     useEffect(() => {
         axios
-            .get(import.meta.env.VITE_API_BASE_URL + "/devices/list")
+            .get(`${API_BASE_URL}/devices/list`)
             .then((res) => {
                 setDevices(res.data);
                 onDevicesLoaded?.(res.data);
