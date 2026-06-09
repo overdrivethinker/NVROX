@@ -1,19 +1,20 @@
-# --- Server ---
-PORT=3000                        # App/server port
+PORT=3000
 
-# --- Database ---
-DB_CLIENT=mysql2                 # DB driver: mysql2, pg, sqlite3, etc.
-DB_HOST=localhost                # DB server address
-DB_USER=yourusername             # DB username
-DB_PASSWORD=yourpassword         # DB password
-DB_NAME=nvrox_db                 # DB name
-DB_PORT=3306                     # DB port (MySQL default: 3306)
-NODE_ENV=development             # NODE = development/production
+DB_CLIENT=pg
+DB_HOST=your-db-host
+DB_USER=your-db-user
+DB_PASSWORD=your-db-password
+DB_NAME=nvrox_db
+DB_PORT=5432
 
-# --- MQTT Broker ---
-MQTT_BROKER=mqtt://localhost:1883  # Broker URL (e.g. EMQX, Mosquitto)
-MQTT_TOPIC=nvrox/temp-hum          # Topic to publish/subscribe
-MQTT_QOS=1                         # QoS level: 0, 1, or 2
+MQTT_BROKER=mqtt://localhost:1883
+MQTT_TOPIC=nvrox/temp-hum
+MQTT_QOS=1
+MQTT_USERNAME=your-mqtt-username
+MQTT_PASSWORD=your-mqtt-password
 
-# --- Socket ---
-SOCKET_HOST=http://localhost
+SOCKET_HOST=http://localhost:5173
+
+REDIS_HOST=localhost
+REDIS_PASSWORD=your-redis-password
+REDIS_PORT=6379
