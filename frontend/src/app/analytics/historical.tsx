@@ -13,7 +13,7 @@ import {
     SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { ModeToggle } from "@/components/mode-toggle";
-import HistoricalTable from "@/components/environment-historical-table";
+import HistoricalTable from "@/components/analytics-historical-table";
 export default function HistoricalLogs() {
     return (
         <SidebarProvider>

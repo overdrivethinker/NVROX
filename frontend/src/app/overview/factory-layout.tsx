@@ -15,7 +15,7 @@ import {
 import { ModeToggle } from "@/components/mode-toggle";
 import { useEffect, useState } from "react";
 import axios from "axios";
-import DashboardFactoryLayout from "@/components/dashboard-factory-layout";
+import DashboardFactoryLayout from "@/components/overview-factory-layout";
 import { API_BASE_URL } from "@/config/api";
 
 type Device = {

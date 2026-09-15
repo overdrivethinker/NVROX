@@ -13,7 +13,7 @@ import {
     SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { ModeToggle } from "@/components/mode-toggle";
-import { DashboardOverview } from "@/components/dashboard-overview";
+import { DashboardOverview } from "@/components/overview-heatmap";
 
 export default function Overview() {
     return (

@@ -13,7 +13,7 @@ import {
     SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { ModeToggle } from "@/components/mode-toggle";
-import { EnvironmentTrends } from "@/components/environment-trends";
+import { EnvironmentTrends } from "@/components/analytics-device-trends";
 
 export default function DeviceTrends() {
     return (
