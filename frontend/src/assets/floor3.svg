@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 700" preserveAspectRatio="none" fill="none">
+  <style>
+    .outline { stroke: rgba(128,128,128,0.55); stroke-width: 2; fill: none; }
+    .room    { fill: rgba(128,128,128,0.06); stroke: rgba(128,128,128,0.45); stroke-width: 1.2; }
+    .dash    { stroke: rgba(128,128,128,0.3); stroke-width: 1; stroke-dasharray: 6 6; }
+    .label   { fill: #6b7280; font-family: sans-serif; font-size: 20px; font-weight: 600; letter-spacing: 2px; }
+    .label-s { fill: #6b7280; font-family: sans-serif; font-size: 12px; }
+  </style>
+
+  <rect class="room" x="70" y="180" width="860" height="200" rx="6" />
+  <text class="label" x="500" y="275" text-anchor="middle">FACTORY 3 # 3rd Floor</text>
+
+  <rect class="room" x="70" y="400" width="200" height="160" rx="6" />
+  <text class="label-s" x="170" y="475" text-anchor="middle">Document Room</text>
+  <text class="label-s" x="170" y="492" text-anchor="middle">Engineering</text>
+
+  <rect class="room" x="280" y="400" width="200" height="160" rx="6" />
+  <text class="label-s" x="380" y="475" text-anchor="middle">Document Room</text>
+  <text class="label-s" x="380" y="492" text-anchor="middle">PPC</text>
+
+  <rect class="room" x="490" y="400" width="200" height="160" rx="6" />
+  <text class="label-s" x="590" y="475" text-anchor="middle">Document Room</text>
+  <text class="label-s" x="590" y="492" text-anchor="middle">Manufacturing</text>
+
+  <rect class="room" x="700" y="400" width="230" height="160" rx="6" />
+  <text class="label-s" x="815" y="485" text-anchor="middle">TPS</text>
+</svg>

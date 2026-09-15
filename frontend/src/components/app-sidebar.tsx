@@ -4,7 +4,13 @@ import * as React from "react";
 import { useLocation, Link } from "react-router-dom";
 
 import { IconBackground } from "@tabler/icons-react";
-import { Radio, SquareActivity, Settings2 } from "lucide-react";
+import {
+    Radio,
+    SquareActivity,
+    Settings2,
+    ChartNoAxesCombined,
+    BellRing,
+} from "lucide-react";
 
 import { NavMain } from "@/components/nav-main";
 import { NavUser } from "@/components/nav-user";
@@ -21,21 +27,34 @@ import {
 
 const navData = [
     {
-        title: "Dashboard",
+        title: "Overview",
         url: "#",
         icon: SquareActivity,
         items: [
-            { title: "Overview", url: "/overview" },
-            { title: "Monitoring", url: "/monitoring" },
-            { title: "Threshold Alerts", url: "/alerts" },
+            { title: "Factory Layout", url: "/factory-layout" },
+            { title: "Heatmap", url: "/heatmap" },
         ],
     },
     {
-        title: "Environment",
+        title: "Monitoring",
         url: "#",
         icon: Radio,
         items: [
-            { title: "Live Monitoring", url: "/live-monitoring" },
+            { title: "Sensor Grid", url: "/sensor-grid" },
+            { title: "Device Detail", url: "/device-detail" },
+        ],
+    },
+    {
+        title: "Alerts",
+        url: "#",
+        icon: BellRing,
+        items: [{ title: "Threshold Alerts", url: "/threshold-alerts" }],
+    },
+    {
+        title: "Analytics",
+        url: "#",
+        icon: ChartNoAxesCombined,
+        items: [
             { title: "Device Trends", url: "/device-trends" },
             { title: "Historical Logs", url: "/historical-logs" },
         ],
