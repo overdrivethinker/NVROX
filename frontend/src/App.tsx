@@ -1,14 +1,15 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import { ThemeProvider } from "@/components/theme-provider";
-import DeviceMonitoring from "@/app/dashboard/monitoring";
-import Alerts from "./app/dashboard/alerts";
-import LiveMonitoring from "./app/environment/live-monitoring";
-import Historical from "./app/environment/historical";
-import DeviceTrends from "./app/environment/device-trends";
+import DeviceMonitoring from "@/app/monitoring/sensor-grid";
+import Alerts from "./app/alerts/threshold-alerts";
+import LiveMonitoring from "./app/monitoring/device-detail";
+import Historical from "./app/analytics/historical";
+import DeviceTrends from "./app/analytics/device-trends";
 import DeviceSetup from "@/app/configuration/device-setup";
 import UserAccess from "./app/configuration/user-acccess";
 import LoginPage from "./app/login/page";
-import Overview from "./app/dashboard/overview";
+import Overview from "./app/overview/heatmap";
+import FactoryLayout from "./app/overview/factory-layout";
 import { Toaster } from "@/components/ui/sonner";
 
 import type { ReactElement } from "react";
@@ -28,7 +29,7 @@ function ProtectedRoute({
 function PublicRoute({ children }: { children: ReactElement }): ReactElement {
     const user = sessionStorage.getItem("user");
     if (user) {
-        return <Navigate to="/overview" replace />;
+        return <Navigate to="/factory-layout" replace />;
     }
     return children;
 }
@@ -36,7 +37,7 @@ function PublicRoute({ children }: { children: ReactElement }): ReactElement {
 function RootRedirect(): ReactElement {
     const user = sessionStorage.getItem("user");
     return user ? (
-        <Navigate to="/overview" replace />
+        <Navigate to="/factory-layout" replace />
     ) : (
         <Navigate to="/login" replace />
     );
@@ -57,7 +58,7 @@ function App() {
                     }
                 />
                 <Route
-                    path="overview"
+                    path="heatmap"
                     element={
                         <ProtectedRoute>
                             <Overview />
@@ -65,7 +66,7 @@ function App() {
                     }
                 />
                 <Route
-                    path="monitoring"
+                    path="sensor-grid"
                     element={
                         <ProtectedRoute>
                             <DeviceMonitoring />
@@ -73,7 +74,15 @@ function App() {
                     }
                 />
                 <Route
-                    path="alerts"
+                    path="factory-layout"
+                    element={
+                        <ProtectedRoute>
+                            <FactoryLayout />
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="threshold-alerts"
                     element={
                         <ProtectedRoute>
                             <Alerts />
@@ -82,7 +91,7 @@ function App() {
                 />
 
                 <Route
-                    path="live-monitoring"
+                    path="device-detail"
                     element={
                         <ProtectedRoute>
                             <LiveMonitoring />

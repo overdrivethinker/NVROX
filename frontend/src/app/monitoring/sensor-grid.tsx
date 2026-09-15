@@ -13,8 +13,47 @@ import {
     SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { ModeToggle } from "@/components/mode-toggle";
-import { LiveChart } from "@/components/environtment-live-condition-chart";
-export default function LiveMonitoring() {
+import { useEffect, useState } from "react";
+import axios from "axios";
+import DashboardMonitoring from "@/components/dashboard-monitoring";
+import { API_BASE_URL } from "@/config/api";
+
+type Device = {
+    mac_address: string;
+    device_name: string;
+    location: string;
+};
+
+type Limits = {
+    mac_address: string;
+    tempMin: number;
+    tempMax: number;
+    humidMin: number;
+    humidMax: number;
+};
+
+export default function DeviceMonitoring() {
+    const [deviceListFromDB, setDeviceListFromDB] = useState<Device[]>([]);
+    const [limitsMap, setLimitsMap] = useState<Record<string, Limits>>({});
+
+    useEffect(() => {
+        axios
+            .get(`${API_BASE_URL}/devices/list`)
+            .then((res) => setDeviceListFromDB(res.data))
+            .catch((err) => console.error("Failed to fetch devices", err));
+
+        axios
+            .get(`${API_BASE_URL}/devices/threshold/all`)
+            .then((res) => {
+                const map: Record<string, Limits> = {};
+                res.data.forEach((item: Limits) => {
+                    map[item.mac_address] = item;
+                });
+                setLimitsMap(map);
+            })
+            .catch((err) => console.error("Failed to fetch limits", err));
+    }, []);
+
     return (
         <SidebarProvider>
             <AppSidebar />
@@ -29,21 +68,22 @@ export default function LiveMonitoring() {
                         <Breadcrumb>
                             <BreadcrumbList>
                                 <BreadcrumbItem className="hidden md:block">
-                                    Environment
+                                    Monitoring
                                 </BreadcrumbItem>
                                 <BreadcrumbSeparator className="hidden md:block" />
                                 <BreadcrumbItem>
-                                    <BreadcrumbPage>
-                                        Live Monitoring
-                                    </BreadcrumbPage>
+                                    <BreadcrumbPage>Sensor Grid</BreadcrumbPage>
                                 </BreadcrumbItem>
                             </BreadcrumbList>
                         </Breadcrumb>
                     </div>
                     <ModeToggle />
                 </header>
-                <div className="flex flex-1 flex-col p-2 pt-0">
-                    <LiveChart />
+                <div className="flex flex-1 justify-center flex-col">
+                    <DashboardMonitoring
+                        devices={deviceListFromDB}
+                        limitsMap={limitsMap}
+                    />
                 </div>
             </SidebarInset>
         </SidebarProvider>

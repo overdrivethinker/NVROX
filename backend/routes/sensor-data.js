@@ -1,7 +1,9 @@
 const express = require("express");
 const router = express.Router();
 const knex = require("../database/db");
+const axios = require("axios");
 const { toWIB, formatTimestamp } = require("../utils/helpers");
+const { generateSensorReport } = require("../utils/generate-excel-report");
 
 router.get("/export", async (req, res) => {
     try {
@@ -404,6 +406,60 @@ router.get("/heatmap", async (req, res) => {
     } catch (err) {
         console.error("GET /sensor-data/heatmap error:", err);
         res.status(500).json({ error: "Internal Server Error" });
+    }
+});
+
+router.get("/export-excel", async (req, res) => {
+    try {
+        const { start_date, end_date } = req.query;
+
+        if (!start_date || !end_date) {
+            return res
+                .status(400)
+                .json({ error: "start_date and end_date are required" });
+        }
+
+        const API = "http://localhost:3000/api/nvrox";
+        const params = { start_date, end_date };
+
+        // Fetch all data in parallel
+        const [sensorRes, alertRes, thresholdRes] = await Promise.all([
+            axios.get(`${API}/sensor-data/export`, { params }),
+            axios.get(`${API}/sensor-data/alerts/export`, { params }),
+            axios.get(`${API}/devices/with-thresholds`, {
+                params: { limit: 200 },
+            }),
+        ]);
+
+        const sensorData = sensorRes.data.data ?? [];
+        const alertData = alertRes.data.data ?? [];
+        const thresholdData = thresholdRes.data.data ?? [];
+
+        // Generate workbook
+        const wb = await generateSensorReport(
+            sensorData,
+            alertData,
+            thresholdData,
+            start_date,
+            end_date,
+        );
+
+        // Stream to client
+        const filename = `SensorReport_${start_date}_to_${end_date}.xlsx`;
+        res.setHeader(
+            "Content-Type",
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        );
+        res.setHeader(
+            "Content-Disposition",
+            `attachment; filename="${filename}"`,
+        );
+
+        await wb.xlsx.write(res);
+        res.end();
+    } catch (err) {
+        console.error("Export Excel error:", err.message);
+        res.status(500).json({ error: "Failed to generate Excel report" });
     }
 });
 

@@ -13,9 +13,8 @@ import {
     SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { ModeToggle } from "@/components/mode-toggle";
-import { EnvironmentTrends } from "@/components/environment-trends";
-
-export default function DeviceTrends() {
+import { AlertsChart } from "@/components/dashboard-alert-chart";
+export default function Alerts() {
     return (
         <SidebarProvider>
             <AppSidebar />
@@ -30,12 +29,12 @@ export default function DeviceTrends() {
                         <Breadcrumb>
                             <BreadcrumbList>
                                 <BreadcrumbItem className="hidden md:block">
-                                    Environment
+                                    Alerts
                                 </BreadcrumbItem>
                                 <BreadcrumbSeparator className="hidden md:block" />
                                 <BreadcrumbItem>
                                     <BreadcrumbPage>
-                                        Device Trends
+                                        Threshold Alerts
                                     </BreadcrumbPage>
                                 </BreadcrumbItem>
                             </BreadcrumbList>
@@ -43,8 +42,8 @@ export default function DeviceTrends() {
                     </div>
                     <ModeToggle />
                 </header>
-                <div className="flex flex-1 flex-col p-2 pt-0">
-                    <EnvironmentTrends />
+                <div className="flex flex flex-1 justify-center p-2 pt-0">
+                    <AlertsChart />
                 </div>
             </SidebarInset>
         </SidebarProvider>

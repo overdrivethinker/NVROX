@@ -30,6 +30,10 @@ app.use(
     }),
 );
 
+app.get("/", (req, res) => {
+    res.json({ status: "ok" });
+});
+
 app.get(/.*/, (req, res) => {
     res.sendFile(path.join(DIST_PATH, "index.html"));
 });

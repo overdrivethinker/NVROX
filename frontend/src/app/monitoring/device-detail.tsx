@@ -13,8 +13,8 @@ import {
     SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { ModeToggle } from "@/components/mode-toggle";
-import HistoricalTable from "@/components/environment-historical-table";
-export default function HistoricalLogs() {
+import { LiveChart } from "@/components/environtment-live-condition-chart";
+export default function LiveMonitoring() {
     return (
         <SidebarProvider>
             <AppSidebar />
@@ -29,12 +29,12 @@ export default function HistoricalLogs() {
                         <Breadcrumb>
                             <BreadcrumbList>
                                 <BreadcrumbItem className="hidden md:block">
-                                    Environment
+                                    Monitoring
                                 </BreadcrumbItem>
                                 <BreadcrumbSeparator className="hidden md:block" />
                                 <BreadcrumbItem>
                                     <BreadcrumbPage>
-                                        Historical Logs
+                                        Device Detail
                                     </BreadcrumbPage>
                                 </BreadcrumbItem>
                             </BreadcrumbList>
@@ -43,7 +43,7 @@ export default function HistoricalLogs() {
                     <ModeToggle />
                 </header>
                 <div className="flex flex-1 flex-col p-2 pt-0">
-                    <HistoricalTable />
+                    <LiveChart />
                 </div>
             </SidebarInset>
         </SidebarProvider>

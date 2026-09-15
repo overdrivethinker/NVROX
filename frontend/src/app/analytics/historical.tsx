@@ -1,5 +1,4 @@
 import { AppSidebar } from "@/components/app-sidebar";
-import { ModeToggle } from "@/components/mode-toggle";
 import {
     Breadcrumb,
     BreadcrumbItem,
@@ -13,9 +12,9 @@ import {
     SidebarProvider,
     SidebarTrigger,
 } from "@/components/ui/sidebar";
-import UserAccessTable from "@/components/config-user-table";
-
-export default function UserAccess() {
+import { ModeToggle } from "@/components/mode-toggle";
+import HistoricalTable from "@/components/environment-historical-table";
+export default function HistoricalLogs() {
     return (
         <SidebarProvider>
             <AppSidebar />
@@ -30,19 +29,21 @@ export default function UserAccess() {
                         <Breadcrumb>
                             <BreadcrumbList>
                                 <BreadcrumbItem className="hidden md:block">
-                                    Configuration
+                                    Analytics
                                 </BreadcrumbItem>
                                 <BreadcrumbSeparator className="hidden md:block" />
                                 <BreadcrumbItem>
-                                    <BreadcrumbPage>User Access</BreadcrumbPage>
+                                    <BreadcrumbPage>
+                                        Historical Logs
+                                    </BreadcrumbPage>
                                 </BreadcrumbItem>
                             </BreadcrumbList>
                         </Breadcrumb>
                     </div>
                     <ModeToggle />
                 </header>
-                <div className="flex flex-1 justify-center p-2 pt-0">
-                    <UserAccessTable />
+                <div className="flex flex-1 flex-col p-2 pt-0">
+                    <HistoricalTable />
                 </div>
             </SidebarInset>
         </SidebarProvider>

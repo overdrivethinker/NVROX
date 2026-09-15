@@ -15,7 +15,7 @@ import {
 import { ModeToggle } from "@/components/mode-toggle";
 import { useEffect, useState } from "react";
 import axios from "axios";
-import DashboardMonitoring from "@/components/dashboard-monitoring";
+import DashboardFactoryLayout from "@/components/dashboard-factory-layout";
 import { API_BASE_URL } from "@/config/api";
 
 type Device = {
@@ -32,7 +32,7 @@ type Limits = {
     humidMax: number;
 };
 
-export default function DeviceMonitoring() {
+export default function FactoryLayout() {
     const [deviceListFromDB, setDeviceListFromDB] = useState<Device[]>([]);
     const [limitsMap, setLimitsMap] = useState<Record<string, Limits>>({});
 
@@ -68,19 +68,21 @@ export default function DeviceMonitoring() {
                         <Breadcrumb>
                             <BreadcrumbList>
                                 <BreadcrumbItem className="hidden md:block">
-                                    Dashboard
+                                    Overview
                                 </BreadcrumbItem>
                                 <BreadcrumbSeparator className="hidden md:block" />
                                 <BreadcrumbItem>
-                                    <BreadcrumbPage>Monitoring</BreadcrumbPage>
+                                    <BreadcrumbPage>
+                                        Factory Layout
+                                    </BreadcrumbPage>
                                 </BreadcrumbItem>
                             </BreadcrumbList>
                         </Breadcrumb>
                     </div>
                     <ModeToggle />
                 </header>
-                <div className="flex flex-1 justify-center flex-col">
-                    <DashboardMonitoring
+                <div className="flex flex flex-1 justify-center p-2 pt-0">
+                    <DashboardFactoryLayout
                         devices={deviceListFromDB}
                         limitsMap={limitsMap}
                     />
