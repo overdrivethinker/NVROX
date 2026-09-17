@@ -33,12 +33,11 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 import { toast } from "sonner";
-import { CheckCircle, XCircle, Droplet, Thermometer } from "lucide-react";
+import { CheckCircle, XCircle, Plus } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { DeleteDeviceDialog } from "@/app/configuration/dialog/delete-device-dialog";
-import { EditDeviceDialog } from "@/app/configuration/dialog/edit-device-dialog";
-import { Plus } from "lucide-react";
-import { AddDeviceDialog } from "@/app/configuration/dialog/add-device-dialog";
+import { DeleteDeviceDialog } from "@/app/configuration/device/delete-device-dialog";
+import { EditDeviceDialog } from "@/app/configuration/device/edit-device-dialog";
+import { AddDeviceDialog } from "@/app/configuration/device/add-device-dialog";
 import { useAuth } from "@/config/auth";
 import {
     Tooltip,
@@ -52,10 +51,34 @@ type DeviceData = {
     mac_address: string;
     location: string;
     status: string;
-    tempMin: number;
-    tempMax: number;
-    humidMin: number;
-    humidMax: number;
+
+    tempWarningLow: number;
+    tempWarningHigh: number;
+    tempAlertLow: number;
+    tempAlertHigh: number;
+
+    humidWarningLow: number;
+    humidWarningHigh: number;
+    humidAlertLow: number;
+    humidAlertHigh: number;
+};
+
+type ThresholdRange = {
+    warningLow: number;
+    warningHigh: number;
+    alertLow: number;
+    alertHigh: number;
+};
+
+type SelectedDevice = {
+    mac: string;
+    name: string;
+    location: string;
+    status: string;
+    thresholds?: {
+        temperature?: ThresholdRange;
+        humidity?: ThresholdRange;
+    };
 };
 
 type PaginationInfo = {
@@ -65,33 +88,63 @@ type PaginationInfo = {
     pages: number;
 };
 
+const EMPTY_RANGE: ThresholdRange = {
+    warningLow: 0,
+    warningHigh: 0,
+    alertLow: 0,
+    alertHigh: 0,
+};
+
+/**
+ * Sel angka dengan warna sesuai level.
+ * alert → merah, warning → kuning
+ */
+function NumCell({
+    value,
+    level,
+    tinted,
+}: {
+    value: number;
+    level: "alert" | "warning";
+    tinted?: "temp" | "humid";
+}) {
+    const color =
+        level === "alert"
+            ? "text-red-600 dark:text-red-400"
+            : "text-amber-600 dark:text-amber-400";
+
+    const bg =
+        tinted === "temp"
+            ? "bg-orange-50/40 dark:bg-orange-950/10"
+            : tinted === "humid"
+              ? "bg-blue-50/40 dark:bg-blue-950/10"
+              : "";
+
+    return (
+        <TableCell className={`text-center ${bg}`}>
+            <span className={`font-mono text-sm font-medium ${color}`}>
+                {value}
+            </span>
+        </TableCell>
+    );
+}
+
 export default function DeviceDataTable() {
     const [data, setData] = useState<DeviceData[]>([]);
-    const [selectedDevice, setSelectedDevice] = useState<{
-        mac: string;
-        name: string;
-        location: string;
-        status: string;
-        thresholds?: {
-            temperature?: { min: number; max: number };
-            humidity?: { min: number; max: number };
-            pressure?: { min: number; max: number };
-        };
-    }>({
+    const [selectedDevice, setSelectedDevice] = useState<SelectedDevice>({
         mac: "",
         name: "",
         location: "",
         status: "",
         thresholds: {
-            temperature: { min: 0, max: 0 },
-            humidity: { min: 0, max: 0 },
-            pressure: { min: 0, max: 0 },
+            temperature: { ...EMPTY_RANGE },
+            humidity: { ...EMPTY_RANGE },
         },
     });
 
     const [pagination, setPagination] = useState<PaginationInfo>({
         page: 1,
-        limit: 12,
+        limit: 9,
         total: 0,
         pages: 1,
     });
@@ -128,8 +181,30 @@ export default function DeviceDataTable() {
         }
     };
 
+    const buildSelectedDevice = (row: DeviceData): SelectedDevice => ({
+        mac: row.mac_address,
+        name: row.device_name,
+        location: row.location,
+        status: row.status,
+        thresholds: {
+            temperature: {
+                warningLow: row.tempWarningLow ?? 0,
+                warningHigh: row.tempWarningHigh ?? 0,
+                alertLow: row.tempAlertLow ?? 0,
+                alertHigh: row.tempAlertHigh ?? 0,
+            },
+            humidity: {
+                warningLow: row.humidWarningLow ?? 0,
+                warningHigh: row.humidWarningHigh ?? 0,
+                alertLow: row.humidAlertLow ?? 0,
+                alertHigh: row.humidAlertHigh ?? 0,
+            },
+        },
+    });
+
     const [openDialog, setOpenDialog] = useState(false);
     const [editDialog, setEditDialog] = useState(false);
+
     const handleDelete = async (mac: string) => {
         try {
             await axios.delete(`${API_BASE_URL}/devices/${mac}`);
@@ -142,6 +217,7 @@ export default function DeviceDataTable() {
             toast.error("Delete Failed");
         }
     };
+
     const [addDialogOpen, setAddDialogOpen] = useState(false);
     const [newDevice, setNewDevice] = useState({
         mac: "",
@@ -159,9 +235,6 @@ export default function DeviceDataTable() {
                 status: newDevice.status,
             };
 
-            console.log("Payload to send:", payload);
-            console.log("API URL:", `${API_BASE_URL}/devices`);
-
             const response = await axios.post(
                 `${API_BASE_URL}/devices`,
                 payload,
@@ -170,7 +243,9 @@ export default function DeviceDataTable() {
             console.log("API Response:", response.data);
 
             await fetchData();
-            toast.success(`${newDevice.name} added successfully`);
+            toast.success(`${newDevice.name} added successfully`, {
+                description: "Default thresholds have been applied.",
+            });
 
             setAddDialogOpen(false);
             setNewDevice({
@@ -181,10 +256,6 @@ export default function DeviceDataTable() {
             });
         } catch (err) {
             if (axios.isAxiosError(err)) {
-                console.error("Response status:", err.response?.status);
-                console.error("Response data:", err.response?.data);
-                console.error("Request config:", err.config);
-
                 if (err.response?.status === 400) {
                     toast.error(err.response.data.error || "Invalid data");
                 } else if (err.response?.status === 404) {
@@ -211,6 +282,24 @@ export default function DeviceDataTable() {
             if (existingDevice) {
                 toast.error(
                     "A device with this name already exists. Please choose a different name.",
+                );
+                return;
+            }
+
+            const t = selectedDevice.thresholds?.temperature;
+            const h = selectedDevice.thresholds?.humidity;
+
+            const isInvalid = (r?: ThresholdRange) =>
+                r &&
+                !(
+                    r.alertLow < r.warningLow &&
+                    r.warningLow < r.warningHigh &&
+                    r.warningHigh < r.alertHigh
+                );
+
+            if (isInvalid(t) || isInvalid(h)) {
+                toast.error(
+                    "Invalid threshold order. Must be: alertLow < warningLow < warningHigh < alertHigh",
                 );
                 return;
             }
@@ -251,6 +340,8 @@ export default function DeviceDataTable() {
                     );
                 } else if (status === 404) {
                     toast.error("Device not found");
+                } else if (message.toLowerCase().includes("threshold order")) {
+                    toast.error(message);
                 } else {
                     toast.error("Failed to update device");
                 }
@@ -282,9 +373,7 @@ export default function DeviceDataTable() {
                                     size="sm"
                                     className="h-9"
                                     disabled={!isAdmin}
-                                    onClick={() => {
-                                        setAddDialogOpen(true);
-                                    }}
+                                    onClick={() => setAddDialogOpen(true)}
                                 >
                                     <Plus className="h-4 w-4" /> Add Device
                                 </Button>
@@ -311,239 +400,284 @@ export default function DeviceDataTable() {
                     className="relative flex flex-col gap-4 overflow-auto px-4 lg:px-6"
                 >
                     <div className="overflow-x-auto rounded-lg border">
-                        <Table className="min-w-[600px]">
+                        <Table className="min-w-[1000px]">
                             <TableHeader className="bg-muted sticky top-0 z-10">
+                                {/* Baris header 1: grup parameter */}
                                 <TableRow>
-                                    <TableHead>Device Name</TableHead>
-                                    <TableHead>MAC Address</TableHead>
-                                    <TableHead>Location</TableHead>
-                                    <TableHead>Status</TableHead>
-                                    <TableHead>Temp Min</TableHead>
-                                    <TableHead>Temp Max</TableHead>
-                                    <TableHead>Humid Min</TableHead>
-                                    <TableHead>Humid Max</TableHead>
-                                    <TableHead></TableHead>
+                                    <TableHead
+                                        rowSpan={2}
+                                        className="w-[150px]"
+                                    >
+                                        Device Name
+                                    </TableHead>
+                                    <TableHead
+                                        rowSpan={2}
+                                        className="w-[150px]"
+                                    >
+                                        MAC Address
+                                    </TableHead>
+                                    <TableHead
+                                        rowSpan={2}
+                                        className="w-[110px]"
+                                    >
+                                        Location
+                                    </TableHead>
+                                    <TableHead rowSpan={2} className="w-[90px]">
+                                        Status
+                                    </TableHead>
+
+                                    {/* Grup Temperature */}
+                                    <TableHead
+                                        colSpan={4}
+                                        className="text-center border-b bg-orange-50/40 dark:bg-orange-950/10 text-orange-700 dark:text-orange-300"
+                                    >
+                                        Temperature (°C)
+                                    </TableHead>
+
+                                    {/* Grup Humidity */}
+                                    <TableHead
+                                        colSpan={4}
+                                        className="text-center border-b bg-blue-50/40 dark:bg-blue-950/10 text-blue-700 dark:text-blue-300"
+                                    >
+                                        Humidity (%)
+                                    </TableHead>
+
+                                    <TableHead
+                                        rowSpan={2}
+                                        className="w-[50px] text-center"
+                                    ></TableHead>
+                                </TableRow>
+
+                                {/* Baris header 2: AL WL WH AH */}
+                                <TableRow>
+                                    {/* Temperature sub-header */}
+                                    <TableHead className="text-center w-[60px] border-b bg-orange-50/40 dark:bg-orange-950/10 text-red-600 dark:text-red-400 font-mono">
+                                        AL
+                                    </TableHead>
+                                    <TableHead className="text-center w-[60px] border-b bg-orange-50/40 dark:bg-orange-950/10 text-amber-600 dark:text-amber-400 font-mono">
+                                        WL
+                                    </TableHead>
+                                    <TableHead className="text-center w-[60px] border-b bg-orange-50/40 dark:bg-orange-950/10 text-amber-600 dark:text-amber-400 font-mono">
+                                        WH
+                                    </TableHead>
+                                    <TableHead className="text-center w-[60px] border-b bg-orange-50/40 dark:bg-orange-950/10 text-red-600 dark:text-red-400 font-mono">
+                                        AH
+                                    </TableHead>
+
+                                    {/* Humidity sub-header */}
+                                    <TableHead className="text-center w-[60px] border-b bg-blue-50/40 dark:bg-blue-950/10 text-red-600 dark:text-red-400 font-mono">
+                                        AL
+                                    </TableHead>
+                                    <TableHead className="text-center w-[60px] border-b bg-blue-50/40 dark:bg-blue-950/10 text-amber-600 dark:text-amber-400 font-mono">
+                                        WL
+                                    </TableHead>
+                                    <TableHead className="text-center w-[60px] border-b bg-blue-50/40 dark:bg-blue-950/10 text-amber-600 dark:text-amber-400 font-mono">
+                                        WH
+                                    </TableHead>
+                                    <TableHead className="text-center w-[60px] border-b bg-blue-50/40 dark:bg-blue-950/10 text-red-600 dark:text-red-400 font-mono">
+                                        AH
+                                    </TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
                                 {data.length > 0 ? (
-                                    data.map((row) => (
-                                        <TableRow key={row.device_name}>
-                                            <TableCell>
-                                                {row.device_name}
-                                            </TableCell>
-                                            <TableCell>
-                                                {row.mac_address}
-                                            </TableCell>
-                                            <TableCell>
-                                                {row.location}
-                                            </TableCell>
-                                            <TableCell>
-                                                {" "}
-                                                <Badge
-                                                    variant="outline"
-                                                    className={
-                                                        row.status === "Active"
-                                                            ? "border-green-300 text-green-500 dark:border-green-900 dark:text-green-400"
-                                                            : "border-red-300 text-red-500 dark:border-red-900 dark:text-red-400"
-                                                    }
-                                                >
-                                                    {row.status === "Active" ? (
-                                                        <>
-                                                            <CheckCircle className="w-4 h-4" />
-                                                            Active
-                                                        </>
-                                                    ) : (
-                                                        <>
-                                                            <XCircle className="w-4 h-4" />
-                                                            Inactive
-                                                        </>
-                                                    )}
-                                                </Badge>
-                                            </TableCell>
-                                            <TableCell>
-                                                <div className="flex items-center gap-1">
-                                                    <Thermometer className="w-4 h-4 text-blue-500" />
-                                                    <span>{row.tempMin}°C</span>
-                                                </div>
-                                            </TableCell>
-                                            <TableCell>
-                                                <div className="flex items-center gap-1">
-                                                    <Thermometer className="w-4 h-4 text-red-500" />
-                                                    <span>{row.tempMax}°C</span>
-                                                </div>
-                                            </TableCell>
-                                            <TableCell>
-                                                <div className="flex items-center gap-1">
-                                                    <Droplet className="w-4 h-4 text-blue-500" />
-                                                    <span>{row.humidMin}%</span>
-                                                </div>
-                                            </TableCell>
-                                            <TableCell>
-                                                <div className="flex items-center gap-1">
-                                                    <Droplet className="w-4 h-4 text-red-500" />
-                                                    <span>{row.humidMax}%</span>
-                                                </div>
-                                            </TableCell>
-                                            <TableCell className="p-0 pr-2 text-right w-[40px]">
-                                                <DropdownMenu>
-                                                    <DropdownMenuTrigger
-                                                        asChild
+                                    data.map((row) => {
+                                        const isActive =
+                                            row.status === "Active";
+                                        return (
+                                            <TableRow
+                                                key={row.mac_address}
+                                                className="hover:bg-muted/40"
+                                            >
+                                                {/* Metadata device */}
+                                                <TableCell>
+                                                    {row.device_name}
+                                                </TableCell>
+                                                <TableCell className="text-xs">
+                                                    {row.mac_address}
+                                                </TableCell>
+                                                <TableCell>
+                                                    {row.location || "-"}
+                                                </TableCell>
+                                                <TableCell>
+                                                    <Badge
+                                                        variant="outline"
+                                                        className={
+                                                            isActive
+                                                                ? "border-green-300 text-green-500 dark:border-green-900 dark:text-green-400"
+                                                                : "border-red-300 text-red-500 dark:border-red-900 dark:text-red-400"
+                                                        }
                                                     >
-                                                        <Button
-                                                            variant="ghost"
-                                                            className="data-[state=open]:bg-muted text-muted-foreground flex size-3"
-                                                            size="icon"
+                                                        {isActive ? (
+                                                            <>
+                                                                <CheckCircle className="w-3.5 h-3.5" />
+                                                                Active
+                                                            </>
+                                                        ) : (
+                                                            <>
+                                                                <XCircle className="w-3.5 h-3.5" />
+                                                                Inactive
+                                                            </>
+                                                        )}
+                                                    </Badge>
+                                                </TableCell>
+
+                                                {/* Temperature: AL WL WH AH */}
+                                                <NumCell
+                                                    value={row.tempAlertLow}
+                                                    level="alert"
+                                                    tinted="temp"
+                                                />
+                                                <NumCell
+                                                    value={row.tempWarningLow}
+                                                    level="warning"
+                                                    tinted="temp"
+                                                />
+                                                <NumCell
+                                                    value={row.tempWarningHigh}
+                                                    level="warning"
+                                                    tinted="temp"
+                                                />
+                                                <TableCell className="text-center bg-orange-50/40 dark:bg-orange-950/10">
+                                                    <span className="font-mono text-sm font-medium text-red-600 dark:text-red-400">
+                                                        {row.tempAlertHigh}
+                                                    </span>
+                                                </TableCell>
+
+                                                {/* Humidity: AL WL WH AH */}
+                                                <NumCell
+                                                    value={row.humidAlertLow}
+                                                    level="alert"
+                                                    tinted="humid"
+                                                />
+                                                <NumCell
+                                                    value={row.humidWarningLow}
+                                                    level="warning"
+                                                    tinted="humid"
+                                                />
+                                                <NumCell
+                                                    value={row.humidWarningHigh}
+                                                    level="warning"
+                                                    tinted="humid"
+                                                />
+                                                <TableCell className="text-center bg-blue-50/40 dark:bg-blue-950/10">
+                                                    <span className="font-mono text-sm font-medium text-red-600 dark:text-red-400">
+                                                        {row.humidAlertHigh}
+                                                    </span>
+                                                </TableCell>
+
+                                                {/* Aksi */}
+                                                <TableCell className="text-center pr-0">
+                                                    <DropdownMenu>
+                                                        <DropdownMenuTrigger
+                                                            asChild
                                                         >
-                                                            <IconDotsVertical />
-                                                        </Button>
-                                                    </DropdownMenuTrigger>
-                                                    <DropdownMenuContent
-                                                        align="end"
-                                                        className="w-32"
-                                                    >
-                                                        <Tooltip>
-                                                            <TooltipTrigger
-                                                                asChild
+                                                            <Button
+                                                                variant="ghost"
+                                                                className="data-[state=open]:bg-muted text-muted-foreground mx-auto flex size-8"
+                                                                size="icon"
                                                             >
-                                                                <div>
-                                                                    <DropdownMenuItem
-                                                                        disabled={
-                                                                            !isAdmin
-                                                                        }
-                                                                        className={
-                                                                            !isAdmin
-                                                                                ? "opacity-50 cursor-not-allowed"
-                                                                                : ""
-                                                                        }
-                                                                        onClick={() => {
-                                                                            setEditDialog(
-                                                                                true,
-                                                                            );
-                                                                            setSelectedDevice(
-                                                                                {
-                                                                                    mac: row.mac_address,
-                                                                                    name: row.device_name,
-                                                                                    location:
-                                                                                        row.location,
-                                                                                    status: row.status,
-                                                                                    thresholds:
-                                                                                        {
-                                                                                            temperature:
-                                                                                                {
-                                                                                                    min:
-                                                                                                        row.tempMin ||
-                                                                                                        0,
-                                                                                                    max:
-                                                                                                        row.tempMax ||
-                                                                                                        0,
-                                                                                                },
-                                                                                            humidity:
-                                                                                                {
-                                                                                                    min:
-                                                                                                        row.humidMin ||
-                                                                                                        0,
-                                                                                                    max:
-                                                                                                        row.humidMax ||
-                                                                                                        0,
-                                                                                                },
-                                                                                        },
-                                                                                },
-                                                                            );
-                                                                        }}
-                                                                    >
-                                                                        Edit
-                                                                    </DropdownMenuItem>
-                                                                </div>
-                                                            </TooltipTrigger>
-                                                            {!isAdmin && (
-                                                                <TooltipContent side="left">
-                                                                    <p>
-                                                                        Only
-                                                                        admin
-                                                                        can edit
-                                                                        device
-                                                                    </p>
-                                                                </TooltipContent>
-                                                            )}
-                                                        </Tooltip>
-                                                        <DropdownMenuSeparator />
-                                                        <Tooltip>
-                                                            <TooltipTrigger
-                                                                asChild
-                                                            >
-                                                                <div>
-                                                                    <DropdownMenuItem
-                                                                        disabled={
-                                                                            !isAdmin
-                                                                        }
-                                                                        className={
-                                                                            !isAdmin
-                                                                                ? "opacity-50 cursor-not-allowed"
-                                                                                : ""
-                                                                        }
-                                                                        onClick={() => {
-                                                                            setOpenDialog(
-                                                                                true,
-                                                                            );
-                                                                            setSelectedDevice(
-                                                                                {
-                                                                                    mac: row.mac_address,
-                                                                                    name: row.device_name,
-                                                                                    location:
-                                                                                        row.location,
-                                                                                    status: row.status,
-                                                                                    thresholds:
-                                                                                        {
-                                                                                            temperature:
-                                                                                                {
-                                                                                                    min:
-                                                                                                        row.tempMin ||
-                                                                                                        0,
-                                                                                                    max:
-                                                                                                        row.tempMax ||
-                                                                                                        0,
-                                                                                                },
-                                                                                            humidity:
-                                                                                                {
-                                                                                                    min:
-                                                                                                        row.humidMin ||
-                                                                                                        0,
-                                                                                                    max:
-                                                                                                        row.humidMax ||
-                                                                                                        0,
-                                                                                                },
-                                                                                        },
-                                                                                },
-                                                                            );
-                                                                        }}
-                                                                        variant="destructive"
-                                                                    >
-                                                                        Delete
-                                                                    </DropdownMenuItem>
-                                                                </div>
-                                                            </TooltipTrigger>
-                                                            {!isAdmin && (
-                                                                <TooltipContent side="left">
-                                                                    <p>
-                                                                        Only
-                                                                        admin
-                                                                        can
-                                                                        delete
-                                                                        device
-                                                                    </p>
-                                                                </TooltipContent>
-                                                            )}
-                                                        </Tooltip>
-                                                    </DropdownMenuContent>
-                                                </DropdownMenu>
-                                            </TableCell>
-                                        </TableRow>
-                                    ))
+                                                                <IconDotsVertical />
+                                                            </Button>
+                                                        </DropdownMenuTrigger>
+                                                        <DropdownMenuContent
+                                                            align="end"
+                                                            className="w-32"
+                                                        >
+                                                            <Tooltip>
+                                                                <TooltipTrigger
+                                                                    asChild
+                                                                >
+                                                                    <div>
+                                                                        <DropdownMenuItem
+                                                                            disabled={
+                                                                                !isAdmin
+                                                                            }
+                                                                            className={
+                                                                                !isAdmin
+                                                                                    ? "opacity-50 cursor-not-allowed"
+                                                                                    : ""
+                                                                            }
+                                                                            onClick={() => {
+                                                                                setEditDialog(
+                                                                                    true,
+                                                                                );
+                                                                                setSelectedDevice(
+                                                                                    buildSelectedDevice(
+                                                                                        row,
+                                                                                    ),
+                                                                                );
+                                                                            }}
+                                                                        >
+                                                                            Edit
+                                                                        </DropdownMenuItem>
+                                                                    </div>
+                                                                </TooltipTrigger>
+                                                                {!isAdmin && (
+                                                                    <TooltipContent side="left">
+                                                                        <p>
+                                                                            Only
+                                                                            admin
+                                                                            can
+                                                                            edit
+                                                                            device
+                                                                        </p>
+                                                                    </TooltipContent>
+                                                                )}
+                                                            </Tooltip>
+                                                            <DropdownMenuSeparator />
+                                                            <Tooltip>
+                                                                <TooltipTrigger
+                                                                    asChild
+                                                                >
+                                                                    <div>
+                                                                        <DropdownMenuItem
+                                                                            disabled={
+                                                                                !isAdmin
+                                                                            }
+                                                                            className={
+                                                                                !isAdmin
+                                                                                    ? "opacity-50 cursor-not-allowed"
+                                                                                    : ""
+                                                                            }
+                                                                            onClick={() => {
+                                                                                setOpenDialog(
+                                                                                    true,
+                                                                                );
+                                                                                setSelectedDevice(
+                                                                                    buildSelectedDevice(
+                                                                                        row,
+                                                                                    ),
+                                                                                );
+                                                                            }}
+                                                                            variant="destructive"
+                                                                        >
+                                                                            Delete
+                                                                        </DropdownMenuItem>
+                                                                    </div>
+                                                                </TooltipTrigger>
+                                                                {!isAdmin && (
+                                                                    <TooltipContent side="left">
+                                                                        <p>
+                                                                            Only
+                                                                            admin
+                                                                            can
+                                                                            delete
+                                                                            device
+                                                                        </p>
+                                                                    </TooltipContent>
+                                                                )}
+                                                            </Tooltip>
+                                                        </DropdownMenuContent>
+                                                    </DropdownMenu>
+                                                </TableCell>
+                                            </TableRow>
+                                        );
+                                    })
                                 ) : (
                                     <TableRow>
                                         <TableCell
-                                            colSpan={8}
+                                            colSpan={13}
                                             className="text-center font-medium"
                                         >
                                             {loading
@@ -554,6 +688,7 @@ export default function DeviceDataTable() {
                                 )}
                             </TableBody>
                         </Table>
+
                         <DeleteDeviceDialog
                             open={openDialog}
                             onOpenChange={setOpenDialog}
@@ -568,6 +703,7 @@ export default function DeviceDataTable() {
                             onSubmit={handleEditSubmit}
                         />
                     </div>
+
                     <div className="flex items-center justify-between">
                         <div className="text-muted-foreground text-sm">
                             {pagination.total} row(s) found.

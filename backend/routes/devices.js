@@ -108,7 +108,7 @@ router.get("/alerts", async (req, res) => {
 
 router.get("/with-thresholds", async (req, res) => {
     try {
-        const { page = 1, limit = 12 } = req.query;
+        const { page = 1, limit = 8 } = req.query;
         const parsedLimit = parseInt(limit);
         const parsedPage = parseInt(page);
         const offset = (parsedPage - 1) * parsedLimit;
@@ -118,8 +118,10 @@ router.get("/with-thresholds", async (req, res) => {
                 knex("sensor_thresholds")
                     .select(
                         "mac_address",
-                        "lower_limit as tempMin",
-                        "upper_limit as tempMax",
+                        "warning_low as tempWarningLow",
+                        "warning_high as tempWarningHigh",
+                        "alert_low as tempAlertLow",
+                        "alert_high as tempAlertHigh",
                     )
                     .where("parameter", "Temperature")
                     .as("t"),
@@ -130,8 +132,10 @@ router.get("/with-thresholds", async (req, res) => {
                 knex("sensor_thresholds")
                     .select(
                         "mac_address",
-                        "lower_limit as humidMin",
-                        "upper_limit as humidMax",
+                        "warning_low as humidWarningLow",
+                        "warning_high as humidWarningHigh",
+                        "alert_low as humidAlertLow",
+                        "alert_high as humidAlertHigh",
                     )
                     .where("parameter", "Humidity")
                     .as("h"),
@@ -143,10 +147,17 @@ router.get("/with-thresholds", async (req, res) => {
                 "d.mac_address",
                 "d.location",
                 "d.status",
-                "t.tempMin",
-                "t.tempMax",
-                "h.humidMin",
-                "h.humidMax",
+
+                "t.tempWarningLow",
+                "t.tempWarningHigh",
+                "t.tempAlertLow",
+                "t.tempAlertHigh",
+
+                "h.humidWarningLow",
+                "h.humidWarningHigh",
+                "h.humidAlertLow",
+                "h.humidAlertHigh",
+
                 "d.created_at",
                 "d.updated_at",
             )
@@ -220,17 +231,28 @@ router.get("/threshold", async (req, res) => {
 
     try {
         const rows = await knex("sensor_thresholds")
-            .select("parameter", "lower_limit", "upper_limit")
+            .select(
+                "parameter",
+                "warning_low",
+                "warning_high",
+                "alert_low",
+                "alert_high",
+            )
             .where("mac_address", mac);
 
         const limits = {};
         for (const row of rows) {
+            const data = {
+                warningLow: parseFloat(row.warning_low),
+                warningHigh: parseFloat(row.warning_high),
+                alertLow: parseFloat(row.alert_low),
+                alertHigh: parseFloat(row.alert_high),
+            };
+
             if (row.parameter === "Temperature") {
-                limits.tempMin = parseFloat(row.lower_limit);
-                limits.tempMax = parseFloat(row.upper_limit);
+                limits.temperature = data;
             } else if (row.parameter === "Humidity") {
-                limits.humidMin = parseFloat(row.lower_limit);
-                limits.humidMax = parseFloat(row.upper_limit);
+                limits.humidity = data;
             }
         }
 
@@ -246,8 +268,10 @@ router.get("/threshold/all", async (req, res) => {
         const rows = await knex("sensor_thresholds").select(
             "mac_address",
             "parameter",
-            "lower_limit",
-            "upper_limit",
+            "warning_low",
+            "warning_high",
+            "alert_low",
+            "alert_high",
         );
 
         const grouped = {};
@@ -261,12 +285,17 @@ router.get("/threshold/all", async (req, res) => {
                 };
             }
 
+            const data = {
+                warningLow: parseFloat(row.warning_low),
+                warningHigh: parseFloat(row.warning_high),
+                alertLow: parseFloat(row.alert_low),
+                alertHigh: parseFloat(row.alert_high),
+            };
+
             if (row.parameter === "Temperature") {
-                grouped[mac].tempMin = parseFloat(row.lower_limit);
-                grouped[mac].tempMax = parseFloat(row.upper_limit);
+                grouped[mac].temperature = data;
             } else if (row.parameter === "Humidity") {
-                grouped[mac].humidMin = parseFloat(row.lower_limit);
-                grouped[mac].humidMax = parseFloat(row.upper_limit);
+                grouped[mac].humidity = data;
             }
         }
 
@@ -367,6 +396,7 @@ router.put("/:mac", async (req, res) => {
             .first();
 
         if (!existingDevice) {
+            await trx.rollback();
             return res.status(404).json({
                 error: "Device not found",
             });
@@ -379,6 +409,7 @@ router.put("/:mac", async (req, res) => {
                 .first();
 
             if (duplicateName) {
+                await trx.rollback();
                 return res.status(400).json({
                     error: "Device with this name already exists",
                 });
@@ -392,60 +423,70 @@ router.put("/:mac", async (req, res) => {
             updated_at: knex.fn.now(),
         });
 
-        if (thresholds) {
-            if (thresholds.temperature) {
-                const { min, max } = thresholds.temperature;
+        // Helper: validasi + upsert threshold per parameter
+        const upsertThreshold = async (parameter, data) => {
+            if (!data) return;
 
-                const tempExists = await trx("sensor_thresholds")
-                    .where({ mac_address: mac, parameter: "Temperature" })
-                    .first();
+            const { warningLow, warningHigh, alertLow, alertHigh } = data;
 
-                if (tempExists) {
-                    await trx("sensor_thresholds")
-                        .where({ mac_address: mac, parameter: "Temperature" })
-                        .update({
-                            lower_limit: min,
-                            upper_limit: max,
-                            updated_at: knex.fn.now(),
-                        });
-                } else {
-                    await trx("sensor_thresholds").insert({
-                        mac_address: mac,
-                        parameter: "Temperature",
-                        lower_limit: min,
-                        upper_limit: max,
-                        created_at: knex.fn.now(),
-                        updated_at: knex.fn.now(),
-                    });
+            // Validasi semua field ada & bertipe angka
+            const values = {
+                warningLow,
+                warningHigh,
+                alertLow,
+                alertHigh,
+            };
+            for (const [key, val] of Object.entries(values)) {
+                if (val === undefined || val === null || isNaN(val)) {
+                    throw new Error(
+                        `Invalid ${key} for ${parameter}: must be a number`,
+                    );
                 }
             }
 
-            if (thresholds.humidity) {
-                const { min, max } = thresholds.humidity;
-
-                const humidExists = await trx("sensor_thresholds")
-                    .where({ mac_address: mac, parameter: "Humidity" })
-                    .first();
-
-                if (humidExists) {
-                    await trx("sensor_thresholds")
-                        .where({ mac_address: mac, parameter: "Humidity" })
-                        .update({
-                            lower_limit: min,
-                            upper_limit: max,
-                            updated_at: knex.fn.now(),
-                        });
-                } else {
-                    await trx("sensor_thresholds").insert({
-                        mac_address: mac,
-                        parameter: "Humidity",
-                        lower_limit: min,
-                        upper_limit: max,
-                        created_at: knex.fn.now(),
-                        updated_at: knex.fn.now(),
-                    });
-                }
+            // Validasi urutan: alert_low < warning_low < warning_high < alert_high
+            if (
+                alertLow >= warningLow ||
+                warningLow >= warningHigh ||
+                warningHigh >= alertHigh
+            ) {
+                throw new Error(
+                    `Invalid threshold order for ${parameter}: ` +
+                        `alertLow < warningLow < warningHigh < alertHigh`,
+                );
             }
+
+            const exists = await trx("sensor_thresholds")
+                .where({ mac_address: mac, parameter })
+                .first();
+
+            const payload = {
+                warning_low: warningLow,
+                warning_high: warningHigh,
+                alert_low: alertLow,
+                alert_high: alertHigh,
+                updated_at: knex.fn.now(),
+            };
+
+            if (exists) {
+                await trx("sensor_thresholds")
+                    .where({ mac_address: mac, parameter })
+                    .update(payload);
+            } else {
+                await trx("sensor_thresholds").insert({
+                    mac_address: mac,
+                    parameter,
+                    ...payload,
+                    created_at: knex.fn.now(),
+                });
+            }
+        };
+
+        if (thresholds?.temperature) {
+            await upsertThreshold("Temperature", thresholds.temperature);
+        }
+        if (thresholds?.humidity) {
+            await upsertThreshold("Humidity", thresholds.humidity);
         }
 
         await trx.commit();
@@ -459,7 +500,11 @@ router.put("/:mac", async (req, res) => {
         await trx.rollback();
         console.error("PUT /devices/:mac error:", err.message);
 
-        if (
+        if (err.message.startsWith("Invalid threshold order")) {
+            res.status(400).json({ error: err.message });
+        } else if (err.message.startsWith("Invalid ")) {
+            res.status(400).json({ error: err.message });
+        } else if (
             err.code === "ER_DUP_ENTRY" &&
             err.message.includes("device_name")
         ) {

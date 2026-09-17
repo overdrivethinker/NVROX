@@ -8,8 +8,13 @@ exports.up = function (knex) {
             .onDelete("CASCADE");
         table.enu("parameter", ["Temperature", "Humidity"]);
         table.unique(["mac_address", "parameter"]);
-        table.decimal("lower_limit", 5, 2);
-        table.decimal("upper_limit", 5, 2);
+
+        table.decimal("warning_low", 5, 2);
+        table.decimal("warning_high", 5, 2);
+
+        table.decimal("alert_low", 5, 2);
+        table.decimal("alert_high", 5, 2);
+
         table.timestamp("created_at").defaultTo(knex.fn.now());
         table.timestamp("updated_at").defaultTo(knex.fn.now());
     });

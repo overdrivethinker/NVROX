@@ -20,11 +20,22 @@ import {
 } from "@/components/ui/select";
 import { toast } from "sonner";
 
+type ThresholdRange = {
+    warningLow: number;
+    warningHigh: number;
+    alertLow: number;
+    alertHigh: number;
+};
+
 type Device = {
     mac: string;
     name: string;
     location: string;
     status: string;
+    thresholds?: {
+        temperature?: ThresholdRange;
+        humidity?: ThresholdRange;
+    };
 };
 
 type Props = {
@@ -77,7 +88,7 @@ export function AddDeviceDialog({
                 setMacError("Invalid MAC address format");
             } else if (formatted.length < 17) {
                 setMacError(
-                    "MAC address must be 17 characters (XX:XX:XX:XX:XX:XX)"
+                    "MAC address must be 17 characters (XX:XX:XX:XX:XX:XX)",
                 );
             } else {
                 setMacError("");
@@ -115,7 +126,8 @@ export function AddDeviceDialog({
                 <DialogHeader>
                     <DialogTitle>Add New Device</DialogTitle>
                     <DialogDescription>
-                        Fill in the details to register a new device.
+                        Fill in the details to register a new device. Default
+                        thresholds will be applied automatically.
                     </DialogDescription>
                 </DialogHeader>
 
@@ -183,7 +195,8 @@ export function AddDeviceDialog({
                                 value={device.status}
                                 onValueChange={(value) =>
                                     setDevice({ ...device, status: value })
-                                }>
+                                }
+                            >
                                 <SelectTrigger className="w-full">
                                     <SelectValue placeholder="Select status" />
                                 </SelectTrigger>
@@ -217,7 +230,8 @@ export function AddDeviceDialog({
                                 !!macError ||
                                 !device.mac.trim() ||
                                 !device.name.trim()
-                            }>
+                            }
+                        >
                             Add Device
                         </Button>
                     </DialogFooter>

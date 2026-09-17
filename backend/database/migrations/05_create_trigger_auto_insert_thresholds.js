@@ -17,10 +17,10 @@ exports.up = async function (knex) {
               FOR EACH ROW
               BEGIN
                   INSERT IGNORE INTO sensor_thresholds
-                      (mac_address, parameter, lower_limit, upper_limit, created_at, updated_at)
+                      (mac_address, parameter, warning_low, warning_high, alert_low, alert_high, created_at, updated_at)
                   VALUES
-                      (NEW.mac_address, 'Temperature', 22.00, 30.00, NOW(), NOW()),
-                      (NEW.mac_address, 'Humidity', 40.00, 50.00, NOW(), NOW());
+                      (NEW.mac_address, 'Temperature', 24.00, 28.00, 22.00, 30.00, NOW(), NOW()),
+                      (NEW.mac_address, 'Humidity',    45.00, 50.00, 40.00, 55.00, NOW(), NOW());
               END;
           `);
         } catch (error) {
@@ -36,13 +36,17 @@ exports.up = async function (knex) {
               CREATE OR REPLACE FUNCTION insert_default_thresholds()
               RETURNS TRIGGER AS $$
               BEGIN
-                  INSERT INTO sensor_thresholds (mac_address, parameter, lower_limit, upper_limit, created_at, updated_at)
+                  INSERT INTO sensor_thresholds (mac_address, parameter, warning_low, warning_high, alert_low, alert_high, created_at, updated_at)
                   VALUES
-                      (NEW.mac_address, 'Temperature', 22.00, 30.00, NOW(), NOW()),
-                      (NEW.mac_address, 'Humidity', 40.00, 50.00, NOW(), NOW());
+                      (NEW.mac_address, 'Temperature', 24.00, 28.00, 22.00, 30.00, NOW(), NOW()),
+                      (NEW.mac_address, 'Humidity',    45.00, 50.00, 40.00, 55.00, NOW(), NOW());
                   RETURN NEW;
               END;
               $$ LANGUAGE plpgsql;
+          `);
+
+            await knex.raw(`
+              DROP TRIGGER IF EXISTS auto_insert_thresholds ON devices;
           `);
 
             await knex.raw(`
@@ -58,17 +62,23 @@ exports.up = async function (knex) {
     } else if (dbClient === "mssql") {
         try {
             await knex.raw(`
+              DROP TRIGGER IF EXISTS auto_insert_thresholds;
+          `);
+
+            await knex.raw(`
               CREATE TRIGGER auto_insert_thresholds
               ON devices
               AFTER INSERT
               AS
               BEGIN
                   SET NOCOUNT ON;
-                  INSERT INTO sensor_thresholds (mac_address, parameter, lower_limit, upper_limit, created_at, updated_at)
-                  SELECT i.mac_address, 'Temperature', 22.00, 30.00, GETDATE(), GETDATE()
+
+                  INSERT INTO sensor_thresholds (mac_address, parameter, warning_low, warning_high, alert_low, alert_high, created_at, updated_at)
+                  SELECT i.mac_address, 'Temperature', 24.00, 28.00, 22.00, 30.00, GETDATE(), GETDATE()
                   FROM inserted i;
-                  INSERT INTO sensor_thresholds (mac_address, parameter, lower_limit, upper_limit, created_at, updated_at)
-                  SELECT i.mac_address, 'Humidity', 40.00, 50.00, GETDATE(), GETDATE()
+
+                  INSERT INTO sensor_thresholds (mac_address, parameter, warning_low, warning_high, alert_low, alert_high, created_at, updated_at)
+                  SELECT i.mac_address, 'Humidity', 45.00, 50.00, 40.00, 55.00, GETDATE(), GETDATE()
                   FROM inserted i;
               END;
           `);
@@ -99,7 +109,7 @@ exports.down = async function (knex) {
         ) {
             await knex.raw(`DROP TRIGGER IF EXISTS auto_insert_thresholds;`);
         } else if (dbClient === "mssql") {
-            await knex.raw(`DROP TRIGGER auto_insert_thresholds ON devices;`);
+            await knex.raw(`DROP TRIGGER IF EXISTS auto_insert_thresholds;`);
         }
     } catch (error) {
         console.error("Error dropping trigger:", error.message);

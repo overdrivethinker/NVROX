@@ -7,9 +7,20 @@ exports.up = function (knex) {
             .inTable("devices")
             .onDelete("CASCADE");
         table.enu("parameter", ["Temperature", "Humidity"]);
+
         table.decimal("value", 5, 2);
         table.decimal("threshold", 5, 2);
-        table.enu("status", ["Over Limit", "Under Limit"]);
+
+        table.enu("level", ["Warning", "Alert"]);
+        table.enu("status", ["Under Limit", "Over Limit"]);
+
+        table.enu("threshold_type", [
+            "alert_low",
+            "warning_low",
+            "warning_high",
+            "alert_high",
+        ]);
+
         table.timestamp("recorded_at").defaultTo(knex.fn.now());
     });
 };
